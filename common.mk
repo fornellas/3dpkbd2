@@ -22,6 +22,6 @@ clean_devices_data:
 
 
 dfu: ${PROJECT}.bin
-	dfu-util --alt 0 --device 0483:df11 --dfuse-address ${DFUSE_ADDRESS}:leave --reset --download ${PROJECT}.bin 
+	dfu-util --alt 0 --device 0483:df11 --dfuse-address ${DFUSE_ADDRESS}:leave --download ${PROJECT}.bin
 
 .PHONY: dfu
