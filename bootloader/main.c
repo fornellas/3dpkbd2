@@ -23,7 +23,7 @@ void jump_to_addr(uint32_t addr) {
 
   // Set vector table base address.
   SCB_VTOR = MAIN_PROGRAM_BASE;
-  // Initialise master stack pointer.
+  // Initialize master stack pointer.
   asm volatile("msr msp, %0"::"g"(*(volatile uint32_t *)addr));
   // Jump to application.
   ((void (*)(void)) *((uint32_t*) (addr + 4)))();
@@ -46,16 +46,9 @@ int main(void) {
   );
   RCC_CSR |= RCC_CSR_RMVF;
 
-  rcc_periph_clock_enable(RCC_GPIOC);
-  gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO13);
-
   if(run_bootloader) {
-    // LED Off
-    gpio_clear(GPIOC, GPIO13);
     jump_to_addr(SYSTEM_MEMORY_BASE);
   } else {
-    // LED On
-    gpio_set(GPIOC, GPIO13);
     jump_to_addr(MAIN_PROGRAM_BASE);
   }
 }
