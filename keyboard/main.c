@@ -230,7 +230,17 @@ usbd_device *setup_usb() {
 		sizeof(usbd_control_buffer)
 	);
 
+	// TODO
+	// usbd_register_reset_callback();
+	// TODO
+	// usbd_register_resume_callback();
+	// TODO
+	// usbd_register_set_altsetting_callback();
 	usbd_register_set_config_callback(usbd_dev, keyboard_set_config);
+	// TODO
+	// usbd_register_sof_callback();
+	// TODO
+	// usbd_register_suspend_callback();
 
 	return usbd_dev;
 }
