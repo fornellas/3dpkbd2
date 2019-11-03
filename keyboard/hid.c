@@ -3,44 +3,67 @@
 #include <stdlib.h>
 
 static const uint8_t hid_report_descriptor[] = {
-	0x05, 0x01, /* USAGE_PAGE (Generic Desktop)         */
-	0x09, 0x02, /* USAGE (Mouse)                        */
-	0xa1, 0x01, /* COLLECTION (Application)             */
-	0x09, 0x01, /*   USAGE (Pointer)                    */
-	0xa1, 0x00, /*   COLLECTION (Physical)              */
-	0x05, 0x09, /*     USAGE_PAGE (Button)              */
-	0x19, 0x01, /*     USAGE_MINIMUM (Button 1)         */
-	0x29, 0x03, /*     USAGE_MAXIMUM (Button 3)         */
-	0x15, 0x00, /*     LOGICAL_MINIMUM (0)              */
-	0x25, 0x01, /*     LOGICAL_MAXIMUM (1)              */
-	0x95, 0x03, /*     REPORT_COUNT (3)                 */
-	0x75, 0x01, /*     REPORT_SIZE (1)                  */
-	0x81, 0x02, /*     INPUT (Data,Var,Abs)             */
-	0x95, 0x01, /*     REPORT_COUNT (1)                 */
-	0x75, 0x05, /*     REPORT_SIZE (5)                  */
-	0x81, 0x01, /*     INPUT (Cnst,Ary,Abs)             */
-	0x05, 0x01, /*     USAGE_PAGE (Generic Desktop)     */
-	0x09, 0x30, /*     USAGE (X)                        */
-	0x09, 0x31, /*     USAGE (Y)                        */
-	0x09, 0x38, /*     USAGE (Wheel)                    */
-	0x15, 0x81, /*     LOGICAL_MINIMUM (-127)           */
-	0x25, 0x7f, /*     LOGICAL_MAXIMUM (127)            */
-	0x75, 0x08, /*     REPORT_SIZE (8)                  */
-	0x95, 0x03, /*     REPORT_COUNT (3)                 */
-	0x81, 0x06, /*     INPUT (Data,Var,Rel)             */
-	0xc0,       /*   END_COLLECTION                     */
-	0x09, 0x3c, /*   USAGE (Motion Wakeup)              */
-	0x05, 0xff, /*   USAGE_PAGE (Vendor Defined Page 1) */
-	0x09, 0x01, /*   USAGE (Vendor Usage 1)             */
-	0x15, 0x00, /*   LOGICAL_MINIMUM (0)                */
-	0x25, 0x01, /*   LOGICAL_MAXIMUM (1)                */
-	0x75, 0x01, /*   REPORT_SIZE (1)                    */
-	0x95, 0x02, /*   REPORT_COUNT (2)                   */
-	0xb1, 0x22, /*   FEATURE (Data,Var,Abs,NPrf)        */
-	0x75, 0x06, /*   REPORT_SIZE (6)                    */
-	0x95, 0x01, /*   REPORT_COUNT (1)                   */
-	0xb1, 0x01, /*   FEATURE (Cnst,Ary,Abs)             */
-	0xc0        /* END_COLLECTION                       */
+	// https://www.usb.org/document-library/device-class-definition-hid-111
+	// From "Device Class Definition for HID 1.11" Appendix B.
+	// This a Boot Interface Descriptor, Protocol 1 (Keyboard) required by
+	// BIOS.
+	0x05, 0x01,       // USAGE_PAGE (Generic Desktop)
+	0x09, 0x06,       // USAGE (Keyboard)
+	0xa1, 0x01,       // COLLECTION (Application)
+	// Modifier byte
+	0x75, 0x01,       //   REPORT_SIZE (1)
+	0x95, 0x08,       //   REPORT_COUNT (8)
+	0x05, 0x07,       //   USAGE_PAGE (Keyboard)
+	0x19, 0xe0,       //   USAGE_MINIMUM (Keyboard LeftControl)
+	0x29, 0xe7,       //   USAGE_MAXIMUM (Keyboard Right GUI)
+	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,       //   LOGICAL_MAXIMUM (1)
+	0x81, 0x02,       //   INPUT (Data,Var,Abs)
+	// Reserved byte
+	0x95, 0x01,       //   REPORT_COUNT (1)
+	0x75, 0x08,       //   REPORT_SIZE (8)
+	0x81, 0x01,       //   INPUT (Cnst)
+	// LED report
+	0x95, 0x05,       //   REPORT_COUNT (5)
+	0x75, 0x01,       //   REPORT_SIZE (1)
+	0x05, 0x08,       //   USAGE_PAGE (LEDs)
+	0x19, 0x01,       //   USAGE_MINIMUM (Num Lock)
+	0x29, 0x05,       //   USAGE_MAXIMUM (Kana)
+	0x91, 0x02,       //   OUTPUT (Data,Var,Abs)
+	// LED report padding
+	0x95, 0x01,       //   REPORT_COUNT (1)
+	0x75, 0x03,       //   REPORT_SIZE (3)
+	0x91, 0x01,       //   OUTPUT (Cnst)
+	// Keyboard/Keypad
+	0x95, 0x06,       //   REPORT_COUNT (6)
+	0x75, 0x08,       //   REPORT_SIZE (8)
+	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x00, //   LOGICAL_MAXIMUM (255)
+	0x05, 0x07,       //   USAGE_PAGE (Keyboard)
+	0x19, 0x00,       //   USAGE_MINIMUM (Reserved (no event indicated))
+	0x29, 0xff,       //   USAGE_MAXIMUM 0xFF
+	0x81, 0x00,       //   INPUT (Data,Ary)
+	// We are allowed to append additional data here, that will not be read
+	// by the BIOS.
+	// Generic Desktop
+	0x95, 0x06,       //   REPORT_COUNT (6)
+	0x75, 0x08,       //   REPORT_SIZE (8)
+	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x00, //   LOGICAL_MAXIMUM (255)
+	0x05, 0x01,       //   USAGE_PAGE (Generic Desktop)
+	0x19, 0x00,       //   USAGE_MINIMUM Undefined
+	0x29, 0xff,       //   USAGE_MAXIMUM 0xFF
+	0x81, 0x00,       //   INPUT (Data,Ary)
+	// Consumer Devices
+	0x95, 0x06,       //   REPORT_COUNT (6)
+	0x75, 0x08,       //   REPORT_SIZE (8)
+	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	0x26, 0x02, 0x9C, //   LOGICAL_MAXIMUM (0x029C)
+	0x05, 0x0C,       //   USAGE_PAGE (Consumer Devices)
+	0x19, 0x00,       //   USAGE_MINIMUM Consumer Devices
+	0x29, 0x02, 0x9C, //   USAGE_MAXIMUM 0x029C
+	0x81, 0x00,        //   INPUT (Data,Ary)
+	0xc0,             // END_COLLECTION
 };
 
 static const struct {
@@ -53,7 +76,7 @@ static const struct {
 	.hid_descriptor = {
 		.bLength = sizeof(hid_function),
 		.bDescriptorType = USB_DT_HID,
-		.bcdHID = 0x0100,
+		.bcdHID = 0x0111,
 		.bCountryCode = 0,
 		.bNumDescriptors = 1,
 	},
@@ -68,12 +91,9 @@ const struct usb_endpoint_descriptor hid_endpoint = {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = 0x81,
-	// TODO LUFA: (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
-	// TODO LUFA: 8
-	.wMaxPacketSize = 4,
-	// TODO LUFA: 0x05
-	.bInterval = 0x20,
+	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT | USB_ENDPOINT_ATTR_NOSYNC,
+	.wMaxPacketSize = 8,
+	.bInterval = 0x05,
 };
 
 // https://www.beyondlogic.org/usbnutshell/usb5.shtml#InterfaceDescriptors
@@ -85,8 +105,7 @@ const struct usb_interface_descriptor hid_iface = {
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_HID,
 	.bInterfaceSubClass = 1, /* boot */
-	// TODO keyboard
-	.bInterfaceProtocol = 2, /* mouse */
+	.bInterfaceProtocol = 1, /* keyboard */
 	.iInterface = 0,
 
 	.endpoint = &hid_endpoint,
