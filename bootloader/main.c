@@ -30,7 +30,7 @@ void jump_to_addr(uint32_t addr) {
 }
 
 int main(void) {
-  int run_bootloader = (
+  int pin_reset = (
     (RCC_CSR & RCC_CSR_PINRSTF) // PIN reset flag
     &&
     !(
@@ -44,9 +44,8 @@ int main(void) {
       )
     )
   );
-  RCC_CSR |= RCC_CSR_RMVF;
 
-  if(run_bootloader) {
+  if(pin_reset) {
     jump_to_addr(SYSTEM_MEMORY_BASE);
   } else {
     jump_to_addr(MAIN_PROGRAM_BASE);
