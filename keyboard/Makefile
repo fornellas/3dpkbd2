@@ -1,7 +1,6 @@
 PROJECT = keyboard
 
-CFILES = main.c
-# CFILES += extra.c
+CFILES = $(wildcard *.c)
 # AFILES += extra-asm.S
 
 # Keep in sync with custom.devices.data
