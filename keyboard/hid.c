@@ -85,6 +85,7 @@ const struct usb_interface_descriptor hid_iface = {
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_HID,
 	.bInterfaceSubClass = 1, /* boot */
+	// TODO keyboard
 	.bInterfaceProtocol = 2, /* mouse */
 	.iInterface = 0,
 
@@ -118,7 +119,7 @@ static enum usbd_request_return_codes hid_control_request(
 	return USBD_REQ_HANDLED;
 }
 
-void keyboard_set_config(usbd_device *dev, uint16_t wValue)
+void keyboard_set_config_callback(usbd_device *dev, uint16_t wValue)
 {
 	(void)wValue;
 	(void)dev;

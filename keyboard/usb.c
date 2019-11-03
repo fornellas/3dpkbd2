@@ -23,7 +23,9 @@ const struct usb_device_descriptor dev_descr = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
+	// STMicroelectronics
 	.idVendor = 0x0483,
+	// Joystick in FS Mode
 	.idProduct = 0x5710,
 	.bcdDevice = 0x0200,
 	.iManufacturer = 1,
@@ -44,6 +46,7 @@ const struct usb_config_descriptor conf_descr = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
 	.wTotalLength = 0,
+	// TODO bind to interfaces
 	.bNumInterfaces = 1,
 	.bConfigurationValue = 1,
 	.iConfiguration = 0,
@@ -55,6 +58,12 @@ const struct usb_config_descriptor conf_descr = {
 
 	.interface = interfaces,
 };
+
+void set_config_callback(usbd_device *dev, uint16_t wValue);
+
+void set_config_callback(usbd_device *dev, uint16_t wValue) {
+	keyboard_set_config_callback(dev, wValue);
+}
 
 usbd_device *usbd_setup() {
 	usbd_device *usbd_dev;
@@ -74,13 +83,13 @@ usbd_device *usbd_setup() {
 		sizeof(usbd_control_buffer)
 	);
 
+	usbd_register_set_config_callback(usbd_dev, set_config_callback);
 	// TODO
 	// usbd_register_reset_callback();
 	// TODO
 	// usbd_register_resume_callback();
 	// TODO
 	// usbd_register_set_altsetting_callback();
-	usbd_register_set_config_callback(usbd_dev, keyboard_set_config);
 	// TODO
 	// usbd_register_sof_callback();
 	// TODO

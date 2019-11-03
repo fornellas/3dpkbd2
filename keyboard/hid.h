@@ -3,4 +3,4 @@
 
 extern const struct usb_interface_descriptor hid_iface;
 
-void keyboard_set_config(usbd_device *dev, uint16_t wValue);
+void keyboard_set_config_callback(usbd_device *dev, uint16_t wValue);
