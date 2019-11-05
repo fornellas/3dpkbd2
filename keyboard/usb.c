@@ -10,6 +10,8 @@ static const char *usb_strings[] = {
 	"Fabio Pugliese Ornellas",
 	"3D Printed Keyboard 2",
 	usb_serial_number,
+	"Boot Keyboard Configuraton"
+	"Boot Keyboard Interface"
 };
 
 uint8_t usbd_control_buffer[128];
@@ -27,7 +29,7 @@ const struct usb_device_descriptor dev_descr = {
 	.idVendor = 0x0483,
 	// Joystick in FS Mode
 	.idProduct = 0x5710,
-	.bcdDevice = 0x0200,
+	.bcdDevice = 0x0100,
 	.iManufacturer = 1,
 	.iProduct = 2,
 	.iSerialNumber = 3,
@@ -49,7 +51,7 @@ const struct usb_config_descriptor conf_descr = {
 	// TODO bind to interfaces
 	.bNumInterfaces = 1,
 	.bConfigurationValue = 1,
-	.iConfiguration = 0,
+	.iConfiguration = 4,
 	.bmAttributes = (
 		(1<<7) | // D7 Reserved, set to 1. (USB 1.0 Bus Powered)
 		(1<<5) // D5 Remote Wakeup
@@ -62,7 +64,7 @@ const struct usb_config_descriptor conf_descr = {
 void set_config_callback(usbd_device *dev, uint16_t wValue);
 
 void set_config_callback(usbd_device *dev, uint16_t wValue) {
-	keyboard_set_config_callback(dev, wValue);
+	hid_set_config_callback(dev, wValue);
 }
 
 usbd_device *usbd_setup() {
@@ -78,7 +80,7 @@ usbd_device *usbd_setup() {
 		&otgfs_usb_driver,
 		&dev_descr,
 		&conf_descr,
-		usb_strings, 3,
+		usb_strings, 5,
 		usbd_control_buffer,
 		sizeof(usbd_control_buffer)
 	);

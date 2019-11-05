@@ -45,24 +45,24 @@ static const uint8_t hid_report_descriptor[] = {
 	0x81, 0x00,       //   INPUT (Data,Ary)
 	// We are allowed to append additional data here, that will not be read
 	// by the BIOS.
-	// Generic Desktop
-	0x95, 0x06,       //   REPORT_COUNT (6)
-	0x75, 0x08,       //   REPORT_SIZE (8)
-	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
-	0x26, 0xff, 0x00, //   LOGICAL_MAXIMUM (255)
-	0x05, 0x01,       //   USAGE_PAGE (Generic Desktop)
-	0x19, 0x00,       //   USAGE_MINIMUM Undefined
-	0x29, 0xff,       //   USAGE_MAXIMUM 0xFF
-	0x81, 0x00,       //   INPUT (Data,Ary)
-	// Consumer Devices
-	0x95, 0x06,       //   REPORT_COUNT (6)
-	0x75, 0x08,       //   REPORT_SIZE (8)
-	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
-	0x26, 0x02, 0x9C, //   LOGICAL_MAXIMUM (0x029C)
-	0x05, 0x0C,       //   USAGE_PAGE (Consumer Devices)
-	0x19, 0x00,       //   USAGE_MINIMUM Consumer Devices
-	0x29, 0x02, 0x9C, //   USAGE_MAXIMUM 0x029C
-	0x81, 0x00,        //   INPUT (Data,Ary)
+	// // Generic Desktop
+	// 0x95, 0x06,       //   REPORT_COUNT (6)
+	// 0x75, 0x08,       //   REPORT_SIZE (8)
+	// 0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	// 0x26, 0xff, 0x00, //   LOGICAL_MAXIMUM (255)
+	// 0x05, 0x01,       //   USAGE_PAGE (Generic Desktop)
+	// 0x19, 0x00,       //   USAGE_MINIMUM Undefined
+	// 0x29, 0xff,       //   USAGE_MAXIMUM 0xFF
+	// 0x81, 0x00,       //   INPUT (Data,Ary)
+	// // Consumer Devices
+	// 0x95, 0x06,       //   REPORT_COUNT (6)
+	// 0x75, 0x08,       //   REPORT_SIZE (8)
+	// 0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	// 0x26, 0x02, 0x9C, //   LOGICAL_MAXIMUM (0x029C)
+	// 0x05, 0x0C,       //   USAGE_PAGE (Consumer Devices)
+	// 0x19, 0x00,       //   USAGE_MINIMUM Consumer Devices
+	// 0x29, 0x02, 0x9C, //   USAGE_MAXIMUM 0x029C
+	// 0x81, 0x00,        //   INPUT (Data,Ary)
 	0xc0,             // END_COLLECTION
 };
 
@@ -86,12 +86,14 @@ static const struct {
 	}
 };
 
+#define HID_ENDPOINT_ADDR 0x81
+
 // https://www.beyondlogic.org/usbnutshell/usb5.shtml#EndpointDescriptors
 const struct usb_endpoint_descriptor hid_endpoint = {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0x81,
-	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT | USB_ENDPOINT_ATTR_NOSYNC,
+	.bEndpointAddress = HID_ENDPOINT_ADDR,
+	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT | USB_ENDPOINT_ATTR_NOSYNC | USB_ENDPOINT_ATTR_DATA,
 	.wMaxPacketSize = 8,
 	.bInterval = 0x05,
 };
@@ -104,9 +106,9 @@ const struct usb_interface_descriptor hid_iface = {
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_HID,
-	.bInterfaceSubClass = 1, /* boot */
-	.bInterfaceProtocol = 1, /* keyboard */
-	.iInterface = 0,
+	.bInterfaceSubClass = USB_SUBCLASS_HID_BOOT_INTERFACE,
+	.bInterfaceProtocol = USB_PROTOCOL_HID_KEYBOARD,
+	.iInterface = 5,
 
 	.endpoint = &hid_endpoint,
 
@@ -124,7 +126,7 @@ static enum usbd_request_return_codes hid_control_request(
 	(void)complete;
 	(void)dev;
 
-	if((req->bmRequestType != 0x81) ||
+	if((req->bmRequestType != HID_ENDPOINT_ADDR) ||
 	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
 	   (req->wValue != 0x2200))
 		return USBD_REQ_NOTSUPP;
@@ -133,17 +135,15 @@ static enum usbd_request_return_codes hid_control_request(
 	*buf = (uint8_t *)hid_report_descriptor;
 	*len = sizeof(hid_report_descriptor);
 
-
-
 	return USBD_REQ_HANDLED;
 }
 
-void keyboard_set_config_callback(usbd_device *dev, uint16_t wValue)
+void hid_set_config_callback(usbd_device *dev, uint16_t wValue)
 {
 	(void)wValue;
 	(void)dev;
 
-	usbd_ep_setup(dev, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 4, NULL);
+	usbd_ep_setup(dev, HID_ENDPOINT_ADDR, USB_ENDPOINT_ATTR_INTERRUPT, 4, NULL);
 
 	usbd_register_control_callback(
 		dev,
