@@ -43,6 +43,8 @@ const struct usb_interface interfaces[] = {
 	}
 };
 
+#define CONFIGURATION_VALUE 1
+
 // https://www.beyondlogic.org/usbnutshell/usb5.shtml#ConfigurationDescriptors
 const struct usb_config_descriptor conf_descr = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
@@ -55,7 +57,7 @@ const struct usb_config_descriptor conf_descr = {
 	.wTotalLength = 0,
 	// TODO bind to interfaces
 	.bNumInterfaces = 1,
-	.bConfigurationValue = 1,
+	.bConfigurationValue = CONFIGURATION_VALUE,
 	.iConfiguration = 4,
 	.bmAttributes = (
 		(1<<7) | // D7 Reserved, set to 1. (USB 1.0 Bus Powered)
@@ -69,7 +71,10 @@ const struct usb_config_descriptor conf_descr = {
 void set_config_callback(usbd_device *dev, uint16_t wValue);
 
 void set_config_callback(usbd_device *dev, uint16_t wValue) {
-	hid_set_config_callback(dev, wValue);
+	if(wValue != CONFIGURATION_VALUE)
+		return;
+
+	hid_set_config_callback(dev);
 }
 
 usbd_device *usbd_setup() {

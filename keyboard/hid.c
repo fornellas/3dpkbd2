@@ -87,6 +87,8 @@ static const struct {
 };
 
 #define HID_ENDPOINT_ADDR USB_ENDPOINT_CREATE(1, USB_ENDPOINT_DIR_IN)
+// TODO validate with interrupt control transfer
+#define HID_ENDPOINT_MAX_PACKET_SIZE 8
 
 // https://www.beyondlogic.org/usbnutshell/usb5.shtml#EndpointDescriptors
 const struct usb_endpoint_descriptor hid_endpoint = {
@@ -94,8 +96,7 @@ const struct usb_endpoint_descriptor hid_endpoint = {
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = HID_ENDPOINT_ADDR,
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
-	// TODO validate with interrupt control transfer
-	.wMaxPacketSize = 8,
+	.wMaxPacketSize = HID_ENDPOINT_MAX_PACKET_SIZE,
 	// TODO validate what's fastest
 	.bInterval = 0x05,
 };
@@ -117,6 +118,13 @@ const struct usb_interface_descriptor hid_iface = {
 	.extra = &hid_function,
 	.extralen = sizeof(hid_function),
 };
+
+static void hid_endpoint_interrupt_in_callback(usbd_device *usbd_dev, uint8_t ep) {
+	// TODO
+	(void)usbd_dev;
+	(void)ep;
+}
+
 
 static enum usbd_request_return_codes hid_control_request(
 	usbd_device *dev,
@@ -140,12 +148,15 @@ static enum usbd_request_return_codes hid_control_request(
 	return USBD_REQ_HANDLED;
 }
 
-void hid_set_config_callback(usbd_device *dev, uint16_t wValue)
+void hid_set_config_callback(usbd_device *dev)
 {
-	(void)wValue;
-	(void)dev;
-
-	usbd_ep_setup(dev, HID_ENDPOINT_ADDR, USB_ENDPOINT_ATTR_INTERRUPT, 4, NULL);
+	usbd_ep_setup(
+		dev,
+		HID_ENDPOINT_ADDR,
+		USB_ENDPOINT_ATTR_INTERRUPT,
+		HID_ENDPOINT_MAX_PACKET_SIZE,
+		hid_endpoint_interrupt_in_callback
+	);
 
 	usbd_register_control_callback(
 		dev,
