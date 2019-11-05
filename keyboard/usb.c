@@ -47,6 +47,11 @@ const struct usb_interface interfaces[] = {
 const struct usb_config_descriptor conf_descr = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
+	// FIXME Includes the combined length of all returned descriptors
+	// (configuration, interface, endpoint, and HID) returned
+	// for this configuration. This value includes the HID
+	// descriptor but none of the other HID class descriptors
+	// (report or designator). 
 	.wTotalLength = 0,
 	// TODO bind to interfaces
 	.bNumInterfaces = 1,
@@ -56,7 +61,7 @@ const struct usb_config_descriptor conf_descr = {
 		(1<<7) | // D7 Reserved, set to 1. (USB 1.0 Bus Powered)
 		(1<<5) // D5 Remote Wakeup
 	),
-	.bMaxPower = 500 / 2,
+	.bMaxPower = 250, // 500 mAh
 
 	.interface = interfaces,
 };

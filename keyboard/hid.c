@@ -86,15 +86,17 @@ static const struct {
 	}
 };
 
-#define HID_ENDPOINT_ADDR 0x81
+#define HID_ENDPOINT_ADDR USB_ENDPOINT_CREATE(1, USB_ENDPOINT_DIR_IN)
 
 // https://www.beyondlogic.org/usbnutshell/usb5.shtml#EndpointDescriptors
 const struct usb_endpoint_descriptor hid_endpoint = {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = HID_ENDPOINT_ADDR,
-	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT | USB_ENDPOINT_ATTR_NOSYNC | USB_ENDPOINT_ATTR_DATA,
+	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
+	// TODO validate with interrupt control transfer
 	.wMaxPacketSize = 8,
+	// TODO validate what's fastest
 	.bInterval = 0x05,
 };
 
