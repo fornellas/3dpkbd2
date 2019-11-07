@@ -113,7 +113,7 @@ const struct usb_interface_descriptor hid_iface = {
 	.bInterfaceClass = USB_CLASS_HID,
 	.bInterfaceSubClass = USB_HID_SUBCLASS_BOOT_INTERFACE,
 	.bInterfaceProtocol = USB_HID_PROTOCOL_KEYBOARD,
-	.iInterface = 5,
+	.iInterface = 0,
 
 	.endpoint = &hid_endpoint,
 

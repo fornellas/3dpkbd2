@@ -10,8 +10,6 @@ static const char *usb_strings[] = {
 	"Fabio Pugliese Ornellas",
 	"3D Printed Keyboard 2",
 	usb_serial_number,
-	"Boot Keyboard Configuraton"
-	"Boot Keyboard Interface"
 };
 
 uint8_t usbd_control_buffer[128];
@@ -58,7 +56,7 @@ const struct usb_config_descriptor conf_descr = {
 	// TODO bind to interfaces
 	.bNumInterfaces = 1,
 	.bConfigurationValue = CONFIGURATION_VALUE,
-	.iConfiguration = 4,
+	.iConfiguration = 0,
 	.bmAttributes = (
 		(1<<7) | // D7 Reserved, set to 1. (USB 1.0 Bus Powered)
 		(1<<5) // D5 Remote Wakeup
@@ -90,7 +88,7 @@ usbd_device *usbd_setup() {
 		&otgfs_usb_driver,
 		&dev_descr,
 		&conf_descr,
-		usb_strings, 5,
+		usb_strings, 3,
 		usbd_control_buffer,
 		sizeof(usbd_control_buffer)
 	);
