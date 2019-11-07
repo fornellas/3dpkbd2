@@ -145,8 +145,9 @@ static enum usbd_request_return_codes hid_standard_request(
 	descriptor_type = req->wValue >> 8;
 	// descriptor_index = req->wValue & 0xFF;
 
+	// Get_Descriptor Request
 	if(
-		((req->bmRequestType & USB_REQ_TYPE_TYPE) == USB_REQ_TYPE_IN)
+		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&&
 		(req->bRequest == USB_REQ_GET_DESCRIPTOR)
 	) {
@@ -154,27 +155,26 @@ static enum usbd_request_return_codes hid_standard_request(
 			case USB_HID_DT_HID:
 				interface_number = req->wIndex;
 				if(interface_number == HID_INTERFACE_NUMBER) {
-					*buf = (uint8_t *)hid_report_descriptor;
-					*len = sizeof(hid_report_descriptor);
+					*buf = (uint8_t *)&hid_function;
+					*len = sizeof(hid_function);
 					return USBD_REQ_HANDLED;
 				}
 				break;
 			case USB_HID_DT_REPORT:
-				*buf = (uint8_t *)&hid_function.hid_descriptor;
-				*len = sizeof(&hid_function.hid_descriptor);
+				*buf = (uint8_t *)&hid_report_descriptor;
+				*len = sizeof(hid_report_descriptor);
 				return USBD_REQ_HANDLED;
-			case USB_HID_DT_PHYSICAL:
-				return USBD_REQ_NOTSUPP;
+			// case USB_HID_DT_PHYSICAL:
+			//  	break;
 		}
 	}
 
-	// Optional
+	// Set_Descriptor Request
 	// if(
-	// 	((req->bmRequestType & USB_REQ_TYPE_TYPE) == USB_REQ_TYPE_OUT)
+	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
 	// 	&&
 	// 	(req->bRequest == USB_REQ_SET_DESCRIPTOR)
 	// ) {
-	// 	return USBD_REQ_NOTSUPP;
 	// }
 
 	return USBD_REQ_NOTSUPP;
@@ -187,11 +187,78 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	uint16_t *len,
 	void (**complete)(usbd_device *, struct usb_setup_data * )
 ) {
-	(void)dev;
-	(void)req;
-	(void)buf;
-	(void)len;
-	(void)complete;
+	uint8_t report_type;
+	uint8_t report_id;
+
+	// 7.2.1 Get_Report Request
+	// if(
+	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
+	// 	&&
+	// 	(req->bRequest == USB_HID_REQ_TYPE_GET_REPORT)
+	// ) {
+	// 	report_type = req->wValue >> 8;
+	// 	report_id = req->wValue & 0xFF;
+	// 	// #define USB_HID_REPORT_TYPE_INPUT 1
+	// 	// #define USB_HID_REPORT_TYPE_OUTPUT 2
+	// 	// #define USB_HID_REPORT_TYPE_FEATURE 3
+	//  return USBD_REQ_HANDLED;
+	// }
+
+	// 7.2.2 Set_Report Request
+	// if(
+	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
+	// 	&&
+	// 	(req->bRequest == USB_HID_REQ_TYPE_SET_REPORT)
+	// ) {
+	// 	uint8_t led_report;
+
+	// 	report_type = req->wValue >> 8;
+	// 	report_id = req->wValue & 0xFF;
+	// 	// #define USB_HID_REPORT_TYPE_INPUT 1
+	// 	// #define USB_HID_REPORT_TYPE_OUTPUT 2
+	// 	// #define USB_HID_REPORT_TYPE_FEATURE 3
+	// 	led_report = *buf[0];
+	// 	return USBD_REQ_HANDLED;
+	// }
+
+	// 7.2.3 Get_Idle Request
+	// if(
+	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
+	// 	&&
+	// 	(req->bRequest == USB_HID_REQ_TYPE_SET_IDLE)
+	// ) {
+	// 	report_id = req->wValue & 0xFF;
+	// }
+
+	// 7.2.4 Set_Idle Request
+	// if(
+	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
+	// 	&&
+	// 	(req->bRequest == USB_HID_REQ_TYPE_GET_IDLE)
+	// ) {
+	// 	uint8_t duration;
+	// 	duration = req->wValue >> 8;
+	// 	report_id = req->wValue & 0xFF;
+	// 	return USBD_REQ_HANDLED;
+	// }
+
+	// 7.2.5 Get_Protocol Request
+	// if(
+	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
+	// 	&&
+	// 	(req->bRequest == USB_HID_REQ_TYPE_GET_PROTOCOL)
+	// ) {
+	// }
+
+	// 7.2.6 Set_Protocol Request
+	// if(
+	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
+	// 	&&
+	// 	(req->bRequest == USB_HID_REQ_TYPE_SET_PROTOCOL)
+	// ) {
+	// 	uint8_t protocol;
+	// 	protocol = req->wValue;
+	// }
 
 	return USBD_REQ_NOTSUPP;
 }
