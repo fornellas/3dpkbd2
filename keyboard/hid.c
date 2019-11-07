@@ -90,7 +90,6 @@ static const struct {
 // TODO validate with interrupt control transfer
 #define HID_ENDPOINT_MAX_PACKET_SIZE 8
 
-// https://www.beyondlogic.org/usbnutshell/usb5.shtml#EndpointDescriptors
 const struct usb_endpoint_descriptor hid_endpoint = {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
@@ -103,7 +102,6 @@ const struct usb_endpoint_descriptor hid_endpoint = {
 
 #define HID_INTERFACE_NUMBER 0
 
-// https://www.beyondlogic.org/usbnutshell/usb5.shtml#InterfaceDescriptors
 const struct usb_interface_descriptor hid_iface = {
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
@@ -126,7 +124,6 @@ static void hid_endpoint_interrupt_in_callback(usbd_device *usbd_dev, uint8_t ep
 	(void)usbd_dev;
 	(void)ep;
 }
-
 
 static enum usbd_request_return_codes hid_standard_request(
 	usbd_device *dev,
@@ -205,21 +202,31 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	// }
 
 	// 7.2.2 Set_Report Request
-	// if(
-	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
-	// 	&&
-	// 	(req->bRequest == USB_HID_REQ_TYPE_SET_REPORT)
-	// ) {
-	// 	uint8_t led_report;
+	if(
+		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
+		&&
+		(req->bRequest == USB_HID_REQ_TYPE_SET_REPORT)
+	) {
+		uint8_t led_report;
 
-	// 	report_type = req->wValue >> 8;
-	// 	report_id = req->wValue & 0xFF;
-	// 	// #define USB_HID_REPORT_TYPE_INPUT 1
-	// 	// #define USB_HID_REPORT_TYPE_OUTPUT 2
-	// 	// #define USB_HID_REPORT_TYPE_FEATURE 3
-	// 	led_report = *buf[0];
-	// 	return USBD_REQ_HANDLED;
-	// }
+		report_type = req->wValue >> 8;
+		report_id = req->wValue & 0xFF;
+		switch(report_type) {
+			// case USB_HID_REPORT_TYPE_INPUT:
+			// 	break;
+			case USB_HID_REPORT_TYPE_OUTPUT:
+				led_report = *buf[0];
+				// Caps Lock
+				if(led_report & (1<<1))
+					gpio_clear(GPIOC, GPIO13);
+				else
+					gpio_set(GPIOC, GPIO13);
+				break;
+			// case USB_HID_REPORT_TYPE_FEATURE:
+			// 	break;
+		}
+		return USBD_REQ_HANDLED;
+	}
 
 	// 7.2.3 Get_Idle Request
 	// if(
