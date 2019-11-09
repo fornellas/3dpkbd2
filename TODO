@@ -1,0 +1,6 @@
+- PR to configure OTG_GCCFG_NOVBUSSENS.
+- PR with HID defines.
+- PR for build with external LDSCRIPT.
+- implement all class control requests.
+- send hid report only if there was change on it.
+- Review all TODO comments
