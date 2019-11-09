@@ -12,5 +12,5 @@ void key_setup(void) {
 };
 
 uint8_t key_pressed(void) {
-	(uint8_t)gpio_get(KEY_PORT, KEY_GPIO);
+	return (uint8_t)gpio_get(KEY_PORT, KEY_GPIO);
 };
