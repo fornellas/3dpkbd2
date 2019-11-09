@@ -11,6 +11,6 @@ void key_setup(void) {
 	gpio_mode_setup(KEY_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, KEY_GPIO);
 };
 
-uint8_t key_state(void) {
+uint8_t key_pressed(void) {
 	(uint8_t)gpio_get(KEY_PORT, KEY_GPIO);
 };
