@@ -1,2 +1,0 @@
-# Keep in sync with bootloader/main.c and keyboard/Makefile
-stm32f411ceu6_main_program stm32f411ceu6 ROM_OFF=0x08004000 ROM=496k
