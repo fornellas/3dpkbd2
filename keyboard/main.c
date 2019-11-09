@@ -1,4 +1,7 @@
 #include "usb.h"
+#include "../common/key.h"
+#include "../common/led.h"
+#include "../common/pin_reset.h"
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/cm3/scb.h>
@@ -6,28 +9,14 @@
 void soft_reset_if_pin_reset(void);
 
 void soft_reset_if_pin_reset() {
-	int pin_reset = (
-		(RCC_CSR & RCC_CSR_PINRSTF) // PIN reset flag
-		&&
-		!(
-			RCC_CSR & (
-				RCC_CSR_LPWRRSTF | // Low-power reset flag
-				RCC_CSR_WWDGRSTF | // Window watchdog reset flag
-				RCC_CSR_IWDGRSTF | // Independent watchdog reset flag
-				RCC_CSR_SFTRSTF | // Software reset flag
-				RCC_CSR_PORRSTF | // POR/PDR reset flag
-				RCC_CSR_BORRSTF // BOR reset flag
-			)
-		)
-	);
+	int pin_reset = PIN_RESET;
 	RCC_CSR |= RCC_CSR_RMVF;
 
 	if(pin_reset)
 		scb_reset_system();
 }
 
-int main(void)
-{
+int main(void) {
 	usbd_device *usbd_dev;
 
 	// https://github.com/libopencm3/libopencm3/issues/1119#issuecomment-549041942
@@ -36,11 +25,19 @@ int main(void)
 	// vanilla USB state and allow it to work.
 	soft_reset_if_pin_reset();
 
-	// TODO 100MHz
+	// TODO 96MHz
+	// PLLM 25
+	// PLLN 192
+	// PLLP 2
+	// PLLQ 4
 	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[RCC_CLOCK_3V3_84MHZ]);
+
+	key_setup();
+	led_setup();
 
 	usbd_dev = usbd_setup();
 
-	while (1)
+	while (1) {
 		usbd_poll(usbd_dev);
+	}
 }
