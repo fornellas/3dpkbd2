@@ -1,0 +1,123 @@
+Device Descriptor
+	bLength
+		Size of the Descriptor in Bytes (18 bytes)
+	bDescriptorType
+		Device Descriptor (0x01)
+	bcdUSB
+		USB Specification Number which device complies too.
+	bDeviceClass
+		Class Code (Assigned by USB Org)
+		If equal to Zero, each interface specifies it’s own class code
+		If equal to 0xFF, the class code is vendor specified.
+		Otherwise field is valid Class Code.
+	bDeviceSubClass
+		Subclass Code (Assigned by USB Org)
+	bDeviceProtocol
+		Protocol Code (Assigned by USB Org)
+	bMaxPacketSize
+		Maximum Packet Size for Zero Endpoint. Valid Sizes are 8, 16, 32, 64
+	idVendor
+		Vendor ID (Assigned by USB Org)
+	idProduct
+		Product ID (Assigned by Manufacturer)
+	bcdDevice
+		Device Release Number
+	iManufacturer
+		Index of Manufacturer String Descriptor
+	iProduct
+		Index of Product String Descriptor
+	iSerialNumber
+		Index of Serial Number String Descriptor
+	bNumConfigurations
+		Number of Possible Configurations
+Configuration Descriptor
+	bLength
+		Size of Descriptor in Bytes
+	bDescriptorType
+		Configuration Descriptor (0x02)
+	wTotalLength
+		Total length in bytes of data returned
+	bNumInterfaces
+		Number of Interfaces
+	bConfigurationValue
+		Value to use as an argument to select this configuration
+	iConfiguration
+		Index of String Descriptor describing this configuration
+	bmAttributes
+		D7 Reserved, set to 1. (USB 1.0 Bus Powered)
+		D6 Self Powered
+		D5 Remote Wakeup
+		D4..0 Reserved, set to 0.
+	bMaxPower
+		Maximum Power Consumption in 2mA units
+Interface Descriptor
+	bLength
+		Size of Descriptor in Bytes (9 Bytes)
+	bDescriptorType
+		Interface Descriptor (0x04)
+	bInterfaceNumber
+		Number of Interface
+	bAlternateSetting
+		Value used to select alternative setting
+	bNumEndpoints
+		Number of Endpoints used for this interface
+	bInterfaceClass
+		Class Code (Assigned by USB Org)
+	bInterfaceSubClass
+		Subclass Code (Assigned by USB Org)
+	bInterfaceProtocol
+		Protocol Code (Assigned by USB Org)
+	iInterface
+		Index of String Descriptor Describing this interface
+Endpoint Descriptor
+	bLength
+		Size of Descriptor in Bytes (7 bytes)
+	bDescriptorType
+		Endpoint Descriptor (0x05)
+	bEndpointAddress
+		Endpoint Address
+		Bits 0..3b Endpoint Number.
+		Bits 4..6b Reserved. Set to Zero
+		Bits 7 Direction 0 = Out, 1 = In (Ignored for Control Endpoints)
+	bmAttributes
+		Bits 0..1 Transfer Type
+			00 = Control
+			01 = Isochronous
+			10 = Bulk
+			11 = Interrupt
+		Bits 2..7 are reserved. If Isochronous endpoint,
+		Bits 3..2 = Synchronisation Type (Iso Mode)
+			00 = No Synchonisation
+			01 = Asynchronous
+			10 = Adaptive
+			11 = Synchronous
+		Bits 5..4 = Usage Type (Iso Mode)
+			00 = Data Endpoint
+			01 = Feedback Endpoint
+			10 = Explicit Feedback Data Endpoint
+			11 = Reserved
+	wMaxPacketSize
+		Maximum Packet Size this endpoint is capable of sending or receiving
+	bInterval
+		Interval for polling endpoint data transfers. Value in frame counts. Ignored for Bulk & Control Endpoints. Isochronous must equal 1 and field may range from 1 to 255 for interrupt endpoints
+String Descriptors
+	bLength
+		Size of Descriptor in Bytes
+	bDescriptorType
+		String Descriptor (0x03)
+	wLANGID
+		Supported Language Code Zero
+		(e.g. 0x0409 English - United States)
+	wLANGID
+		Supported Language Code One
+		(e.g. 0x0c09 English - Australian)
+	wLANGID
+		Supported Language Code x
+		(e.g. 0x0407 German - Standard)
+
+	bLength
+		Size of Descriptor in Bytes
+	bDescriptorType
+		String Descriptor (0x03)
+	bString
+		Unicode Encoded String

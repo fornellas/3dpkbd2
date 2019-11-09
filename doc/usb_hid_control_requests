@@ -1,0 +1,235 @@
+Control Request
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			0 = Host to Device
+			1 = Device to Host
+		D6..5 Type
+			0 = Standard
+			1 = Class
+			2 = Vendor
+			3 = Reserved
+		D4..0 Recipient
+			0 = Device
+			1 = Interface
+			2 = Endpoint
+			3 = Other
+			4..31 = Reserved
+	bRequest
+	wValue
+	wIndex
+	wLength
+
+7.1 Standard Requests
+
+	7.1.1 Get_Descriptor Request
+		The Get_Descriptor request returns a descriptor for the device. 
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				1 = Device to Host
+			D6..5 Type
+				0 = Standard
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			GET_DESCRIPTOR (0x06) 
+		wValue
+			D8..15
+				Descriptor Type
+					0x21 HID
+					0x22 Report
+					0x23 Physical descriptor
+			D0..7
+				Descriptor Index
+					specify the set for Physical Descriptors, and is reset to zero for other HID class descriptors.
+		wIndex
+			Interface Number
+			If a HID class descriptor is being requested then the wIndex field indicates the number of the HID Interface.
+			If a standard descriptor is being requested then the wIndex field specifies the Language ID for string descriptors, and is reset to zero for other standard descriptors.
+		wLength
+			Descriptor Length
+		Data
+			Descriptor
+
+	7.1.2 Set_Descriptor Request (optional)
+		The Set_Descriptor request lets the host change descriptors in the devices.
+		Support of this request is optional. 
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				0 = Host to Device
+			D6..5 Type
+				0 = Standard
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			SET_DESCRIPTOR (0x07)
+		wValue
+			D8..15
+				Descriptor Type
+					0x21 HID
+					0x22 Report
+					0x23 Physical descriptor
+			D0..7
+				Descriptor Index
+		wIndex
+			Interface
+		wLength
+			Descriptor Length 
+		Data
+			Descriptor
+
+7.2 Class-Specific Requests
+
+	7.2.1 Get_Report Request
+		The Get_Report request allows the host to receive a report via the Control pipe. 
+		This request is useful at initialization time for absolute items and for determining the state of feature items. This request is not intended to be used for polling the device state on a regular basis.
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				1 = Device to Host
+			D6..5 Type
+				1 = Class
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			GET_REPORT
+		wValue
+			D8..15
+				Report Type
+					1 = Input
+						The Input report reply has the same format as the reports from Interrupt pipe.
+					2 = Output
+						 Output reports over the Interrupt Out pipe have a format that is identical to output reports that are sent over the Control pipe.
+					3 = Feature
+			D0..7
+				Report ID
+					Set Report ID to 0 (zero) if Report IDs are not used. 
+		wIndex
+			Interface
+		wLength
+			Report Length
+		Data
+			Report
+
+	7.2.2 Set_Report Request 
+		The Set_Report request allows the host to send a report to the device, possibly
+		setting the state of input, output, or feature controls.
+		The meaning of the request fields for the Set_Report request is the same as for the Get_Report request, however the data direction is reversed and the Report Data is sent from host to device.
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				0 = Host to Device
+			D6..5 Type
+				1 = Class
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			SET_REPORT
+		wValue
+			D8..15
+				Report Type
+			D0..7
+				Report ID
+		wIndex
+			Interface
+		wLength
+			Report Length
+		Data
+			Report
+
+	7.2.3 Get_Idle Request
+		The Get_Idle request reads the current idle rate for a particular Input report (see: Set_Idle request).
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				1 = Device to Host
+			D6..5 Type
+				1 = Class
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			GET_IDLE
+		wValue
+			D8..15
+				0
+			D0..7
+				Report ID
+		wIndex
+			Interface
+		wLength
+			1
+		Data
+			Idle rate
+
+	7.2.4 Set_Idle Request
+		The Set_Idle request silences a particular report on the Interrupt In pipe until a new event occurs or the specified amount of time passes.
+		This request is used to limit the reporting frequency of an interrupt in endpoint.
+		Specifically, this request causes the endpoint to NAK any polls on an interrupt in endpoint while its current report remains unchanged. In the absence of a change, polling will continue to be NAKed for a given time-based duration.
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				0 = Host to Device
+			D6..5 Type
+				1 = Class
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			SET_IDLE
+		wValue
+			D8..15
+				Duration
+					When the upper byte of wValue is 0 (zero), the duration is indefinite. The endpoint will inhibit reporting forever, only reporting when a change is detected in the report data.
+					When the upper byte of wValue is non-zero, then a fixed duration is used. The duration will be linearly related to the value of the upper byte, with the LSB being weighted as 4 milliseconds. This provides a range of values from 0.004 to 1.020 seconds, with a 4 millisecond resolution. If the duration is less than the device polling rate, then reports are generated at the polling rate.
+					If the given time duration elapses with no change in report data, then a single report will be generated by the endpoint and report inhibition will begin anew using the previous duration.
+					Accuracy
+						This time duration shall have an accuracy of +/-(10% + 2 milliseconds) 
+					Latency
+						A new request will be executed as if it were issued immediately after the last report, if the new request is received at least 4 milliseconds before the end of the currently executing period. If the new request is received within 4 milliseconds of the end of the current period, then the new request will have no effect until after the report.
+						If the current period has gone past the newly proscribed time duration, then a report will be generated immediately.
+			D0..7
+				Report ID
+					If the lower byte of wValue is zero, then the idle rate applies to all input reports generated by the device. When the lower byte of wValue is nonzero, then the idle rate only applies to the Report ID specified by the value of the lower byte.
+		wIndex
+			Interface
+		wLength
+			0
+		Data
+			Not applicable
+
+	7.2.5 Get_Protocol Request 
+		The Get_Protocol request reads which protocol is currently active (either the boot protocol or the report protocol.)
+		This request is supported by devices in the Boot subclass. The wValue field dictates which protocol should be used.
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				1 = Device to Host
+			D6..5 Type
+				1 = Class
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			GET_PROTOCOL
+		wValue
+			0
+		wIndex
+			Interface
+		wLength
+			1
+		Data
+			0 = Boot Protocol
+			1 = Report Protocol
+
+	7.2.6 Set_Protocol Request
+		The Set_Protocol switches between the boot protocol and the report protocol (or vice versa).
+		This request is supported by devices in the boot subclass. The wValue field dictates which protocol should be used.
+		When initialized, all devices default to report protocol. However the host should not make any assumptions about the device’s state and should set the desired protocol whenever initializing a device.
+		bmRequestType
+			D7 Data Phase Transfer Direction
+				0 = Host to Device
+			D6..5 Type
+				1 = Class
+			D4..0 Recipient
+				1 = Interface
+		bRequest
+			SET_PROTOCOL
+		wValue
+			0 = Boot Protocol
+			1 = Report Protocol
+		wIndex
+			0
+		wLength
+			Not Applicable
