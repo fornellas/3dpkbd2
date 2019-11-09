@@ -1,7 +1,6 @@
 #include "usb.h"
 #include "hid.h"
 #include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/desig.h>
 
 static char usb_serial_number[25];
@@ -14,7 +13,6 @@ static const char *usb_strings[] = {
 
 uint8_t usbd_control_buffer[128];
 
-// https://www.beyondlogic.org/usbnutshell/usb5.shtml#DeviceDescriptors
 const struct usb_device_descriptor dev_descr = {
 	.bLength = USB_DT_DEVICE_SIZE,
 	.bDescriptorType = USB_DT_DEVICE,
@@ -23,10 +21,8 @@ const struct usb_device_descriptor dev_descr = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
-	// STMicroelectronics
-	.idVendor = 0x0483,
-	// Joystick in FS Mode
-	.idProduct = 0x5710,
+	.idVendor = 0x0483, // STMicroelectronics
+	.idProduct = 0x5710, // Joystick in FS Mode
 	.bcdDevice = 0x0100,
 	.iManufacturer = 1,
 	.iProduct = 2,
@@ -43,17 +39,16 @@ const struct usb_interface interfaces[] = {
 
 #define CONFIGURATION_VALUE 1
 
-// https://www.beyondlogic.org/usbnutshell/usb5.shtml#ConfigurationDescriptors
 const struct usb_config_descriptor conf_descr = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
-	// FIXME Includes the combined length of all returned descriptors
+	// FIXME
+	// Includes the combined length of all returned descriptors
 	// (configuration, interface, endpoint, and HID) returned
 	// for this configuration. This value includes the HID
 	// descriptor but none of the other HID class descriptors
 	// (report or designator). 
 	.wTotalLength = 0,
-	// TODO bind to interfaces
 	.bNumInterfaces = 1,
 	.bConfigurationValue = CONFIGURATION_VALUE,
 	.iConfiguration = 0,
@@ -85,6 +80,8 @@ usbd_device *usbd_setup() {
 	desig_get_unique_id_as_string(usb_serial_number, sizeof(usb_serial_number));
 
 	usbd_dev = usbd_init(
+		// TODO fix OTG_GCCFG_NOVBUSSENS
+		// &stm32f411_usb_driver,
 		&otgfs_usb_driver,
 		&dev_descr,
 		&conf_descr,
@@ -94,14 +91,19 @@ usbd_device *usbd_setup() {
 	);
 
 	usbd_register_set_config_callback(usbd_dev, set_config_callback);
+
 	// TODO
 	// usbd_register_reset_callback();
+
 	// TODO
 	// usbd_register_resume_callback();
+
 	// TODO
 	// usbd_register_set_altsetting_callback();
+
 	// TODO
 	// usbd_register_sof_callback();
+
 	// TODO
 	// usbd_register_suspend_callback();
 
