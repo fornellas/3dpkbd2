@@ -1,4 +1,5 @@
 SHARED_DIR = ../common
+CFILES += $(wildcard $(SHARED_DIR)/*.c)
 VPATH += $(SHARED_DIR)
 INCLUDES += $(patsubst %,-I%, . $(SHARED_DIR))
 OPENCM3_DIR=../libopencm3
