@@ -1,7 +1,7 @@
+#include "../common/pin_reset.h"
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
-#include <pin_reset.h>
 
 #define SYSTEM_MEMORY_BASE 0x1FFF0000
 #define MAIN_MEMORY_BASE 0x08000000
