@@ -1,7 +1,15 @@
+#include "../common/key.h"
+#include "../common/led.h"
 #include "hid.h"
 #include <libopencm3/usb/hid.h>
 #include <stdlib.h>
+#include <string.h>
 
+#define HID_ENDPOINT_NUMBER 1
+#define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_GEN(USB_ENDPOINT_DIR_IN, HID_ENDPOINT_NUMBER)
+#define HID_INTERFACE_NUMBER 0
+
+// Must match hid_report_data
 static const uint8_t hid_report_descriptor[] = {
 	// https://www.usb.org/document-library/device-class-definition-hid-111
 	// From "Device Class Definition for HID 1.11" Appendix B.
@@ -66,6 +74,13 @@ static const uint8_t hid_report_descriptor[] = {
 	0xc0,             // END_COLLECTION
 };
 
+// Must match hid_report_descriptor
+struct hid_report_data {
+	uint8_t modifier_keys;
+	uint8_t reserved;
+	uint8_t keyboard_keys[6];
+};
+
 static const struct {
 	struct usb_hid_descriptor hid_descriptor;
 	struct {
@@ -86,21 +101,15 @@ static const struct {
 	}
 };
 
-#define HID_ENDPOINT_ADDR USB_ENDPOINT_CREATE(1, USB_ENDPOINT_DIR_IN)
-// TODO validate with interrupt control transfer
-#define HID_ENDPOINT_MAX_PACKET_SIZE 8
-
 const struct usb_endpoint_descriptor hid_endpoint = {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = HID_ENDPOINT_ADDR,
+	.bEndpointAddress = HID_ENDPOINT_IN_ADDR,
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
-	.wMaxPacketSize = HID_ENDPOINT_MAX_PACKET_SIZE,
+	.wMaxPacketSize = sizeof(struct hid_report_data),
 	// TODO validate what's fastest
-	.bInterval = 0x05,
+	.bInterval = 0x0A,
 };
-
-#define HID_INTERFACE_NUMBER 0
 
 const struct usb_interface_descriptor hid_iface = {
 	.bLength = USB_DT_INTERFACE_SIZE,
@@ -119,10 +128,20 @@ const struct usb_interface_descriptor hid_iface = {
 	.extralen = sizeof(hid_function),
 };
 
-static void hid_endpoint_interrupt_in_callback(usbd_device *usbd_dev, uint8_t ep) {
-	// TODO
-	(void)usbd_dev;
-	(void)ep;
+static void send_hid_report(usbd_device *usbd_dev, uint8_t ep) {
+	struct hid_report_data hid_report;
+
+	memset((void *)&hid_report, 0, sizeof(hid_report));
+
+	// TODO scan keys
+	if(key_pressed())
+		hid_report.keyboard_keys[0] = 4; // A
+
+	usbd_ep_write_packet(usbd_dev, ep, (void *)&hid_report, sizeof(hid_report));
+}
+
+static void hid_endpoint_interrupt_in_transfer_complete_callback(usbd_device *usbd_dev, uint8_t ep) {
+	send_hid_report(usbd_dev, ep);
 }
 
 static enum usbd_request_return_codes hid_standard_request(
@@ -134,7 +153,6 @@ static enum usbd_request_return_codes hid_standard_request(
 ) {
 	uint8_t descriptor_type;
 	// uint8_t descriptor_index;
-	uint8_t interface_number;
 
 	(void)dev;
 	(void)complete;
@@ -149,6 +167,8 @@ static enum usbd_request_return_codes hid_standard_request(
 		(req->bRequest == USB_REQ_GET_DESCRIPTOR)
 	) {
 		switch(descriptor_type) {
+			uint8_t interface_number;
+
 			case USB_HID_DT_HID:
 				interface_number = req->wIndex;
 				if(interface_number == HID_INTERFACE_NUMBER) {
@@ -187,6 +207,13 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	uint8_t report_type;
 	uint8_t report_id;
 
+	// TODO
+	(void)report_id;
+	(void)dev;
+	(void)len;
+	(void)complete;
+
+	// TODO
 	// 7.2.1 Get_Report Request
 	// if(
 	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
@@ -216,11 +243,11 @@ static enum usbd_request_return_codes hid_class_specific_request(
 			// 	break;
 			case USB_HID_REPORT_TYPE_OUTPUT:
 				led_report = *buf[0];
-				// Caps Lock
-				if(led_report & (1<<1))
-					gpio_clear(GPIOC, GPIO13);
+				// TODO OLED Display
+				if(led_report & (1<<1)) // Caps Lock
+					led_on();
 				else
-					gpio_set(GPIOC, GPIO13);
+					led_off();
 				break;
 			// case USB_HID_REPORT_TYPE_FEATURE:
 			// 	break;
@@ -228,6 +255,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		return USBD_REQ_HANDLED;
 	}
 
+	// TODO
 	// 7.2.3 Get_Idle Request
 	// if(
 	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
@@ -237,6 +265,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	// 	report_id = req->wValue & 0xFF;
 	// }
 
+	// TODO
 	// 7.2.4 Set_Idle Request
 	// if(
 	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
@@ -249,6 +278,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	// 	return USBD_REQ_HANDLED;
 	// }
 
+	// TODO
 	// 7.2.5 Get_Protocol Request
 	// if(
 	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
@@ -257,6 +287,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	// ) {
 	// }
 
+	// TODO
 	// 7.2.6 Set_Protocol Request
 	// if(
 	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
@@ -270,16 +301,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	return USBD_REQ_NOTSUPP;
 }
 
-void hid_set_config_callback(usbd_device *dev)
-{
-	usbd_ep_setup(
-		dev,
-		HID_ENDPOINT_ADDR,
-		USB_ENDPOINT_ATTR_INTERRUPT,
-		HID_ENDPOINT_MAX_PACKET_SIZE,
-		hid_endpoint_interrupt_in_callback
-	);
-
+void hid_set_config_callback(usbd_device *dev) {
 	usbd_register_control_callback(
 		dev,
 		USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
@@ -293,4 +315,18 @@ void hid_set_config_callback(usbd_device *dev)
 		USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
 		hid_class_specific_request
 	);
+
+	// https://github.com/libopencm3/libopencm3/issues/1126#issuecomment-552112530
+	// We fill the interrupt in buffer preemptively, so there's something to
+	// send the host when first asked. The transfer complete callback populates
+	// the buffer again for the next interrupt in request.
+	usbd_ep_setup(
+		dev,
+		HID_ENDPOINT_IN_ADDR,
+		USB_ENDPOINT_ATTR_INTERRUPT,
+		sizeof(struct hid_report_data),
+		hid_endpoint_interrupt_in_transfer_complete_callback
+	);
+
+	send_hid_report(dev, HID_ENDPOINT_IN_ADDR);
 }
