@@ -1,6 +1,12 @@
+TODO
 - PR to configure OTG_GCCFG_NOVBUSSENS.
-- PR with HID defines.
 - PR for build with external LDSCRIPT.
 - implement all class control requests.
+- Make keyboard & bootloader targets depend on libopencm3 build
+- cppcheck rule:  cppcheck --error-exitcode=1 $(CPPCHECK_ARGS) -I$(OPENCM3_INC) -I$(GCC_INCLUDES) -I$(NEWLIB_INCLUDES) $(CGLAGS) $<
 - send hid report only if there was change on it.
 - Review all TODO comments
+
+WIP
+- PR with HID defines.
+- PR with extra USB defines.
