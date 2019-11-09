@@ -1,7 +1,9 @@
 #include "usb.h"
 #include "hid.h"
-#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/desig.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/usb/dwc/otg_fs.h>
 
 static char usb_serial_number[25];
 
@@ -80,8 +82,6 @@ usbd_device *usbd_setup() {
 	desig_get_unique_id_as_string(usb_serial_number, sizeof(usb_serial_number));
 
 	usbd_dev = usbd_init(
-		// TODO fix OTG_GCCFG_NOVBUSSENS
-		// &stm32f411_usb_driver,
 		&otgfs_usb_driver,
 		&dev_descr,
 		&conf_descr,
@@ -89,6 +89,10 @@ usbd_device *usbd_setup() {
 		usbd_control_buffer,
 		sizeof(usbd_control_buffer)
 	);
+
+	// https://github.com/libopencm3/libopencm3/issues/1119#issuecomment-549071405
+	// Fix for otgfs_usb_driver setting VBUSBSEN regardless of what board it is.
+	OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS;
 
 	usbd_register_set_config_callback(usbd_dev, set_config_callback);
 
