@@ -6,7 +6,7 @@
 #include <string.h>
 
 extern uint32_t uptime_ms;
-static uint16_t idle_rate_ms = 0;
+static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;
 static struct hid_in_report_data *last_hid_in_report = NULL;
 static struct hid_in_report_data *hid_in_report_buff = NULL;
@@ -365,7 +365,7 @@ void hid_set_config_callback(usbd_device *dev) {
 		hid_endpoint_interrupt_in_transfer_complete
    );
 
-	idle_rate_ms = 0;
+	idle_rate_ms = -1;
 	idle_finish_ms = 0;
 	if(hid_in_report_buff != NULL)
 		free(hid_in_report_buff);
@@ -395,8 +395,9 @@ void hid_poll(usbd_device *dev) {
 	if(hid_in_report_buff != NULL)
 		return;
 
+	new_hid_in_report = get_hid_in_report();
+
 	if(idle_rate_ms == 0) {
-		new_hid_in_report = get_hid_in_report();
 		if(last_hid_in_report == NULL) {
 			hid_in_report_buff = new_hid_in_report;
 			usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)hid_in_report_buff, sizeof(struct hid_in_report_data));
@@ -408,9 +409,8 @@ void hid_poll(usbd_device *dev) {
 				free(new_hid_in_report);
 			}
 		}
-	} else {
+	} else if(idle_rate_ms > 0) {
 		now = uptime_ms;
-		new_hid_in_report = get_hid_in_report();
 		if(now >= idle_finish_ms) {
 			hid_in_report_buff = new_hid_in_report;
 			usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)hid_in_report_buff, sizeof(struct hid_in_report_data));
@@ -425,5 +425,8 @@ void hid_poll(usbd_device *dev) {
 				}
 			}
 		}
+	} else {
+		hid_in_report_buff = new_hid_in_report;
+		usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)hid_in_report_buff, sizeof(struct hid_in_report_data));
 	}
 }
