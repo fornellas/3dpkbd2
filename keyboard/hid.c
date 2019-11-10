@@ -118,8 +118,7 @@ const struct usb_endpoint_descriptor hid_endpoint = {
 	.bEndpointAddress = HID_ENDPOINT_IN_ADDR,
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
 	.wMaxPacketSize = sizeof(struct hid_in_report_data),
-	// TODO validate what's fastest
-	.bInterval = 0x0A,
+	.bInterval = 0x01,
 };
 
 const struct usb_interface_descriptor hid_iface = {
