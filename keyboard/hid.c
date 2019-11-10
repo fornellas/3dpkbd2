@@ -295,7 +295,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	// 7.2.4 Set_Idle Request
 	if(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
-		&& (req->bRequest == USB_HID_REQ_TYPE_GET_IDLE)
+		&& (req->bRequest == USB_HID_REQ_TYPE_SET_IDLE)
 	) {
 		uint16_t duration_ms;
 		duration_ms = (uint16_t)(req->wValue >> 8) * 4;
@@ -407,9 +407,9 @@ void hid_poll(usbd_device *dev) {
 	if(hid_in_report_buff != NULL)
 		return;
 
-	new_hid_in_report = get_hid_in_report();
 
 	if(idle_rate_ms == 0) {
+		new_hid_in_report = get_hid_in_report();
 		if(last_hid_in_report == NULL) {
 			hid_in_report_buff = new_hid_in_report;
 			usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)hid_in_report_buff, sizeof(struct hid_in_report_data));
@@ -421,7 +421,8 @@ void hid_poll(usbd_device *dev) {
 				free(new_hid_in_report);
 			}
 		}
-	} else if(idle_rate_ms > 0) {
+	}else if(idle_rate_ms > 0) {
+		new_hid_in_report = get_hid_in_report();
 		now = uptime_ms;
 		if(now >= idle_finish_ms) {
 			hid_in_report_buff = new_hid_in_report;
@@ -438,6 +439,7 @@ void hid_poll(usbd_device *dev) {
 			}
 		}
 	} else {
+		new_hid_in_report = get_hid_in_report();
 		hid_in_report_buff = new_hid_in_report;
 		usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)hid_in_report_buff, sizeof(struct hid_in_report_data));
 	}
