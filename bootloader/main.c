@@ -1,3 +1,4 @@
+#include "../common/led.h"
 #include "../common/pin_reset.h"
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/gpio.h>
@@ -24,7 +25,11 @@ void jump_to_addr(uint32_t addr) {
 }
 
 int main(void) {
+	led_setup();
+
 	if(PIN_RESET) {
+		led_on();
+
 		// TODO AN2606 instructs for some cleanup to happen before jumping to
 		// system memory:
 		// 
