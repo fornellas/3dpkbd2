@@ -15,6 +15,8 @@ static struct hid_in_report_data *hid_in_report_buff = NULL;
 #define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_GEN(USB_ENDPOINT_DIR_IN, HID_ENDPOINT_NUMBER)
 #define HID_INTERFACE_NUMBER 0
 
+static struct hid_in_report_data *get_hid_in_report(void);
+
 // Must match hid_in_report_data & hid_out_report_data
 static const uint8_t hid_report_descriptor[] = {
 	// https://www.usb.org/document-library/device-class-definition-hid-111
@@ -206,29 +208,35 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	(void)complete;
 
 	// 7.2.1 Get_Report Request
-	// if(
-	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
-	// 	&& (req->bRequest == USB_HID_REQ_TYPE_GET_REPORT)
-	// ) {
-	// 	report_type = req->wValue >> 8;
-	// 	// report_id = req->wValue & 0xFF;
-	// 	interface_number = req->wIndex;
-	// 	report_length = req->wLength;
+	if(
+		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
+		&& (req->bRequest == USB_HID_REQ_TYPE_GET_REPORT)
+	) {
+		static struct hid_in_report_data *new_hid_in_report;
+		static struct hid_in_report_data hid_in_report;
 
-	// 	if (interface_number != HID_INTERFACE_NUMBER)
-	// 		return USBD_REQ_NOTSUPP;
+		report_type = req->wValue >> 8;
+		// report_id = req->wValue & 0xFF;
+		interface_number = req->wIndex;
+		report_length = req->wLength;
 
-	// 	switch(report_type) {
-	// 		case USB_HID_REPORT_TYPE_INPUT:
-	// 			// *buf = (uint8_t *)&hid_report;
-	// 			// *len = sizeof(hid_report);
-	//  			return USBD_REQ_HANDLED;
-	// 		// case USB_HID_REPORT_TYPE_OUTPUT:
-	// 		// 	break;
-	// 		// case USB_HID_REPORT_TYPE_FEATURE:
-	// 		// 	break;
-	// 	}
-	// }
+		if (interface_number != HID_INTERFACE_NUMBER)
+			return USBD_REQ_NOTSUPP;
+
+		switch(report_type) {
+			case USB_HID_REPORT_TYPE_INPUT:
+				new_hid_in_report = get_hid_in_report();
+				memcpy(&hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data));
+				free(new_hid_in_report);
+				*buf = (uint8_t *)&hid_in_report;
+				*len = sizeof(struct hid_in_report_data);
+				return USBD_REQ_HANDLED;
+			// case USB_HID_REPORT_TYPE_OUTPUT:
+			// 	break;
+			// case USB_HID_REPORT_TYPE_FEATURE:
+			// 	break;
+		}
+	}
 
 	// 7.2.2 Set_Report Request
 	if(
@@ -326,6 +334,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 static void hid_endpoint_interrupt_in_transfer_complete(usbd_device *usbd_dev, uint8_t ep) {
 	(void)usbd_dev;
 	(void)ep;
+	
 	if(last_hid_in_report != NULL)
 		free(last_hid_in_report);
 	last_hid_in_report = hid_in_report_buff;
@@ -365,8 +374,6 @@ void hid_set_config_callback(usbd_device *dev) {
 	hid_in_report_buff = NULL;
 	last_hid_in_report = NULL;
 }
-
-static struct hid_in_report_data *get_hid_in_report(void);
 
 static struct hid_in_report_data *get_hid_in_report(void) {
 	struct hid_in_report_data *hid_in_report;
