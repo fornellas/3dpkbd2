@@ -357,11 +357,11 @@ void hid_set_config_callback(usbd_device *dev) {
 	);
 
    usbd_ep_setup(
-           dev,
-           HID_ENDPOINT_IN_ADDR,
-           USB_ENDPOINT_ATTR_INTERRUPT,
-           sizeof(struct hid_in_report_data),
-           hid_endpoint_interrupt_in_transfer_complete
+		dev,
+		HID_ENDPOINT_IN_ADDR,
+		USB_ENDPOINT_ATTR_INTERRUPT,
+		sizeof(struct hid_in_report_data),
+		hid_endpoint_interrupt_in_transfer_complete
    );
 
 	idle_rate_ms = 0;
