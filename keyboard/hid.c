@@ -288,6 +288,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 
 		*buf = (uint8_t *)&idle_rate_ms_buff;
 		*len = sizeof(idle_rate_ms_buff);
+		return USBD_REQ_HANDLED;
 	}
 
 	// 7.2.4 Set_Idle Request
