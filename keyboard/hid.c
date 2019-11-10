@@ -10,6 +10,7 @@ static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;
 static struct hid_in_report_data *last_hid_in_report = NULL;
 static struct hid_in_report_data *hid_in_report_buff = NULL;
+static uint8_t hid_protocol=1;
 
 #define HID_ENDPOINT_NUMBER 1
 #define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_GEN(USB_ENDPOINT_DIR_IN, HID_ENDPOINT_NUMBER)
@@ -310,23 +311,34 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		return USBD_REQ_HANDLED;
 	}
 
-	// TODO
 	// 7.2.5 Get_Protocol Request
-	// if(
-	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
-	// 	&& (req->bRequest == USB_HID_REQ_TYPE_GET_PROTOCOL)
-	// ) {
-	// }
+	if(
+		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
+		&& (req->bRequest == USB_HID_REQ_TYPE_GET_PROTOCOL)
+	) {
+		interface_number = req->wIndex;
 
-	// TODO
+		if (interface_number != HID_INTERFACE_NUMBER)
+			return USBD_REQ_NOTSUPP;
+
+		*buf = (uint8_t *)&hid_protocol;
+		*len = sizeof(hid_protocol);
+		return USBD_REQ_HANDLED;
+	}
+
 	// 7.2.6 Set_Protocol Request
-	// if(
-	// 	((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
-	// 	&& (req->bRequest == USB_HID_REQ_TYPE_SET_PROTOCOL)
-	// ) {
-	// 	uint8_t protocol;
-	// 	protocol = req->wValue;
-	// }
+	if(
+		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
+		&& (req->bRequest == USB_HID_REQ_TYPE_SET_PROTOCOL)
+	) {
+		interface_number = req->wIndex;
+
+		if (interface_number != HID_INTERFACE_NUMBER)
+			return USBD_REQ_NOTSUPP;
+
+		hid_protocol = req->wValue;
+		return USBD_REQ_HANDLED;
+	}
 
 	return USBD_REQ_NOTSUPP;
 }
