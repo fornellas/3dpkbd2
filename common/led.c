@@ -19,3 +19,7 @@ void led_on(void) {
 void led_off(void) {
 	gpio_set(LED_PORT, LED_GPIO);
 }
+
+void led_toggle(void) {
+	gpio_toggle(LED_PORT, LED_GPIO);
+}
