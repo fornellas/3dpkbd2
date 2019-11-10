@@ -1,3 +1,4 @@
+#include "hid.h"
 #include "usb.h"
 #include "../common/key.h"
 #include "../common/led.h"
@@ -58,5 +59,6 @@ int main(void) {
 
 	while (1) {
 		usbd_poll(usbd_dev);
+		hid_poll(usbd_dev);
 	}
 }
