@@ -2,9 +2,13 @@
 #include "../common/key.h"
 #include "../common/led.h"
 #include "../common/pin_reset.h"
-#include <libopencm3/usb/usbd.h>
-#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/scb.h>
+#include <libopencm3/cm3/systick.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/usb/usbd.h>
+
+uint32_t uptime_ms;
 
 void soft_reset_if_pin_reset(void);
 
@@ -14,6 +18,20 @@ void soft_reset_if_pin_reset() {
 
 	if(pin_reset)
 		scb_reset_system();
+}
+
+void systick_setup(void);
+
+void systick_setup(void) {
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
+	systick_set_reload((rcc_ahb_frequency / 8) / 1000);
+	uptime_ms = 0;
+	systick_counter_enable();
+	systick_interrupt_enable();
+}
+
+void sys_tick_handler(void) {
+	uptime_ms += 1;
 }
 
 int main(void) {
@@ -34,6 +52,7 @@ int main(void) {
 
 	key_setup();
 	led_setup();
+	systick_setup();
 
 	usbd_dev = usbd_setup();
 
