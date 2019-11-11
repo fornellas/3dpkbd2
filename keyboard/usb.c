@@ -55,8 +55,9 @@ const struct usb_config_descriptor conf_descr = {
 	.bConfigurationValue = CONFIGURATION_VALUE,
 	.iConfiguration = 0,
 	.bmAttributes = (
-		(1<<7) | // D7 Reserved, set to 1. (USB 1.0 Bus Powered)
-		(1<<5) // D5 Remote Wakeup
+		USB_CONFIG_ATTR_DEFAULT |
+		USB_CONFIG_ATTR_SELF_POWERED |
+		USB_CONFIG_ATTR_REMOTE_WAKEUP
 	),
 	.bMaxPower = 250, // 500 mAh
 
