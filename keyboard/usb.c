@@ -67,6 +67,18 @@ void set_config_callback(usbd_device *dev, uint16_t wValue) {
 	hid_set_config_callback(dev);
 }
 
+void reset_callback(void);
+
+void reset_callback() {
+	hid_poll_disable();
+}
+
+void suspend_callback(void);
+
+void suspend_callback() {
+	hid_poll_disable();
+}
+
 usbd_device *usbd_setup() {
 	usbd_device *usbd_dev;
 
@@ -91,8 +103,7 @@ usbd_device *usbd_setup() {
 
 	usbd_register_set_config_callback(usbd_dev, set_config_callback);
 
-	// TODO
-	// usbd_register_reset_callback();
+	usbd_register_reset_callback(usbd_dev, reset_callback);
 
 	// TODO
 	// usbd_register_resume_callback();
@@ -103,8 +114,7 @@ usbd_device *usbd_setup() {
 	// TODO
 	// usbd_register_sof_callback();
 
-	// TODO
-	// usbd_register_suspend_callback();
+	usbd_register_suspend_callback(usbd_dev, suspend_callback);
 
 	return usbd_dev;
 }

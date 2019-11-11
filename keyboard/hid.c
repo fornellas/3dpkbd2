@@ -355,6 +355,23 @@ static void hid_endpoint_interrupt_in_transfer_complete(usbd_device *usbd_dev, u
 	hid_in_report_buff = NULL;
 }
 
+void hid_poll_enable() {
+	hid_poll_enabled = 1;
+
+	idle_rate_ms = -1;
+	idle_finish_ms = 0;
+	if(hid_in_report_buff != NULL)
+		free(hid_in_report_buff);
+	if(last_hid_in_report != NULL)
+		free(last_hid_in_report);
+	hid_in_report_buff = NULL;
+	last_hid_in_report = NULL;
+}
+
+void hid_poll_disable() {
+	hid_poll_enabled = 0;
+}
+
 void hid_set_config_callback(usbd_device *dev) {
 	usbd_register_control_callback(
 		dev,
@@ -378,16 +395,7 @@ void hid_set_config_callback(usbd_device *dev) {
 		hid_endpoint_interrupt_in_transfer_complete
 	);
 
-	hid_poll_enabled = 1;
-
-	idle_rate_ms = -1;
-	idle_finish_ms = 0;
-	if(hid_in_report_buff != NULL)
-		free(hid_in_report_buff);
-	if(last_hid_in_report != NULL)
-		free(last_hid_in_report);
-	hid_in_report_buff = NULL;
-	last_hid_in_report = NULL;
+	hid_poll_enable();
 }
 
 static struct hid_in_report_data *get_hid_in_report(void) {
