@@ -44,12 +44,6 @@ const struct usb_interface interfaces[] = {
 const struct usb_config_descriptor conf_descr = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
-	// FIXME
-	// Includes the combined length of all returned descriptors
-	// (configuration, interface, endpoint, and HID) returned
-	// for this configuration. This value includes the HID
-	// descriptor but none of the other HID class descriptors
-	// (report or designator). 
 	.wTotalLength = 0,
 	.bNumInterfaces = 1,
 	.bConfigurationValue = CONFIGURATION_VALUE,
