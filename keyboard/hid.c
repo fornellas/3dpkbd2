@@ -11,6 +11,7 @@ static uint32_t idle_finish_ms = 0;
 static struct hid_in_report_data *last_hid_in_report = NULL;
 static struct hid_in_report_data *hid_in_report_buff = NULL;
 static uint8_t hid_protocol=1;
+static uint8_t hid_poll_enabled=0;
 
 #define HID_ENDPOINT_NUMBER 1
 #define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_GEN(USB_ENDPOINT_DIR_IN, HID_ENDPOINT_NUMBER)
@@ -375,7 +376,9 @@ void hid_set_config_callback(usbd_device *dev) {
 		USB_ENDPOINT_ATTR_INTERRUPT,
 		sizeof(struct hid_in_report_data),
 		hid_endpoint_interrupt_in_transfer_complete
-   );
+	);
+
+	hid_poll_enabled = 1;
 
 	idle_rate_ms = -1;
 	idle_finish_ms = 0;
@@ -404,9 +407,11 @@ void hid_poll(usbd_device *dev) {
 	struct hid_in_report_data *new_hid_in_report;
 	uint32_t now;
 
-	if(hid_in_report_buff != NULL)
+	if(!hid_poll_enabled)
 		return;
 
+	if(hid_in_report_buff != NULL)
+		return;
 
 	if(idle_rate_ms == 0) {
 		new_hid_in_report = get_hid_in_report();
