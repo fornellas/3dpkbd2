@@ -1,11 +1,13 @@
 #include "../common/key.h"
 #include "../common/led.h"
 #include "hid.h"
+#include "usb.h"
 #include <libopencm3/usb/hid.h>
 #include <stdlib.h>
 #include <string.h>
 
 extern uint32_t uptime_ms;
+extern uint8_t usb_remote_wakeup_enabled;
 static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;
 static struct hid_in_report_data *last_hid_in_report = NULL;
@@ -356,6 +358,9 @@ static void hid_endpoint_interrupt_in_transfer_complete(usbd_device *usbd_dev, u
 }
 
 void hid_poll_enable() {
+	if(hid_poll_enabled)
+		return;
+
 	hid_poll_enabled = 1;
 
 	idle_rate_ms = -1;
@@ -414,6 +419,20 @@ static struct hid_in_report_data *get_hid_in_report(void) {
 void hid_poll(usbd_device *dev) {
 	struct hid_in_report_data *new_hid_in_report;
 	uint32_t now;
+
+	if(usb_remote_wakeup_enabled) {
+		uint8_t *new_hid_in_report_bytes;
+
+		new_hid_in_report_bytes = (uint8_t *)get_hid_in_report();
+		for(uint16_t i=0 ; i < sizeof(struct hid_in_report_data) ; i++ ) {
+			if(new_hid_in_report_bytes[i]) {
+				usdb_remote_wakeup_signal();
+				break;
+			}
+		}
+		free((struct hid_in_report_data *)new_hid_in_report_bytes);
+		return;
+	}
 
 	if(!hid_poll_enabled)
 		return;

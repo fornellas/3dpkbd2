@@ -5,6 +5,9 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/usb/dwc/otg_fs.h>
 
+uint8_t usb_remote_wakeup_enabled = 0;
+extern uint32_t uptime_ms;
+
 static char usb_serial_number[25];
 
 static const char *usb_strings[] = {
@@ -58,11 +61,90 @@ const struct usb_config_descriptor conf_descr = {
 	.interface = interfaces,
 };
 
+static enum usbd_request_return_codes device_get_status(
+	usbd_device *dev,
+	struct usb_setup_data *req,
+	uint8_t **buf,
+	uint16_t *len,
+	void (**complete)(usbd_device *, struct usb_setup_data * )
+) {
+	(void)dev;
+	(void)complete;
+
+	// 9.4.5 Get Status
+	if(req->bRequest == USB_REQ_GET_STATUS) {
+		*len = 2;
+		(*buf)[0] = USB_DEV_STATUS_SELF_POWERED;
+		if(usb_remote_wakeup_enabled)
+			(*buf)[0] |= USB_DEV_STATUS_REMOTE_WAKEUP;
+		(*buf)[1] = 0;
+		return USBD_REQ_HANDLED;
+	}
+
+	return USBD_REQ_NOTSUPP;
+}
+
+static enum usbd_request_return_codes device_feature(
+	usbd_device *dev,
+	struct usb_setup_data *req,
+	uint8_t **buf,
+	uint16_t *len,
+	void (**complete)(usbd_device *, struct usb_setup_data * )
+) {
+	(void)dev;
+	(void)buf;
+	(void)len;
+	(void)complete;
+
+	// 9.4.1 Clear Feature
+	if(req->bRequest == USB_REQ_CLEAR_FEATURE) {
+		switch (req->wValue) {
+			// case USB_FEAT_ENDPOINT_HALT:
+			// 	return USBD_REQ_HANDLED;
+			case USB_FEAT_DEVICE_REMOTE_WAKEUP:
+				usb_remote_wakeup_enabled = 0;
+				return USBD_REQ_HANDLED;
+			// case USB_FEAT_TEST_MODE:
+			// 	return USBD_REQ_HANDLED;
+		}
+	}
+
+	// 9.4.9 Set Feature
+	if(req->bRequest == USB_REQ_SET_FEATURE) {
+		switch (req->wValue) {
+			// case USB_FEAT_ENDPOINT_HALT:
+			// 	return USBD_REQ_HANDLED;
+			case USB_FEAT_DEVICE_REMOTE_WAKEUP:
+				usb_remote_wakeup_enabled = 1;
+				return USBD_REQ_HANDLED;
+			// case USB_FEAT_TEST_MODE:
+			// 	return USBD_REQ_HANDLED;
+		}
+	}
+
+	return USBD_REQ_NOTSUPP;
+}
+
 void set_config_callback(usbd_device *dev, uint16_t wValue);
 
 void set_config_callback(usbd_device *dev, uint16_t wValue) {
 	if(wValue != CONFIGURATION_VALUE)
 		return;
+
+	usbd_register_control_callback(
+		dev,
+		USB_REQ_TYPE_IN | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DEVICE,
+		USB_REQ_TYPE_DIRECTION | USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
+		device_get_status
+	);
+
+	usb_remote_wakeup_enabled = 0;
+	usbd_register_control_callback(
+		dev,
+		USB_REQ_TYPE_OUT | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DEVICE,
+		USB_REQ_TYPE_DIRECTION | USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
+		device_feature
+	);
 
 	hid_set_config_callback(dev);
 }
@@ -71,6 +153,12 @@ void reset_callback(void);
 
 void reset_callback() {
 	hid_poll_disable();
+}
+
+void resume_callback(void);
+
+void resume_callback() {
+	hid_poll_enable();
 }
 
 void suspend_callback(void);
@@ -105,8 +193,7 @@ usbd_device *usbd_setup() {
 
 	usbd_register_reset_callback(usbd_dev, reset_callback);
 
-	// TODO
-	// usbd_register_resume_callback();
+	usbd_register_resume_callback(usbd_dev, resume_callback);
 
 	// TODO
 	// usbd_register_set_altsetting_callback();
@@ -117,4 +204,12 @@ usbd_device *usbd_setup() {
 	usbd_register_suspend_callback(usbd_dev, suspend_callback);
 
 	return usbd_dev;
+}
+
+void usdb_remote_wakeup_signal() {
+	uint32_t now = uptime_ms;
+
+	OTG_FS_DCTL |= OTG_DCTL_RWUSIG;
+	while(uptime_ms - now < 14);
+	OTG_FS_DCTL &= ~OTG_DCTL_RWUSIG;
 }
