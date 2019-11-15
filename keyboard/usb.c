@@ -16,6 +16,7 @@ static const char *usb_strings[] = {
 	usb_serial_number,
 };
 
+// Must be big enough to support HID in reports
 uint8_t usbd_control_buffer[128];
 
 const struct usb_device_descriptor dev_descr = {
