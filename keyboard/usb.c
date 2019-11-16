@@ -1,71 +1,39 @@
-#include "usb.h"
+#include "descriptors.h"
 #include "hid.h"
+#include "usb.h"
 #include <libopencm3/stm32/desig.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/usb/dwc/otg_fs.h>
 
-uint8_t usb_remote_wakeup_enabled = 0;
+//
+// Variables
+//
+
 extern volatile uint32_t uptime_ms;
 
-static char usb_serial_number[25];
-
+uint8_t usb_remote_wakeup_enabled = 0;
 uint8_t usb_suspended=0;
-
-static const char *usb_strings[] = {
-	"Fabio Pugliese Ornellas",
-	"3D Printed Keyboard 2",
-	usb_serial_number,
-};
-
 // Must be big enough to support HID in reports
 uint8_t usbd_control_buffer[128];
 
-const struct usb_device_descriptor dev_descr = {
-	.bLength = USB_DT_DEVICE_SIZE,
-	.bDescriptorType = USB_DT_DEVICE,
-	.bcdUSB = 0x0200,
-	.bDeviceClass = 0,
-	.bDeviceSubClass = 0,
-	.bDeviceProtocol = 0,
-	.bMaxPacketSize0 = 64,
-	// For the lack of a better option, use Atmel's IDs.
-	.idVendor = 0x03EB, // Atmel Corp.
-	.idProduct = 0x2042, // LUFA Keyboard Demo Application
-	.bcdDevice = 0x0100,
-	.iManufacturer = 1,
-	.iProduct = 2,
-	.iSerialNumber = 3,
-	.bNumConfigurations = 1,
-};
+//
+// Prototypes
+//
 
-const struct usb_interface interfaces[] = {
-	{
-		.num_altsetting = 1,
-		.altsetting = &hid_iface,
-	}
-};
+void set_config_callback(usbd_device *dev, uint16_t wValue);
 
-#define CONFIGURATION_VALUE 1
+void reset_callback(void);
 
-const struct usb_config_descriptor conf_descr = {
-	.bLength = USB_DT_CONFIGURATION_SIZE,
-	.bDescriptorType = USB_DT_CONFIGURATION,
-	.wTotalLength = 0,
-	.bNumInterfaces = 1,
-	.bConfigurationValue = CONFIGURATION_VALUE,
-	.iConfiguration = 0,
-	.bmAttributes = (
-		USB_CONFIG_ATTR_DEFAULT |
-		USB_CONFIG_ATTR_SELF_POWERED |
-		USB_CONFIG_ATTR_REMOTE_WAKEUP
-	),
-	.bMaxPower = 250, // 500 mAh
+void resume_callback(void);
 
-	.interface = interfaces,
-};
+void suspend_callback(void);
 
-static enum usbd_request_return_codes device_get_status(
+//
+// Functions
+//
+
+static enum usbd_request_return_codes control_device_get_status_callback(
 	usbd_device *dev,
 	struct usb_setup_data *req,
 	uint8_t **buf,
@@ -88,7 +56,7 @@ static enum usbd_request_return_codes device_get_status(
 	return USBD_REQ_NOTSUPP;
 }
 
-static enum usbd_request_return_codes device_feature(
+static enum usbd_request_return_codes control_device_feature_callback(
 	usbd_device *dev,
 	struct usb_setup_data *req,
 	uint8_t **buf,
@@ -129,8 +97,6 @@ static enum usbd_request_return_codes device_feature(
 	return USBD_REQ_NOTSUPP;
 }
 
-void set_config_callback(usbd_device *dev, uint16_t wValue);
-
 void set_config_callback(usbd_device *dev, uint16_t wValue) {
 	if(wValue != CONFIGURATION_VALUE)
 		return;
@@ -139,7 +105,7 @@ void set_config_callback(usbd_device *dev, uint16_t wValue) {
 		dev,
 		USB_REQ_TYPE_IN | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DEVICE,
 		USB_REQ_TYPE_DIRECTION | USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
-		device_get_status
+		control_device_get_status_callback
 	);
 
 	usb_remote_wakeup_enabled = 0;
@@ -147,7 +113,7 @@ void set_config_callback(usbd_device *dev, uint16_t wValue) {
 		dev,
 		USB_REQ_TYPE_OUT | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DEVICE,
 		USB_REQ_TYPE_DIRECTION | USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
-		device_feature
+		control_device_feature_callback
 	);
 
 	hid_set_config_callback(dev);
@@ -155,20 +121,14 @@ void set_config_callback(usbd_device *dev, uint16_t wValue) {
 	usb_suspended = 0;
 }
 
-void reset_callback(void);
-
 void reset_callback() {
 	hid_poll_disable();
 	usb_suspended = 0;
 }
 
-void resume_callback(void);
-
 void resume_callback() {
 	usb_suspended = 0;
 }
-
-void suspend_callback(void);
 
 void suspend_callback() {
 	usb_suspended = 1;

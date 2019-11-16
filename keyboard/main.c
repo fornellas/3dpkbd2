@@ -9,9 +9,23 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/usb/usbd.h>
 
+//
+// Variables
+//
+
 uint32_t volatile uptime_ms;
 
+//
+// Prototypes
+// 
+
 void soft_reset_if_pin_reset(void);
+
+void systick_setup(void);
+
+//
+// Functions
+//
 
 void soft_reset_if_pin_reset() {
 	int pin_reset = PIN_RESET;
@@ -20,8 +34,6 @@ void soft_reset_if_pin_reset() {
 	if(pin_reset)
 		scb_reset_system();
 }
-
-void systick_setup(void);
 
 void systick_setup(void) {
 	uptime_ms=0;
