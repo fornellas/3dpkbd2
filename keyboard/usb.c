@@ -29,8 +29,9 @@ const struct usb_device_descriptor dev_descr = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
-	.idVendor = 0x0483, // STMicroelectronics
-	.idProduct = 0x5710, // Joystick in FS Mode
+	// For the lack of a better option, use Atmel's IDs.
+	.idVendor = 0x03EB, // Atmel Corp.
+	.idProduct = 0x2042, // LUFA Keyboard Demo Application
 	.bcdDevice = 0x0100,
 	.iManufacturer = 1,
 	.iProduct = 2,
