@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern uint32_t uptime_ms;
+extern volatile uint32_t uptime_ms;
 extern uint8_t usb_remote_wakeup_enabled;
 static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;

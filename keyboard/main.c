@@ -9,7 +9,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/usb/usbd.h>
 
-uint32_t uptime_ms;
+uint32_t volatile uptime_ms;
 
 void soft_reset_if_pin_reset(void);
 
@@ -24,9 +24,9 @@ void soft_reset_if_pin_reset() {
 void systick_setup(void);
 
 void systick_setup(void) {
+	uptime_ms=0;
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
 	systick_set_reload((rcc_ahb_frequency / 8) / 1000);
-	uptime_ms = 0;
 	systick_counter_enable();
 	systick_interrupt_enable();
 }

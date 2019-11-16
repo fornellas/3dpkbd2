@@ -6,7 +6,7 @@
 #include <libopencm3/usb/dwc/otg_fs.h>
 
 uint8_t usb_remote_wakeup_enabled = 0;
-extern uint32_t uptime_ms;
+extern volatile uint32_t uptime_ms;
 
 static char usb_serial_number[25];
 
