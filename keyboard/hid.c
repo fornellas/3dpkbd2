@@ -8,12 +8,13 @@
 
 extern volatile uint32_t uptime_ms;
 extern uint8_t usb_remote_wakeup_enabled;
+extern uint8_t usb_suspended;
 static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;
 static uint8_t hid_protocol=1;
 static uint8_t hid_poll_enabled=0;
 static uint8_t hid_report_transmitting=0;
-struct hid_in_report_data old_hid_in_report;
+static struct hid_in_report_data old_hid_in_report;
 
 #define HID_ENDPOINT_NUMBER 1
 #define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_GEN(USB_ENDPOINT_DIR_IN, HID_ENDPOINT_NUMBER)
@@ -394,11 +395,19 @@ static void get_hid_in_report(struct hid_in_report_data *hid_in_report) {
 		hid_in_report->keyboard_keys[0] = 4; // A
 }
 
+void send_in_report(usbd_device *dev, struct hid_in_report_data *);
+
+void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_in_report) {
+	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data));
+	hid_report_transmitting = 1;
+	usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, sizeof(struct hid_in_report_data));
+}
+
 void hid_poll(usbd_device *dev) {
 	struct hid_in_report_data new_hid_in_report;
 	uint32_t now;
 
-	if(usb_remote_wakeup_enabled) {
+	if(usb_suspended && usb_remote_wakeup_enabled) {
 		uint8_t *new_hid_in_report_bytes;
 
 		get_hid_in_report(&new_hid_in_report);
@@ -407,6 +416,7 @@ void hid_poll(usbd_device *dev) {
 		for(uint16_t i=0 ; i < sizeof(struct hid_in_report_data) ; i++ ) {
 			if(new_hid_in_report_bytes[i]) {
 				usdb_remote_wakeup_signal();
+				usb_remote_wakeup_enabled = 0;
 				break;
 			}
 		}
@@ -422,31 +432,22 @@ void hid_poll(usbd_device *dev) {
 	// Only send if there are changes
 	if(idle_rate_ms == 0) {
 		get_hid_in_report(&new_hid_in_report);
-		if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data))) {
-			memcpy(&old_hid_in_report, &new_hid_in_report, sizeof(struct hid_in_report_data));
-			hid_report_transmitting = 1;
-			usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)&new_hid_in_report, sizeof(struct hid_in_report_data));
-		}
+		if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
+			send_in_report(dev, &new_hid_in_report);
 	// Only send if there are changes or at idle rate
 	}else if(idle_rate_ms > 0) {
 		get_hid_in_report(&new_hid_in_report);
 		now = uptime_ms;
 		if(now >= idle_finish_ms) {
-			memcpy(&old_hid_in_report, &new_hid_in_report, sizeof(struct hid_in_report_data));
-			hid_report_transmitting = 1;
-			usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)&new_hid_in_report, sizeof(struct hid_in_report_data));
+			send_in_report(dev, &new_hid_in_report);
 			idle_finish_ms = now + idle_rate_ms;
 		} else {
-			if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data))) {
-				memcpy(&old_hid_in_report, &new_hid_in_report, sizeof(struct hid_in_report_data));
-				hid_report_transmitting = 1;
-				usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)&new_hid_in_report, sizeof(struct hid_in_report_data));
-			}
+			if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
+				send_in_report(dev, &new_hid_in_report);
 		}
 	// Always send
 	} else {
 		get_hid_in_report(&new_hid_in_report);
-		hid_report_transmitting = 1;
-		usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)&new_hid_in_report, sizeof(struct hid_in_report_data));
+		send_in_report(dev, &new_hid_in_report);
 	}
 }

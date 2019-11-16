@@ -10,6 +10,8 @@ extern volatile uint32_t uptime_ms;
 
 static char usb_serial_number[25];
 
+uint8_t usb_suspended=0;
+
 static const char *usb_strings[] = {
 	"Fabio Pugliese Ornellas",
 	"3D Printed Keyboard 2",
@@ -148,24 +150,27 @@ void set_config_callback(usbd_device *dev, uint16_t wValue) {
 	);
 
 	hid_set_config_callback(dev);
+
+	usb_suspended = 0;
 }
 
 void reset_callback(void);
 
 void reset_callback() {
 	hid_poll_disable();
+	usb_suspended = 0;
 }
 
 void resume_callback(void);
 
 void resume_callback() {
-	hid_poll_enable();
+	usb_suspended = 0;
 }
 
 void suspend_callback(void);
 
 void suspend_callback() {
-	hid_poll_disable();
+	usb_suspended = 1;
 }
 
 usbd_device *usbd_setup() {
@@ -208,9 +213,9 @@ usbd_device *usbd_setup() {
 }
 
 void usdb_remote_wakeup_signal() {
-	uint32_t now = uptime_ms;
+	uint32_t start_ms = uptime_ms;
 
 	OTG_FS_DCTL |= OTG_DCTL_RWUSIG;
-	while(uptime_ms - now < 14);
+	while(uptime_ms - start_ms < 2);
 	OTG_FS_DCTL &= ~OTG_DCTL_RWUSIG;
 }
