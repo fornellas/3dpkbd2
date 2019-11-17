@@ -224,7 +224,19 @@ static enum usbd_request_return_codes hid_class_specific_request(
 			return USBD_REQ_NOTSUPP;
 
 		hid_protocol = req->wValue;
-		return USBD_REQ_HANDLED;
+
+		switch(req->wValue) {
+			// Boot Protocol
+			case 0:
+				// The HID Report matches boot protocol requirements, we can
+				// use it for boot protocol as well.
+				return USBD_REQ_HANDLED;
+			// Report Protocol
+			case 1:
+				return USBD_REQ_HANDLED;
+			default:
+				return USBD_REQ_NOTSUPP;
+		}
 	}
 
 	return USBD_REQ_NOTSUPP;
