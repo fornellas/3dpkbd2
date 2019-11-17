@@ -162,12 +162,6 @@ usbd_device *usbd_setup() {
 
 	usbd_register_resume_callback(usbd_dev, resume_callback);
 
-	// TODO
-	// usbd_register_set_altsetting_callback();
-
-	// TODO
-	// usbd_register_sof_callback();
-
 	usbd_register_suspend_callback(usbd_dev, suspend_callback);
 
 	return usbd_dev;

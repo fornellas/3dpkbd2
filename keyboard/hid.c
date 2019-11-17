@@ -96,10 +96,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	uint8_t interface_number;
 	uint8_t report_length;
 
-	// TODO
-	(void)report_id;
 	(void)dev;
-	(void)len;
 	(void)complete;
 
 	// 7.2.1 Get_Report Request
