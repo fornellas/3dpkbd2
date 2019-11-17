@@ -11,12 +11,13 @@
 //
 
 extern volatile uint32_t uptime_ms;
-
 extern uint8_t usb_remote_wakeup_enabled;
 extern uint8_t usb_suspended;
+
+uint8_t hid_protocol=1;
+
 static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;
-static uint8_t hid_protocol=1;
 static uint8_t hid_poll_enabled=0;
 static uint8_t hid_report_transmitting=0;
 static struct hid_in_report_data old_hid_in_report;
