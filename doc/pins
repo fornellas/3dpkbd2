@@ -1,0 +1,22 @@
+ Connection  | Function  |     Label     | Function  | Connection
+-------------+-----------+-------+-------+-----------+-----------  
+       Row 1 |           |  PB12 | 5V    |           | SSD1351 5V
+       Row 2 |           |  PB13 | GND   |           | SSD1351 GND
+       Row 3 |           |  PB14 | 3.3V  |           |
+       Row 4 |           |  PB15 | PB10  |           |
+       Row 5 |           |   PA8 | PB2   |           |
+       Row 6 |           |   PA9 | PB1   |           |
+       Row 7 |           |  PA10 | PB0   |           |
+             | USB_FS_DM |  PA11 | PA7   | SPI1_MOSI | SSD1351 SDA
+             | USB_FS_DP |  PA12 | PA6   |           |
+    Column 2 |           |  PA15 | PA5   | SPI1_SCK  | SSD1351 SCL
+    Column 3 |           |   PB3 | PA4   | GPIO OUT  | SSD1351 RES
+    Column 4 |           |   PB4 | PA3   | GPIO OUT  | SSD1351 DC
+    Column 5 |           |   PB5 | PA2   | GPIO OUT  | SSD1351 CS
+    Column 6 |           |   PB6 | PA1   |           | Column 1
+    Column 7 |           |   PB7 | PA0   |           |
+MCP23017 SCL | I2C1_SCL  |   PB8 | NRST  |           | Reset Button
+MCP23017 SDA | I2C1_SDA  |   PB9 | PC15  |           |
+MCP23017 5V  |           |    5V | PC14  |           |
+Reset Button |           |   GND | PC13  |           |
+             |           |  3.3V | VBAT  |           |

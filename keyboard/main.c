@@ -1,4 +1,5 @@
 #include "hid.h"
+#include "ucglib.h"
 #include "usb.h"
 #include "../common/key.h"
 #include "../common/led.h"
@@ -50,6 +51,15 @@ void sys_tick_handler(void) {
 int main(void) {
 	usbd_device *usbd_dev;
 
+	systick_setup();
+
+	// If just powered on, stall for some time to allow the voltage regulator
+	// on the OLED screen to catch up.
+	if(RCC_CSR & RCC_CSR_PORRSTF) {
+		uint32_t start_ms=uptime_ms;
+		while(uptime_ms - start_ms < 100);
+	}
+
 	// https://github.com/libopencm3/libopencm3/issues/1119#issuecomment-549041942
 	// DFU bootloader leaves state behind that prevents USB from working. If we
 	// detect we came from the bootloader, we do a software reset to restore
@@ -65,7 +75,7 @@ int main(void) {
 
 	key_setup();
 	led_setup();
-	systick_setup();
+	ucg_setup();
 
 	usbd_dev = usbd_setup();
 

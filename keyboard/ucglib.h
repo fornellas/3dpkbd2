@@ -1,0 +1,1 @@
+void ucg_setup(void);
