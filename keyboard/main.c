@@ -37,11 +37,12 @@ void soft_reset_if_pin_reset() {
 }
 
 void systick_setup(void) {
-	uptime_ms=0;
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
-	systick_set_reload((rcc_ahb_frequency / 8) / 1000);
-	systick_counter_enable();
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_set_reload(rcc_ahb_frequency / 1000 - 1);
 	systick_interrupt_enable();
+	systick_clear();
+	uptime_ms=0;
+	systick_counter_enable();
 }
 
 void sys_tick_handler(void) {
