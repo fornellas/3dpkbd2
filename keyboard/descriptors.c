@@ -16,8 +16,9 @@ const struct usb_device_descriptor dev_descr = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
-	// For the lack of a better option, use Atmel's IDs.
+	// TODO http://pid.codes/
 	.idVendor = 0x03EB, // Atmel Corp.
+	// TODO http://pid.codes/
 	.idProduct = 0x2042, // LUFA Keyboard Demo Application
 	.bcdDevice = 0x0100,
 	.iManufacturer = 1,
