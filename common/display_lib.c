@@ -1,4 +1,4 @@
-#include <ucglib.h>
+#include "display_lib.h"
 #include <ucg.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
@@ -30,23 +30,24 @@
 
 extern volatile uint32_t uptime_ms;
 
-void spi_write_and_wait_not_busy(uint16_t);
+ucg_t ucg;
 
-void spi_write_and_wait_not_busy(uint16_t data) {
-  spi_write(SPI_PERIPHERAL, data);
+static inline void spi_wait_not_busy(void);
+
+static inline void spi_wait_not_busy() {
   while (SPI_SR(SPI_PERIPHERAL) & SPI_SR_BSY);
 }
 
-int16_t ucg_com_cm3_4wire_HW_SPI(ucg_t *, int16_t, uint16_t, uint8_t *);
+static int16_t ucg_com_cm3_4wire_HW_SPI(ucg_t *, int16_t, uint16_t, uint8_t *);
 
-int16_t ucg_com_cm3_4wire_HW_SPI(
-    ucg_t *ucg,
+static int16_t ucg_com_cm3_4wire_HW_SPI(
+    ucg_t *_ucg,
     int16_t msg,
     uint16_t arg,
     uint8_t *data
 ) {
   uint32_t start_ms;
-  (void)ucg;
+  (void)_ucg;
 
   switch(msg) {
     case UCG_COM_MSG_POWER_UP:
@@ -84,7 +85,6 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
         SPI_CR1_DFF_8BIT,
         SPI_CR1_MSBFIRST
       );
-      spi_enable_ss_output(SPI_PERIPHERAL);
       spi_enable(SPI_PERIPHERAL);
 
       break;
@@ -114,6 +114,7 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
       /* "data" is not used */
       /* "arg" = 1: set the command/data (a0) output line to 1 */
       /* "arg" = 0: set the command/data (a0) output line to 0 */
+      spi_wait_not_busy();
       if(arg)
         gpio_set(CD_PORT, CD_GPIO);
       else
@@ -124,6 +125,7 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
       /* "data" is not used */
       /* "arg" = 1: set the chipselect output line to 1 */
       /* "arg" = 0: set the chipselect output line to 0 */
+      spi_wait_not_busy();
       if(arg)
         gpio_set(CS_PORT, CS_GPIO);
       else
@@ -134,7 +136,7 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
       /* "arg" contains one byte, which should be sent to the display */
       /* The current status of the CD line is available */
       /* in bit 0 of u8g->com_status */
-      spi_write_and_wait_not_busy(arg);
+      spi_write(SPI_PERIPHERAL, arg);
       break;
     case UCG_COM_MSG_REPEAT_1_BYTE:
       /* "data[0]" contains one byte */
@@ -142,7 +144,7 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
       /* The current status of the CD line is available */
       /* in bit 0 of u8g->com_status */
       while( arg > 0 ) {
-        spi_write_and_wait_not_busy(data[0]);
+        spi_send(SPI_PERIPHERAL, data[0]);
         arg--;
       }
       break;
@@ -153,8 +155,8 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
       /* The current status of the CD line is available */
       /* in bit 0 of u8g->com_status */
       while( arg > 0 ) {
-        spi_write_and_wait_not_busy(data[0]);
-        spi_write_and_wait_not_busy(data[1]);
+        spi_send(SPI_PERIPHERAL, data[0]);
+        spi_send(SPI_PERIPHERAL, data[1]);
         arg--;
       }
       break;
@@ -166,9 +168,9 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
       /* The current status of the CD line is available */
       /* in bit 0 of u8g->com_status */
       while( arg > 0 ) {
-        spi_write_and_wait_not_busy(data[0]);
-        spi_write_and_wait_not_busy(data[1]);
-        spi_write_and_wait_not_busy(data[2]);
+        spi_send(SPI_PERIPHERAL, data[0]);
+        spi_send(SPI_PERIPHERAL, data[1]);
+        spi_send(SPI_PERIPHERAL, data[2]);
         arg--;
       }
       break;
@@ -176,7 +178,7 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
       /* "data" is an array with "arg" bytes */
       /* send "arg" bytes to the display */
       while( arg > 0 ) {
-        spi_write_and_wait_not_busy(*data);
+        spi_send(SPI_PERIPHERAL, *data);
         data++;
         arg--;
       }
@@ -191,15 +193,17 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
         if ( *data != 0 ) {
           if ( *data == 1 ) {
             /* set CD (=D/C=A0) line to low */
+            spi_wait_not_busy();
             gpio_clear(CD_PORT, CD_GPIO);
           } else {
             /* set CD (=D/C=A0) line to high */
+            spi_wait_not_busy();
             gpio_set(CD_PORT, CD_GPIO);
           }
         }
         data++;
         /* send *data to the display */
-        spi_write_and_wait_not_busy(*data);
+        spi_send(SPI_PERIPHERAL, *data);
         data++;
         arg--;
       }
@@ -208,14 +212,8 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
   return 1;
 }
 
-void ucg_setup(void) {
-  static ucg_t ucg;
+void display_setup(void) {
   uint32_t start_ms;
-
-  // If just powered on, stall for some time to allow the voltage regulator
-  // on the OLED screen to catch up.
-  start_ms = uptime_ms;
-  while(uptime_ms - start_ms < 100);
 
   ucg_Init(
     &ucg,
@@ -225,6 +223,4 @@ void ucg_setup(void) {
   );
 
   ucg_ClearScreen(&ucg);
-
-  ucg_SetFontMode(&ucg, UCG_FONT_MODE_TRANSPARENT);
 } 

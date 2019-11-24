@@ -1,8 +1,8 @@
-#include "hid.h"
-#include "ucglib.h"
-#include "usb.h"
 #include "../common/key.h"
 #include "../common/led.h"
+#include "display.h"
+#include "hid.h"
+#include "usb.h"
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/stm32/rcc.h>
@@ -50,12 +50,13 @@ int main(void) {
 	systick_setup();
 	key_setup();
 	led_setup();
-	ucg_setup();
+	display_setup();
 
 	usbd_dev = usbd_setup();
 
 	while (1) {
 		usbd_poll(usbd_dev);
 		hid_poll(usbd_dev);
+		display_update();
 	}
 }

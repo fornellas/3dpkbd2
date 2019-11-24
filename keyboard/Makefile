@@ -1,7 +1,7 @@
 PROJECT = keyboard
 CUSTOM_LDSCRIPT= $(PROJECT).ld
 CFILES = $(wildcard *.c)
-CFILES += key.c led.c
+CFILES += key.c led.c display_lib.c
 
 UCGLIB_DIR = ucglib
 INCLUDES += -I$(UCGLIB_DIR)/csrc
