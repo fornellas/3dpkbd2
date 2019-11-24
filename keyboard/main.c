@@ -3,9 +3,7 @@
 #include "usb.h"
 #include "../common/key.h"
 #include "../common/led.h"
-#include "../common/pin_reset.h"
 #include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/scb.h>
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/usb/usbd.h>
@@ -20,21 +18,11 @@ uint32_t volatile uptime_ms;
 // Prototypes
 // 
 
-void soft_reset_if_pin_reset(void);
-
 void systick_setup(void);
 
 //
 // Functions
 //
-
-void soft_reset_if_pin_reset() {
-	int pin_reset = PIN_RESET;
-	RCC_CSR |= RCC_CSR_RMVF;
-
-	if(pin_reset)
-		scb_reset_system();
-}
 
 void systick_setup(void) {
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
@@ -52,21 +40,6 @@ void sys_tick_handler(void) {
 int main(void) {
 	usbd_device *usbd_dev;
 
-	systick_setup();
-
-	// If just powered on, stall for some time to allow the voltage regulator
-	// on the OLED screen to catch up.
-	if(RCC_CSR & RCC_CSR_PORRSTF) {
-		uint32_t start_ms=uptime_ms;
-		while(uptime_ms - start_ms < 100);
-	}
-
-	// https://github.com/libopencm3/libopencm3/issues/1119#issuecomment-549041942
-	// DFU bootloader leaves state behind that prevents USB from working. If we
-	// detect we came from the bootloader, we do a software reset to restore
-	// vanilla USB state and allow it to work.
-	soft_reset_if_pin_reset();
-
 	// TODO 96MHz
 	// PLLM 25
 	// PLLN 192
@@ -74,6 +47,7 @@ int main(void) {
 	// PLLQ 4
 	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[RCC_CLOCK_3V3_84MHZ]);
 
+	systick_setup();
 	key_setup();
 	led_setup();
 	ucg_setup();

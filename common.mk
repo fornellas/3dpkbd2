@@ -7,6 +7,13 @@ VPATH += $(SHARED_DIR)
 INCLUDES += $(patsubst %,-I%, . $(SHARED_DIR))
 OPENCM3_DIR=../libopencm3
 
+ # http://pid.codes/
+USB_VID=0x1209
+ # TODO register PID
+USB_PID=0x3dbd
+
+CFLAGS += -DUSB_VID=$(USB_VID) -DUSB_PID=$(USB_PID)
+
 include $(OPENCM3_DIR)/mk/genlink-config.mk
 
 include ../rules.mk
@@ -18,9 +25,3 @@ $(LDSCRIPT): $(CUSTOM_LDSCRIPT)
 	@printf "  GENLNK  $(DEVICE) ($<)\n"
 	$(Q)ln -s $< $@
 endif
-
-dfu: ${PROJECT}.bin $(LDSCRIPT)
-	@printf "  DFU-UTIL  $<\n"
-	$(Q)$(SHARED_DIR)/dfu-util-wrapper.sh $(LDSCRIPT) $(PROJECT).bin
-
-.PHONY: dfu

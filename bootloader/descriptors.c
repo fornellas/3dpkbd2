@@ -18,10 +18,8 @@ const struct usb_device_descriptor dev_descr = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
-	// TODO http://pid.codes/
-	.idVendor = 0x0483,
-	// TODO http://pid.codes/
-	.idProduct = 0xDF11,
+	.idVendor = USB_VID,
+	.idProduct = USB_PID,
 	.bcdDevice = 0x0100,
 	.iManufacturer = 1,
 	.iProduct = 2,

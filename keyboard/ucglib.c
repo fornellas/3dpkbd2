@@ -210,6 +210,12 @@ int16_t ucg_com_cm3_4wire_HW_SPI(
 
 void ucg_setup(void) {
   static ucg_t ucg;
+  uint32_t start_ms;
+
+  // If just powered on, stall for some time to allow the voltage regulator
+  // on the OLED screen to catch up.
+  start_ms = uptime_ms;
+  while(uptime_ms - start_ms < 100);
 
   ucg_Init(
     &ucg,

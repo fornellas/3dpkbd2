@@ -16,10 +16,8 @@ const struct usb_device_descriptor dev_descr = {
 	.bDeviceSubClass = 0,
 	.bDeviceProtocol = 0,
 	.bMaxPacketSize0 = 64,
-	// TODO http://pid.codes/
-	.idVendor = 0x03EB, // Atmel Corp.
-	// TODO http://pid.codes/
-	.idProduct = 0x2042, // LUFA Keyboard Demo Application
+	.idVendor = USB_VID,
+	.idProduct = USB_PID,
 	.bcdDevice = 0x0100,
 	.iManufacturer = 1,
 	.iProduct = 2,
