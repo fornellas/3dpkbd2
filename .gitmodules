@@ -2,5 +2,5 @@
 	path = libopencm3
 	url = https://github.com/libopencm3/libopencm3
 [submodule "ucglib"]
-	path = keyboard/ucglib
+	path = ucglib
 	url = https://github.com/olikraus/ucglib.git

@@ -1,4 +1,4 @@
-#include "../common/led.h"
+#include "led.h"
 #include "addresses.h"
 #include "usb.h"
 #include <libopencm3/cm3/scb.h>

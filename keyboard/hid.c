@@ -1,7 +1,7 @@
-#include "../common/key.h"
-#include "../common/led.h"
 #include "descriptors.h"
 #include "hid.h"
+#include "lib/key.h"
+#include "lib/led.h"
 #include "usb.h"
 #include <stdlib.h>
 #include <string.h>
