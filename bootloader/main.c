@@ -1,7 +1,7 @@
-#include "addresses.h"
-#include "usb.h"
 #include "../common/led.h"
 #include "../common/pin_reset.h"
+#include "addresses.h"
+#include "usb.h"
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>

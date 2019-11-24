@@ -1,7 +1,9 @@
 #include "addresses.h"
 #include "descriptors.h"
 #include "dfu.h"
+#include "led.h"
 #include "usb.h"
+#include <libopencm3/cm3/scb.h>
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/usb/dfu.h>
@@ -59,18 +61,19 @@ void dfu_write(uint8_t *, uint32_t);
 void dfu_write(uint8_t *data, uint32_t length) {
 	uint8_t sector;
 
+	led_toggle();
+
 	flash_unlock();
 
 	sector = get_sector(current_address);
 
 	if(! ((1<<sector) & erased_sectors)) {
-		flash_erase_sector(sector, 3);
+		flash_erase_sector(sector, FLASH_CR_PROGRAM_X8);
 		erased_sectors |= (1<<sector);
 	}
 
-	for(uint32_t i=0 ; i < length ; i++, current_address++) {
-		flash_program_byte(current_address, data[i]);
-	}
+	flash_program(current_address, data, length);
+	current_address += length;
 
 	flash_lock();
 }
@@ -123,7 +126,8 @@ static enum usbd_request_return_codes dfu_control_request(
 
 			return USBD_REQ_HANDLED;
 		} else {
-			// TODO
+			status = DFU_STATUS_OK;
+			state = STATE_DFU_MANIFEST_SYNC;
 			return USBD_REQ_HANDLED;
 		}
 	}
@@ -160,6 +164,8 @@ static enum usbd_request_return_codes dfu_control_request(
 		status_payload->bwPollTimeout[2] = 0;
 		if(state == STATE_DFU_DNLOAD_SYNC) {
 			state = STATE_DFU_DNLOAD_IDLE;
+		} else if(state == STATE_DFU_MANIFEST_SYNC) {
+			state = STATE_DFU_IDLE;
 		}
 		status_payload->bState = state;
 		status_payload->iString = 0;
@@ -199,13 +205,24 @@ static enum usbd_request_return_codes dfu_control_request(
 	return USBD_REQ_NOTSUPP;
 }
 
-void dfu_set_config_callback(usbd_device * usb_dev) {
+
+
+void reset_callback(void);
+
+void reset_callback(void) {
+	scb_reset_system();
+}
+
+
+void dfu_set_config_callback(usbd_device *usbd_dev) {
 	dfu_reset();
 
 	usbd_register_control_callback(
-		usb_dev,
+		usbd_dev,
 		USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
 		USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
 		dfu_control_request
 	);
+
+	usbd_register_reset_callback(usbd_dev, reset_callback);
 }

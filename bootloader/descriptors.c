@@ -79,12 +79,12 @@ const struct usb_dfu_descriptor dfu_function = {
 	.bDescriptorType = DFU_FUNCTIONAL,
 	.bmAttributes = (
 		// download capable (bitCanDnload)
-		USB_DFU_CAN_DOWNLOAD
+		USB_DFU_CAN_DOWNLOAD |
 		// upload capable (bitCanUpload)
 		// USB_DFU_CAN_UPLOAD |
 		// device is able to communicate via USB after Manifestation phase.
 		// (bitManifestationTolerant)
-		// USB_DFU_MANIFEST_TOLERANT |
+		USB_DFU_MANIFEST_TOLERANT
 		// Device will perform a bus detach-attach sequence when it receives
 		// a DFU_DETACH request. The host must not issue a USB Reset.
 		// (bitWillDetach)

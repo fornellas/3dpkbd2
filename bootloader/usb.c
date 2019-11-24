@@ -18,7 +18,7 @@ uint8_t usbd_control_buffer[1024];
 // Prototypes
 //
 
-void set_config_callback(usbd_device *dev, uint16_t wValue);
+void set_config_callback(usbd_device *, uint16_t);
 
 //
 // Functions
