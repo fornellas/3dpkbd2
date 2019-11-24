@@ -1,0 +1,167 @@
+DFU 1.1
+=======
+
+Protocol 1: Runtime
+Protocol 2: DFU mode
+
+Control Request
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			0 = Host to Device
+			1 = Device to Host
+		D6..5 Type
+			0 = Standard
+			1 = Class
+			2 = Vendor
+			3 = Reserved
+		D4..0 Recipient
+			0 = Device
+			1 = Interface
+			2 = Endpoint
+			3 = Other
+			4..31 = Reserved
+	bRequest
+	wValue
+	wIndex
+	wLength
+	data
+
+DFU_DETACH
+	Protocol 1
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			0 = Host to Device
+		D6..5 Type
+			0 = Standard
+		D4..0 Recipient
+			1 = Interface
+	bRequest
+		DFU_DETACH
+	wValue
+		wTimeout
+	wIndex
+		Interface
+	wLength
+		0
+	data
+		None
+
+DFU_DNLOAD
+	Protocol 2
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			0 = Host to Device
+		D6..5 Type
+			1 = Class
+		D4..0 Recipient
+			1 = Interface
+	bRequest
+		DFU_DNLOAD
+	wValue
+		wBlockNum
+	wIndex
+		Interface
+	wLength
+		Length
+	data
+		Firmware
+
+DFU_UPLOAD
+	Protocol 2
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			1 = Device to Host
+		D6..5 Type
+			1 = Class
+		D4..0 Recipient
+			1 = Interface
+	bRequest
+		DFU_UPLOAD
+	wValue
+		0
+	wIndex
+		Interface
+	wLength
+		Length
+	data
+		Firmware
+
+DFU_GETSTATUS
+	Protocol 1 (optional), 2
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			1 = Device to Host
+		D6..5 Type
+			1 = Class
+		D4..0 Recipient
+			1 = Interface
+	bRequest
+		DFU_GETSTATUS
+	wValue
+		0
+	wIndex
+		Interface
+	wLength
+		6
+	data
+		Status
+
+DFU_CLRSTATUS
+	Protocol 2
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			0 = Host to Device
+		D6..5 Type
+			1 = Class
+		D4..0 Recipient
+			1 = Interface
+	bRequest
+		DFU_CLRSTATUS
+	wValue
+		0
+	wIndex
+		Interface
+	wLength
+		0
+	data
+		None
+
+DFU_GETSTATE
+	Protocol 1 (optional), 2
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			1 = Device to Host
+		D6..5 Type
+			1 = Class
+		D4..0 Recipient
+			1 = Interface
+	bRequest
+		DFU_GETSTATE
+	wValue
+		0
+	wIndex
+		Interface
+	wLength
+		1
+	data
+		State
+
+DFU_ABORT
+	Protocol 2
+	bmRequestType
+		D7 Data Phase Transfer Direction
+			0 = Host to Device
+		D6..5 Type
+			1 = Class
+		D4..0 Recipient
+			1 = Interface
+	bRequest
+		DFU_ABORT
+	wValue
+		0
+	wIndex
+		Interface
+	wLength
+		0
+	data
+		None
