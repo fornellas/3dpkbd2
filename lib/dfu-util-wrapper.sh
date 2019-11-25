@@ -6,12 +6,7 @@ EXIT=$?
 
 if [ $EXIT -ne 0 ]
 then
-	if echo "$OUTPUT" | grep -Eq "^File downloaded successfully$"
-	then
-		exit 0
-	else
-		echo "${DFU[@]}"
-		echo "$OUTPUT"
-		exit $EXIT
-	fi
+	echo "${DFU[@]}"
+	echo "$OUTPUT"
+	exit $EXIT
 fi
