@@ -12,7 +12,7 @@
 
 extern volatile uint32_t uptime_ms;
 
-uint8_t usbd_control_buffer[1024];
+uint8_t usbd_control_buffer[];
 
 //
 // Prototypes
