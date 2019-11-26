@@ -24,34 +24,39 @@ struct dfu_getstatus_payload {
 	uint8_t iString;
 } __attribute__((packed));
 
-static uint8_t status = DFU_STATUS_OK;
-static uint8_t state = STATE_DFU_IDLE;
-static uint32_t current_address = MAIN_PROGRAM_BASE;
+uint8_t status = DFU_STATUS_OK;
+uint8_t state = STATE_DFU_IDLE;
+uint32_t address = MAIN_PROGRAM_BASE;
+uint32_t bytes = 0;
+uint16_t block_num = 0;
+
 static uint32_t erased_sectors = 0;
 
 static void dfu_reset(void) {
 	status = DFU_STATUS_OK;
 	state = STATE_DFU_IDLE;
-	current_address = MAIN_PROGRAM_BASE;
+	address = MAIN_PROGRAM_BASE;
 	erased_sectors = 0;
+	bytes = 0;
+	block_num = 0;
 }
 
-static uint8_t get_sector(uint32_t address) {
-	if(address >= 0x08000000 && address <= 0x08003FFF)
+static uint8_t get_sector(uint32_t addr) {
+	if(addr >= 0x08000000 && addr <= 0x08003FFF)
 		return 0;
-	if(address >= 0x08004000 && address <= 0x08007FFF)
+	if(addr >= 0x08004000 && addr <= 0x08007FFF)
 		return 1;
-	if(address >= 0x08008000 && address <= 0x0800BFFF)
+	if(addr >= 0x08008000 && addr <= 0x0800BFFF)
 		return 2;
-	if(address >= 0x0800C000 && address <= 0x0800FFFF)
+	if(addr >= 0x0800C000 && addr <= 0x0800FFFF)
 		return 3;
-	if(address >= 0x08010000 && address <= 0x0801FFFF)
+	if(addr >= 0x08010000 && addr <= 0x0801FFFF)
 		return 4;
-	if(address >= 0x08020000 && address <= 0x0803FFFF)
+	if(addr >= 0x08020000 && addr <= 0x0803FFFF)
 		return 5;
-	if(address >= 0x08040000 && address <= 0x0805FFFF)
+	if(addr >= 0x08040000 && addr <= 0x0805FFFF)
 		return 6;
-	if(address >= 0x08060000 && address <= 0x0807FFFF)
+	if(addr >= 0x08060000 && addr <= 0x0807FFFF)
 		return 7;
 	return 0;
 }
@@ -65,15 +70,15 @@ void dfu_write(uint8_t *data, uint32_t length) {
 
 	flash_unlock();
 
-	sector = get_sector(current_address);
+	sector = get_sector(address);
 
 	if(! ((1<<sector) & erased_sectors)) {
 		flash_erase_sector(sector, FLASH_CR_PROGRAM_X8);
 		erased_sectors |= (1<<sector);
 	}
 
-	flash_program(current_address, data, length);
-	current_address += length;
+	flash_program(address, data, length);
+	address += length;
 
 	flash_lock();
 }
@@ -98,29 +103,24 @@ static enum usbd_request_return_codes dfu_control_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
 		&& (req->bRequest == DFU_DNLOAD)
 	) {
-		uint32_t wBlockNum;
-		uint32_t wLength;
-		uint8_t *data;
 
-		wBlockNum = req->wValue;
-		(void)wBlockNum;
-		wLength = req->wLength;
-		data = *buf;
+		block_num = req->wValue;
+		bytes += req->wLength;
 
-		if(wLength) {
-			if(wLength > dfu_function.wTransferSize) {
+		if(req->wLength) {
+			if(req->wLength > dfu_function.wTransferSize) {
 				state = STATE_DFU_ERROR;
 				status = DFU_STATUS_ERR_UNKNOWN;
 				return USBD_REQ_NOTSUPP;
 			}
 
-			if(current_address + wLength > MAIN_MEMORY_MAX) {
+			if(address + req->wLength > MAIN_MEMORY_MAX) {
 				state = STATE_DFU_ERROR;
 				status = DFU_STATUS_ERR_ADDRESS;
 				return USBD_REQ_HANDLED;
 			}
 
-			dfu_write(data, wLength);
+			dfu_write(*buf, req->wLength);
 			status = DFU_STATUS_OK;
 			state = STATE_DFU_DNLOAD_SYNC;
 
