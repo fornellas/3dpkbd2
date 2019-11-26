@@ -2,7 +2,7 @@
 
 char usb_serial_number[25];
 
-const char *usb_strings[] = {
+const char *usb_strings[USB_STRINGS_NUM] = {
 	"Fabio Pugliese Ornellas",
 	"3D Printed Keyboard 2",
 	usb_serial_number,
@@ -37,6 +37,7 @@ const struct usb_config_descriptor conf_descr = {
 		USB_CONFIG_ATTR_SELF_POWERED |
 		USB_CONFIG_ATTR_REMOTE_WAKEUP
 	),
+	// TODO set accurate value
 	.bMaxPower = 250, // 500 mAh
 
 	.interface = interfaces,

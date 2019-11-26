@@ -11,14 +11,10 @@
 // Variables
 //
 
-extern uint8_t usb_remote_wakeup_enabled;
-extern uint8_t usb_suspended;
-
 uint8_t hid_protocol=1;
 
 static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;
-static uint8_t hid_poll_enabled=0;
 static uint8_t hid_report_transmitting=0;
 static struct hid_in_report_data old_hid_in_report;
 
@@ -28,7 +24,7 @@ static struct hid_in_report_data old_hid_in_report;
 
 static void get_hid_in_report(struct hid_in_report_data *);
 
-void send_in_report(usbd_device *dev, struct hid_in_report_data *);
+static void send_in_report(usbd_device *dev, struct hid_in_report_data *);
 
 //
 // Functions
@@ -247,14 +243,6 @@ static void hid_endpoint_interrupt_in_transfer_complete(usbd_device *usbd_dev, u
 	hid_report_transmitting = 0;
 }
 
-void hid_poll_enable() {
-	hid_poll_enabled = 1;
-}
-
-void hid_poll_disable() {
-	hid_poll_enabled = 0;
-}
-
 void hid_set_config_callback(usbd_device *dev) {
 	usbd_register_control_callback(
 		dev,
@@ -283,8 +271,6 @@ void hid_set_config_callback(usbd_device *dev) {
 	idle_finish_ms = 0;
 
 	get_hid_in_report(&old_hid_in_report);
-
-	hid_poll_enable();
 }
 
 static void get_hid_in_report(struct hid_in_report_data *hid_in_report) {
@@ -296,7 +282,7 @@ static void get_hid_in_report(struct hid_in_report_data *hid_in_report) {
 }
 
 
-void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_in_report) {
+static void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_in_report) {
 	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data));
 	hid_report_transmitting = 1;
 	usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, sizeof(struct hid_in_report_data));
@@ -306,7 +292,7 @@ void hid_poll(usbd_device *dev) {
 	struct hid_in_report_data new_hid_in_report;
 	uint32_t now;
 
-	if(usb_suspended && usb_remote_wakeup_enabled) {
+	if((usbd_state == USBD_STATE_SUSPENDED) && usb_remote_wakeup_enabled) {
 		uint8_t *new_hid_in_report_bytes;
 
 		get_hid_in_report(&new_hid_in_report);
@@ -322,7 +308,7 @@ void hid_poll(usbd_device *dev) {
 		return;
 	}
 
-	if(!hid_poll_enabled)
+	if(!(usbd_state == USBD_STATE_CONFIGURED))
 		return;
 
 	if(hid_report_transmitting)

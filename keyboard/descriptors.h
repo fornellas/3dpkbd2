@@ -1,9 +1,13 @@
+#ifndef DESCRIPTORS_H
+#define DESCRIPTORS_H
+
 #include <libopencm3/usb/hid.h>
 #include <libopencm3/usb/usbstd.h>
 
 extern char usb_serial_number[25];
 
-extern const char *usb_strings[];
+#define USB_STRINGS_NUM 3
+extern const char *usb_strings[USB_STRINGS_NUM];
 
 extern const struct usb_device_descriptor dev_descr;
 
@@ -43,3 +47,5 @@ struct hid_in_report_data {
 
 // Must match hid_report_descriptor
 typedef uint8_t hid_out_report_data;
+
+#endif

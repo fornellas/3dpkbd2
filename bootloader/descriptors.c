@@ -3,7 +3,7 @@
 
 char usb_serial_number[25];
 
-const char *usb_strings[] = {
+const char *usb_strings[USB_STRINGS_NUM] = {
 	"Fabio Pugliese Ornellas",
 	"DFU for 3D Printed Keyboard 2",
 	usb_serial_number,

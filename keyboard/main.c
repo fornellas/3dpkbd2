@@ -4,11 +4,7 @@
 #include "lib/led.h"
 #include "systick.h"
 #include "usb.h"
-// #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/rcc.h>
-// #include <libopencm3/cm3/systick.h>
-
-// #include <libopencm3/usb/usbd.h>
 
 int main(void) {
 	usbd_device *usbd_dev;

@@ -3,7 +3,8 @@
 
 extern char usb_serial_number[25];
 
-extern const char *usb_strings[];
+#define USB_STRINGS_NUM 4
+extern const char *usb_strings[USB_STRINGS_NUM];
 
 #define CONFIGURATION_VALUE 1
 
