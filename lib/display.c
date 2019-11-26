@@ -1,4 +1,4 @@
-#include "display_lib.h"
+#include "display.h"
 #include "lib/systick.h"
 #include <ucg.h>
 #include <libopencm3/stm32/gpio.h>

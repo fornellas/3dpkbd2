@@ -1,3 +1,3 @@
-#include "lib/display_lib.h"
+#include "lib/display.h"
 
 void display_update(void);
