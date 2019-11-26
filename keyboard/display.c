@@ -1,11 +1,18 @@
 #include "display.h"
 
 void display_update(void) {
+  static uint8_t first=1;
+
+  if(!first)
+    return;
+
   ucg_SetColor(&ucg, 0, 255, 0, 0);
   ucg_SetColor(&ucg, 2, 0, 255, 0);
   ucg_SetColor(&ucg, 1, 0, 0, 255);
   ucg_SetColor(&ucg, 3, 255, 255, 255);
   ucg_DrawGradientBox(&ucg, 0, 0, ucg_GetWidth(&ucg), ucg_GetHeight(&ucg));
+
+  first = 0;
   // while(1) {
   //   // Blue > Red > Green > White
   //   for(int16_t d=255, i=0 ; d >= 0 && i <= 255 ; d-=5, i+=5) {
