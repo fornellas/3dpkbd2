@@ -2,6 +2,7 @@
 #include "hid.h"
 #include "lib/key.h"
 #include "lib/led.h"
+#include "lib/systick.h"
 #include "usb.h"
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +11,6 @@
 // Variables
 //
 
-extern volatile uint32_t uptime_ms;
 extern uint8_t usb_remote_wakeup_enabled;
 extern uint8_t usb_suspended;
 
@@ -191,7 +191,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 			return USBD_REQ_NOTSUPP;
 
 		idle_rate_ms = duration_ms;
-		idle_finish_ms = uptime_ms + idle_rate_ms;
+		idle_finish_ms = uptime_ms() + idle_rate_ms;
 
 		return USBD_REQ_HANDLED;
 	}
@@ -336,7 +336,7 @@ void hid_poll(usbd_device *dev) {
 	// Only send if there are changes or at idle rate
 	}else if(idle_rate_ms > 0) {
 		get_hid_in_report(&new_hid_in_report);
-		now = uptime_ms;
+		now = uptime_ms();
 		if(now >= idle_finish_ms) {
 			send_in_report(dev, &new_hid_in_report);
 			idle_finish_ms = now + idle_rate_ms;

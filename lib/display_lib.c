@@ -1,4 +1,5 @@
 #include "display_lib.h"
+#include "lib/systick.h"
 #include <ucg.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
@@ -27,8 +28,6 @@
 #define RCC_MOSI        RCC_GPIOA
 #define MOSI_PORT       GPIOA
 #define MOSI_GPIO       GPIO7
-
-extern volatile uint32_t uptime_ms;
 
 ucg_t ucg;
 
@@ -214,6 +213,9 @@ static int16_t ucg_com_cm3_4wire_HW_SPI(
 
 void display_setup(void) {
   uint32_t start_ms;
+
+  // Sleep a bit to allow the voltage regulator to stabilize
+  delay_ms(50);
 
   ucg_Init(
     &ucg,
