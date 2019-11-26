@@ -10,8 +10,6 @@
 // Variables
 //
 
-extern volatile uint32_t uptime_ms;
-
 uint8_t usbd_control_buffer[];
 
 uint8_t usbd_state;

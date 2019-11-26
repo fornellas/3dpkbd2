@@ -1,5 +1,6 @@
 #include "descriptors.h"
 #include "hid.h"
+#include "lib/systick.h"
 #include "usb.h"
 #include <libopencm3/stm32/desig.h>
 #include <libopencm3/stm32/gpio.h>
@@ -9,8 +10,6 @@
 //
 // Variables
 //
-
-extern volatile uint32_t uptime_ms;
 
 uint8_t usb_remote_wakeup_enabled = 0;
 uint8_t usb_suspended=0;
@@ -168,9 +167,10 @@ usbd_device *usbd_setup() {
 }
 
 void usdb_remote_wakeup_signal() {
-	uint32_t start_ms = uptime_ms;
+	uint32_t start_ms;
 
+	start_ms = uptime_ms();
 	OTG_FS_DCTL |= OTG_DCTL_RWUSIG;
-	while(uptime_ms - start_ms < 2);
+	while(uptime_ms() - start_ms < 2);
 	OTG_FS_DCTL &= ~OTG_DCTL_RWUSIG;
 }
