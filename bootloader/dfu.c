@@ -165,7 +165,7 @@ static enum usbd_request_return_codes dfu_control_request(
 		if(dfu_state == STATE_DFU_DNLOAD_SYNC) {
 			dfu_state = STATE_DFU_DNLOAD_IDLE;
 		} else if(dfu_state == STATE_DFU_MANIFEST_SYNC) {
-			dfu_state = STATE_DFU_IDLE;
+			dfu_reset();
 		}
 		status_payload->bState = dfu_state;
 		status_payload->iString = 0;
