@@ -24,21 +24,21 @@ struct dfu_getstatus_payload {
 	uint8_t iString;
 } __attribute__((packed));
 
-uint8_t status = DFU_STATUS_OK;
-uint8_t state = STATE_DFU_IDLE;
-uint32_t address = MAIN_PROGRAM_BASE;
-uint32_t bytes = 0;
-uint16_t block_num = 0;
+uint8_t dfu_status = DFU_STATUS_OK;
+uint8_t dfu_state = STATE_DFU_IDLE;
+uint32_t dfu_address = MAIN_PROGRAM_BASE;
+uint32_t dfu_bytes = 0;
+uint16_t dfu_block_num = 0;
 
 static uint32_t erased_sectors = 0;
 
 static void dfu_reset(void) {
-	status = DFU_STATUS_OK;
-	state = STATE_DFU_IDLE;
-	address = MAIN_PROGRAM_BASE;
+	dfu_status = DFU_STATUS_OK;
+	dfu_state = STATE_DFU_IDLE;
+	dfu_address = MAIN_PROGRAM_BASE;
+	dfu_bytes = 0;
+	dfu_block_num = 0;
 	erased_sectors = 0;
-	bytes = 0;
-	block_num = 0;
 }
 
 static uint8_t get_sector(uint32_t addr) {
@@ -70,15 +70,15 @@ void dfu_write(uint8_t *data, uint32_t length) {
 
 	flash_unlock();
 
-	sector = get_sector(address);
+	sector = get_sector(dfu_address);
 
 	if(! ((1<<sector) & erased_sectors)) {
 		flash_erase_sector(sector, FLASH_CR_PROGRAM_X8);
 		erased_sectors |= (1<<sector);
 	}
 
-	flash_program(address, data, length);
-	address += length;
+	flash_program(dfu_address, data, length);
+	dfu_address += length;
 
 	flash_lock();
 }
@@ -104,30 +104,30 @@ static enum usbd_request_return_codes dfu_control_request(
 		&& (req->bRequest == DFU_DNLOAD)
 	) {
 
-		block_num = req->wValue;
-		bytes += req->wLength;
+		dfu_block_num = req->wValue;
+		dfu_bytes += req->wLength;
 
 		if(req->wLength) {
 			if(req->wLength > dfu_function.wTransferSize) {
-				state = STATE_DFU_ERROR;
-				status = DFU_STATUS_ERR_UNKNOWN;
+				dfu_state = STATE_DFU_ERROR;
+				dfu_status = DFU_STATUS_ERR_UNKNOWN;
 				return USBD_REQ_NOTSUPP;
 			}
 
-			if(address + req->wLength > MAIN_MEMORY_MAX) {
-				state = STATE_DFU_ERROR;
-				status = DFU_STATUS_ERR_ADDRESS;
+			if(dfu_address + req->wLength > MAIN_MEMORY_MAX) {
+				dfu_state = STATE_DFU_ERROR;
+				dfu_status = DFU_STATUS_ERR_ADDRESS;
 				return USBD_REQ_HANDLED;
 			}
 
 			dfu_write(*buf, req->wLength);
-			status = DFU_STATUS_OK;
-			state = STATE_DFU_DNLOAD_SYNC;
+			dfu_status = DFU_STATUS_OK;
+			dfu_state = STATE_DFU_DNLOAD_SYNC;
 
 			return USBD_REQ_HANDLED;
 		} else {
-			status = DFU_STATUS_OK;
-			state = STATE_DFU_MANIFEST_SYNC;
+			dfu_status = DFU_STATUS_OK;
+			dfu_state = STATE_DFU_MANIFEST_SYNC;
 			return USBD_REQ_HANDLED;
 		}
 	}
@@ -158,16 +158,16 @@ static enum usbd_request_return_codes dfu_control_request(
 
 		status_payload = (struct dfu_getstatus_payload *)(*buf);
 
-		status_payload->bStatus = status;
+		status_payload->bStatus = dfu_status;
 		status_payload->bwPollTimeout[0] = 0;
 		status_payload->bwPollTimeout[1] = 0;
 		status_payload->bwPollTimeout[2] = 0;
-		if(state == STATE_DFU_DNLOAD_SYNC) {
-			state = STATE_DFU_DNLOAD_IDLE;
-		} else if(state == STATE_DFU_MANIFEST_SYNC) {
-			state = STATE_DFU_IDLE;
+		if(dfu_state == STATE_DFU_DNLOAD_SYNC) {
+			dfu_state = STATE_DFU_DNLOAD_IDLE;
+		} else if(dfu_state == STATE_DFU_MANIFEST_SYNC) {
+			dfu_state = STATE_DFU_IDLE;
 		}
-		status_payload->bState = state;
+		status_payload->bState = dfu_state;
 		status_payload->iString = 0;
 
 		*len = sizeof(struct dfu_getstatus_payload);
@@ -179,7 +179,7 @@ static enum usbd_request_return_codes dfu_control_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
 		&& (req->bRequest == DFU_CLRSTATUS)
 	) {
-		if (state == STATE_DFU_ERROR) {
+		if (dfu_state == STATE_DFU_ERROR) {
 			dfu_reset();
 		}
 		return USBD_REQ_HANDLED;
@@ -189,7 +189,7 @@ static enum usbd_request_return_codes dfu_control_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&& (req->bRequest == DFU_GETSTATE)
 	) {
-		*buf[0] = state;
+		*buf[0] = dfu_state;
 		*len = 1;
 		return USBD_REQ_HANDLED;
 	}
