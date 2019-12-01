@@ -1,6 +1,6 @@
 [submodule "libopencm3"]
 	path = libopencm3
-	url = https://github.com/libopencm3/libopencm3
+	url = https://github.com/fornellas/libopencm3.git
 [submodule "ucglib"]
 	path = ucglib
-	url = https://github.com/olikraus/ucglib.git
+	url = https://github.com/fornellas/ucglib.git

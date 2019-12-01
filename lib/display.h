@@ -1,5 +1,5 @@
 #include <ucg.h>
 
-extern ucg_t ucg;
+ucg_t *display_setup_base(void);
 
-void display_setup(void);
+void display_refresh(void);

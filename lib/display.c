@@ -29,7 +29,7 @@
 #define MOSI_PORT       GPIOA
 #define MOSI_GPIO       GPIO7
 
-ucg_t ucg;
+static ucg_t ucg;
 
 static inline void spi_wait_not_busy(void);
 
@@ -211,18 +211,17 @@ static int16_t ucg_com_cm3_4wire_HW_SPI(
   return 1;
 }
 
-void display_setup(void) {
-  uint32_t start_ms;
-
+ucg_t *display_setup_base(void) {
   // Sleep a bit to allow the voltage regulator to stabilize
   delay_ms(50);
 
-  ucg_Init(
+  ucg_InitBuffer(
     &ucg,
     ucg_dev_ssd1351_18x128x128_ilsoft,
     ucg_ext_ssd1351_18,
     ucg_com_cm3_4wire_HW_SPI
   );
+  ucg_SendBuffer(&ucg);
 
-  ucg_ClearScreen(&ucg);
-} 
+  return &ucg;
+}
