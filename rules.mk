@@ -49,8 +49,14 @@ LD	= $(PREFIX)gcc
 OBJCOPY	= $(PREFIX)objcopy
 OBJDUMP	= $(PREFIX)objdump
 OOCD	?= openocd
+PPM_CONVERT = lib/images/ppm_convert
 
 OPENCM3_INC = $(OPENCM3_DIR)/include
+
+PPM_PATH = lib/images
+PPM_SRCS = $(wildcard $(PPM_PATH)/*.ppm)
+GENERATED_PPM_HEADERS = $(PPM_SRCS:%.ppm=$(BUILD_DIR)/%.h)
+INCLUDES += -I$(BUILD_DIR)
 
 # Inclusion of library header files
 INCLUDES += $(patsubst %,-I%, . $(OPENCM3_INC) )
@@ -121,8 +127,13 @@ else
 GENERATED_BINS += $(LDSCRIPT)
 endif
 
+$(BUILD_DIR)/$(PPM_PATH)/%.h: $(PPM_PATH)/%.ppm $(PPM_CONVERT)
+	@printf "  PPM_CONVERT\t$<\n"
+	$(Q)mkdir -p $(dir $@)
+	$(Q)$(PPM_CONVERT) $< > $@
+
 # Need a special rule to have a bin dir
-$(BUILD_DIR)/%.o: %.c
+$(BUILD_DIR)/%.o: %.c $(GENERATED_PPM_HEADERS)
 	@printf "  CC\t$<\n"
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) $(TGT_CFLAGS) $(CFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $@ -c $<
@@ -165,6 +176,8 @@ else
 		-c "program $(realpath $(*).elf) verify reset exit" \
 		$(NULL)
 endif
+
+.SECONDARY: $(GENERATED_PPM_HEADERS)
 
 clean:
 	rm -rf $(BUILD_DIR) $(GENERATED_BINS)

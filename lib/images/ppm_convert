@@ -1,0 +1,39 @@
+#!/usr/bin/gawk -f
+BEGIN {
+    STATE="header"
+    LEN = split(ARGV[1], PIECES, "[./]")
+    NAME = PIECES[LEN - 1]
+}
+/^#/ {
+    next
+}
+{
+  switch(STATE) {
+    case "header":
+        if($0 != "P3") {
+            print "Not P3 format" > "/dev/stderr"
+            exit 1
+        }
+        STATE="geometry"
+        next
+    case "geometry":
+        print "#define "NAME"_width " $1
+        print "#define "NAME"_height " $2
+        print ""
+        print "static unsigned char "NAME"_data[] = {"
+        STATE="data"
+        first = 1
+        next
+    case "data":
+        if(first) {
+            printf("  %s", $0)
+            first = 0
+        } else {
+            printf(",\n  %s", $0)
+        }
+  }
+}
+END {
+    print ""
+    print "};"
+}

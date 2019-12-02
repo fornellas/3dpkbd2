@@ -3,3 +3,4 @@ bin/
 *.bin
 generated.*.ld
 generated.devices.data
+lib/images/*.h
