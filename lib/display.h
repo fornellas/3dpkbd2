@@ -3,3 +3,5 @@
 ucg_t *display_setup_base(void);
 
 void display_refresh(void);
+
+void ucg_DrawPixmap(ucg_t *ucg, ucg_int_t x, ucg_int_t y, ucg_int_t width, ucg_int_t height, const unsigned char *data);

@@ -20,7 +20,7 @@ BEGIN {
         print "#define "NAME"_width " $1
         print "#define "NAME"_height " $2
         print ""
-        print "static unsigned char "NAME"_data[] = {"
+        print "static const unsigned char "NAME"_data[] = {"
         STATE="data"
         first = 1
         next
