@@ -1,5 +1,6 @@
 #include "descriptors.h"
 #include "dfu.h"
+#include "display.h"
 #include "led.h"
 #include "lib/addresses.h"
 #include "usb.h"
@@ -104,9 +105,6 @@ static enum usbd_request_return_codes dfu_control_request(
 		&& (req->bRequest == DFU_DNLOAD)
 	) {
 
-		dfu_block_num = req->wValue;
-		dfu_bytes += req->wLength;
-
 		if(req->wLength) {
 			if(req->wLength > dfu_function.wTransferSize) {
 				dfu_state = STATE_DFU_ERROR;
@@ -120,9 +118,16 @@ static enum usbd_request_return_codes dfu_control_request(
 				return USBD_REQ_HANDLED;
 			}
 
-			dfu_write(*buf, req->wLength);
 			dfu_status = DFU_STATUS_OK;
 			dfu_state = STATE_DFU_DNLOAD_SYNC;
+
+			if(!dfu_bytes)
+				display_update();
+
+			dfu_write(*buf, req->wLength);
+
+			dfu_block_num = req->wValue;
+			dfu_bytes += req->wLength;
 
 			return USBD_REQ_HANDLED;
 		} else {

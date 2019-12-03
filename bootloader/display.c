@@ -99,6 +99,7 @@ static void draw(void) {
 			if(
 				current_state.usbd_state != last_state.usbd_state ||
 				current_state.dfu_state != last_state.dfu_state ||
+				current_state.dfu_bytes != last_state.dfu_bytes ||
 				current_state.force
 			) {
 				ucg_SetColor(ucg, 0, 255, 255, 255);
