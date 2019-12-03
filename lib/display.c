@@ -228,9 +228,11 @@ ucg_t *display_setup_base(void) {
 
 void ucg_DrawPixmap(ucg_t *ucg_px, ucg_int_t x, ucg_int_t y, ucg_int_t width, ucg_int_t height, const unsigned char *data) {
   for(ucg_int_t k=0 ; k < height ; k++){
+    const unsigned char *row;
+    row = data + (k * width * 3);
     for(ucg_int_t j=0 ; j < width ; j++){
       const unsigned char *pixel;
-      pixel = data + (k * width * 3) + (j * 3);
+      pixel = row + (j * 3);
       ucg_SetColor(ucg_px, 0, *pixel, *(pixel + 1), *(pixel + 2));
       ucg_DrawPixel(ucg_px, x + j, y + k);
     }
