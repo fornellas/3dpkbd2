@@ -1,5 +1,5 @@
 PROJECT = keyboard
-CUSTOM_LDSCRIPT= $(PROJECT).ld
+CUSTOM_LDSCRIPT_TEMPLATE= lib/main_program.ld.template
 CFILES = $(wildcard *.c)
 
 include ../common.mk

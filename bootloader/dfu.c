@@ -1,7 +1,7 @@
-#include "addresses.h"
 #include "descriptors.h"
 #include "dfu.h"
 #include "led.h"
+#include "lib/addresses.h"
 #include "usb.h"
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/cm3/scb.h>

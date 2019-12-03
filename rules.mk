@@ -58,6 +58,9 @@ PPM_SRCS = $(wildcard $(PPM_PATH)/*.ppm)
 GENERATED_PPM_HEADERS = $(PPM_SRCS:%.ppm=$(BUILD_DIR)/%.h)
 INCLUDES += -I$(BUILD_DIR)
 
+ADDRESSES_TEMPLATE = lib/addresses.h.template
+ADDRESSES_HEADER = $(BUILD_DIR)/lib/addresses.h
+
 # Inclusion of library header files
 INCLUDES += $(patsubst %,-I%, . $(OPENCM3_INC) )
 
@@ -127,7 +130,7 @@ else
 GENERATED_BINS += $(LDSCRIPT)
 endif
 
-$(BUILD_DIR)/$(PPM_PATH)/%.h: $(PPM_PATH)/%.ppm $(PPM_CONVERT)
+$(BUILD_DIR)/$(PPM_PATH)/%.h: $(PPM_PATH)/%.ppm $(PPM_CONVERT) $(ADDRESSES_HEADER)
 	@printf "  PPM_CONVERT\t$<\n"
 	$(Q)mkdir -p $(dir $@)
 	$(Q)$(PPM_CONVERT) $< > $@
@@ -177,7 +180,12 @@ else
 		$(NULL)
 endif
 
-.SECONDARY: $(GENERATED_PPM_HEADERS)
+$(ADDRESSES_HEADER): $(ADDRESSES_TEMPLATE)
+	@printf "  TEMPLATE\t$<\n"
+	$(Q)mkdir -p $(dir $@)
+	$(Q)sed -r s/__MAIN_MEMORY_BASE__/$(MAIN_MEMORY_BASE)/g < $< | sed -r s/__BOOTLOADER_SIZE_KB__/$(BOOTLOADER_SIZE_KB)/g > $@
+
+.SECONDARY: $(GENERATED_PPM_HEADERS) $(ADDRESSES_HEADER)
 
 clean:
 	rm -rf $(BUILD_DIR) $(GENERATED_BINS)

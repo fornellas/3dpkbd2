@@ -1,6 +1,6 @@
-#include "addresses.h"
 #include "display.h"
 #include "led.h"
+#include "lib/addresses.h"
 #include "lib/systick.h"
 #include "usb.h"
 #include <libopencm3/cm3/scb.h>
