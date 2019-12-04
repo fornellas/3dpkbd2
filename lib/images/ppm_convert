@@ -11,7 +11,7 @@ BEGIN {
   switch(STATE) {
     case "header":
         if($0 != "P3") {
-            print "Not P3 format" > "/dev/stderr"
+            print "Not ASCII PixMap format" > "/dev/stderr"
             exit 1
         }
         STATE="geometry"
@@ -21,8 +21,11 @@ BEGIN {
         print "#define "NAME"_height " $2
         print ""
         print "static const unsigned char "NAME"_data[] = {"
-        STATE="data"
+        STATE="limit"
+        next
+    case "limit":
         first = 1
+        STATE="data"
         next
     case "data":
         if(first) {
