@@ -187,29 +187,23 @@ static uint8_t is_different_state(struct display_state *new_state) {
 }
 
 void display_setup(void) {
+	struct display_state new_state;
+
 	ucg = display_setup_base();
+
+	set_display_state(&new_state);
+	set_display_state(&new_state); // Populate last_state
+
+	current_state.force = 1;
+	draw();
+
+	ucg_SetFontMode(ucg, UCG_FONT_MODE_TRANSPARENT);
 }
 
 void display_update(void) {
-	static uint8_t first = 1;
 	struct display_state new_state;
 
 	get_new_display_state(&new_state);
-
-	if(first) {
-		set_display_state(&new_state);
-		set_display_state(&new_state);
-		current_state.force = 1;
-
-		ucg_SetColor(ucg, 0, 255, 255, 255);
-		ucg_ClearScreen(ucg);
-
-		ucg_SetFontMode(ucg, UCG_FONT_MODE_TRANSPARENT);
-
-		draw();
-		first = 0;
-		return;
-	}
 
 	if(is_different_state(&new_state)) {
 		set_display_state(&new_state);
