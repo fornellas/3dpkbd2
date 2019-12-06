@@ -21,7 +21,7 @@ struct display_state {
 static struct display_state current_state;
 static struct display_state last_state;
 
-static void draw(void) {
+static void display_draw(void) {
 	char buff[30];
 	ucg_int_t y_offset = 0;
 
@@ -156,7 +156,7 @@ static void draw(void) {
 	ucg_SendBuffer(ucg);
 }
 
-static void get_new_display_state(struct display_state *state) {
+static void display_get_current_state(struct display_state *state) {
 	state->usbd_state = usbd_state;
 	state->dfu_status = dfu_status;
 	state->dfu_state = dfu_state;
@@ -166,27 +166,17 @@ static void get_new_display_state(struct display_state *state) {
 	state->force = 0;
 }
 
-static void set_display_state(struct display_state *new_state) {
-	memcpy(&last_state, &current_state, sizeof(struct display_state));
-	memcpy(&current_state, new_state, sizeof(struct display_state));
-}
-
-static uint8_t is_different_state(struct display_state *new_state) {
-	return memcmp(&current_state, new_state, sizeof(struct display_state));
-}
-
 void display_setup(void) {
 	struct display_state new_state;
 
 	ucg = display_setup_base();
 
-	get_new_display_state(&new_state);
+	display_get_current_state(&new_state);
 
-	set_display_state(&new_state);
-	set_display_state(&new_state); // Populate last_state
+	memcpy(&last_state, &new_state, sizeof(struct display_state));
+	memcpy(&current_state, &new_state, sizeof(struct display_state));
 
-	current_state.force = 1;
-	draw();
+	display_draw();
 
 	ucg_SetFontMode(ucg, UCG_FONT_MODE_TRANSPARENT);
 }
@@ -194,10 +184,11 @@ void display_setup(void) {
 void display_update(void) {
 	struct display_state new_state;
 
-	get_new_display_state(&new_state);
+	display_get_current_state(&new_state);
 
-	if(is_different_state(&new_state)) {
-		set_display_state(&new_state);
-		draw();
+	if(memcmp(&current_state, &new_state, sizeof(struct display_state))) {
+		memcpy(&last_state, &current_state, sizeof(struct display_state));
+		memcpy(&current_state, &new_state, sizeof(struct display_state));
+		display_draw();
 	}
 }
