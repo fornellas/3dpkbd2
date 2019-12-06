@@ -11,9 +11,10 @@
 // Variables
 //
 
-uint8_t hid_protocol=1;
+uint8_t hid_protocol = 1;
+int16_t idle_rate_ms = -1;
+hid_out_report_data led_report;
 
-static int16_t idle_rate_ms = -1;
 static uint32_t idle_finish_ms = 0;
 static uint8_t hid_report_transmitting=0;
 static struct hid_in_report_data old_hid_in_report;
@@ -137,7 +138,6 @@ static enum usbd_request_return_codes hid_class_specific_request(
 			return USBD_REQ_NOTSUPP;
 
 		switch(report_type) {
-			hid_out_report_data led_report;
 			// case USB_HID_REPORT_TYPE_INPUT:
 			// 	break;
 			case USB_HID_REPORT_TYPE_OUTPUT:
