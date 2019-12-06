@@ -269,6 +269,11 @@ void usb_draw_display_not_configured(uint8_t _usbd_state) {
       ucg_SetFont(&ucg, ucg_font_helvB14_hf);
       ucg_DrawStringCentered(&ucg, "addressed", y_offset);
       break;
+    case USBD_STATE_CONFIGURED:
+      ucg_SetColor(&ucg, 0, 39, 39, 39);
+      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
+      ucg_DrawStringCentered(&ucg, "configured", y_offset);
+      break;
     default:
       ucg_ClearScreen(&ucg);
       ucg_SetColor(&ucg, 0, 255, 0, 0);
