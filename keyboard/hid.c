@@ -12,8 +12,8 @@
 //
 
 uint8_t hid_protocol = 1;
-int16_t idle_rate_ms = -1;
-hid_out_report_data led_report;
+int16_t hid_idle_rate_ms = -1;
+hid_out_report_data hid_led_report;
 
 static uint32_t idle_finish_ms = 0;
 static uint8_t hid_report_transmitting=0;
@@ -141,13 +141,13 @@ static enum usbd_request_return_codes hid_class_specific_request(
 			// case USB_HID_REPORT_TYPE_INPUT:
 			// 	break;
 			case USB_HID_REPORT_TYPE_OUTPUT:
-				if (report_length != sizeof(led_report))
+				if (report_length != sizeof(hid_led_report))
 					return USBD_REQ_NOTSUPP;
 
-				led_report = *buf[0];
+				hid_led_report = *buf[0];
 
 				// TODO OLED Display
-				if(led_report & (1<<1)) // Caps Lock
+				if(hid_led_report & (1<<1)) // Caps Lock
 					led_on();
 				else
 					led_off();
@@ -168,7 +168,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER)
 			return USBD_REQ_NOTSUPP;
 
-		*buf[0] = idle_rate_ms / 4;
+		*buf[0] = hid_idle_rate_ms / 4;
 		*len = sizeof(uint8_t);
 		return USBD_REQ_HANDLED;
 	}
@@ -186,8 +186,8 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER)
 			return USBD_REQ_NOTSUPP;
 
-		idle_rate_ms = duration_ms;
-		idle_finish_ms = uptime_ms() + idle_rate_ms;
+		hid_idle_rate_ms = duration_ms;
+		idle_finish_ms = uptime_ms() + hid_idle_rate_ms;
 
 		return USBD_REQ_HANDLED;
 	}
@@ -267,7 +267,7 @@ void hid_set_config_callback(usbd_device *dev) {
 	);
 
 	hid_report_transmitting = 0;
-	idle_rate_ms = -1;
+	hid_idle_rate_ms = -1;
 	idle_finish_ms = 0;
 
 	get_hid_in_report(&old_hid_in_report);
@@ -315,17 +315,17 @@ void hid_poll(usbd_device *dev) {
 		return;
 
 	// Only send if there are changes
-	if(idle_rate_ms == 0) {
+	if(hid_idle_rate_ms == 0) {
 		get_hid_in_report(&new_hid_in_report);
 		if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
 			send_in_report(dev, &new_hid_in_report);
 	// Only send if there are changes or at idle rate
-	}else if(idle_rate_ms > 0) {
+	}else if(hid_idle_rate_ms > 0) {
 		get_hid_in_report(&new_hid_in_report);
 		now = uptime_ms();
 		if(now >= idle_finish_ms) {
 			send_in_report(dev, &new_hid_in_report);
-			idle_finish_ms = now + idle_rate_ms;
+			idle_finish_ms = now + hid_idle_rate_ms;
 		} else {
 			if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
 				send_in_report(dev, &new_hid_in_report);
