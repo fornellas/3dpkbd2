@@ -1,5 +1,7 @@
 #include "display.h"
 #include "lib/systick.h"
+#include "usb.h"
+#include "lib/images/usb.h"
 #include <ucg.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
@@ -224,6 +226,50 @@ ucg_t *display_setup_base(void) {
   ucg_SendBuffer(&ucg);
 
   return &ucg;
+}
+
+void usb_draw_display_not_configured(uint8_t _usbd_state) {
+  ucg_int_t y_offset;
+
+  ucg_SetColor(&ucg, 0, 255, 255, 255);
+  ucg_DrawBox(&ucg, 0, 0, ucg_GetWidth(&ucg), ucg_GetHeight(&ucg));
+
+  ucg_SetColor(&ucg, 0, 39, 39, 39);
+  ucg_SetFont(&ucg, ucg_font_helvB24_hf);
+  y_offset = ucg_GetFontAscent(&ucg) + 2;
+  ucg_DrawStringCentered(&ucg, "USB", y_offset);
+
+  ucg_DrawPixmap(
+    &ucg,
+    ucg_GetWidth(&ucg) - usb_width,
+    (ucg_GetHeight(&ucg) - usb_height),
+    usb_width,
+    usb_height,
+    usb_data
+  );
+
+  ucg_SetFont(&ucg, ucg_font_helvB24_hf);
+  y_offset = ucg_GetFontAscent(&ucg) + 2;
+  ucg_SetFont(&ucg, ucg_font_helvB14_hf);
+  y_offset += (ucg_GetHeight(&ucg) - y_offset - usb_height) / 2 + ucg_GetFontAscent(&ucg) / 2;
+
+  switch(_usbd_state) {
+    case USBD_STATE_RESET:
+      ucg_SetColor(&ucg, 0, 128, 128, 128);
+      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
+      ucg_DrawStringCentered(&ucg, "reset", y_offset);
+      break;
+    case USBD_STATE_SUSPENDED:
+      ucg_SetColor(&ucg, 0, 128, 128, 255);
+      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
+      ucg_DrawStringCentered(&ucg, "suspended", y_offset);
+      break;
+    case USBD_STATE_ADDRESSED:
+      ucg_SetColor(&ucg, 0, 128, 255, 128);
+      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
+      ucg_DrawStringCentered(&ucg, "addressed", y_offset);
+      break;
+  }
 }
 
 void ucg_DrawPixmap(ucg_t *_ucg, ucg_int_t x, ucg_int_t y, ucg_int_t width, ucg_int_t height, const unsigned char *data) {

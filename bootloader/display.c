@@ -1,6 +1,5 @@
 #include "display.h"
 #include "dfu.h"
-#include "lib/images/usb.h"
 #include "lib/images/UFQFPN48.h"
 #include "usb.h"
 #include <stdio.h>
@@ -28,45 +27,7 @@ static void display_draw(void) {
 		case USBD_STATE_RESET:
 		case USBD_STATE_SUSPENDED:
 		case USBD_STATE_ADDRESSED:
-			ucg_SetColor(ucg, 0, 255, 255, 255);
-			ucg_DrawBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
-
-			ucg_SetColor(ucg, 0, 39, 39, 39);
-			ucg_SetFont(ucg, ucg_font_helvB24_hf);
-			y_offset = ucg_GetFontAscent(ucg) + 2;
-			ucg_DrawStringCentered(ucg, "USB", y_offset);
-
-			ucg_DrawPixmap(
-				ucg,
-				ucg_GetWidth(ucg) - usb_width,
-				(ucg_GetHeight(ucg) - usb_height),
-				usb_width,
-				usb_height,
-				usb_data
-			);
-
-			ucg_SetFont(ucg, ucg_font_helvB24_hf);
-			y_offset = ucg_GetFontAscent(ucg) + 2;
-			ucg_SetFont(ucg, ucg_font_helvB14_hf);
-			y_offset += (ucg_GetHeight(ucg) - y_offset - usb_height) / 2 + ucg_GetFontAscent(ucg) / 2;
-
-			switch(current_state.usbd_state) {
-				case USBD_STATE_RESET:
-					ucg_SetColor(ucg, 0, 128, 128, 128);
-					ucg_SetFont(ucg, ucg_font_helvB14_hf);
-					ucg_DrawStringCentered(ucg, "reset", y_offset);
-					break;
-				case USBD_STATE_SUSPENDED:
-					ucg_SetColor(ucg, 0, 128, 128, 255);
-					ucg_SetFont(ucg, ucg_font_helvB14_hf);
-					ucg_DrawStringCentered(ucg, "suspended", y_offset);
-					break;
-				case USBD_STATE_ADDRESSED:
-					ucg_SetColor(ucg, 0, 128, 255, 128);
-					ucg_SetFont(ucg, ucg_font_helvB14_hf);
-					ucg_DrawStringCentered(ucg, "addressed", y_offset);
-					break;
-			}
+			usb_draw_display_not_configured(current_state.usbd_state);
 			break;
 		case USBD_STATE_CONFIGURED:
 			ucg_SetColor(ucg, 0, 255, 255, 255);
