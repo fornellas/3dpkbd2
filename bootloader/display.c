@@ -21,17 +21,6 @@ struct display_state {
 static struct display_state current_state;
 static struct display_state last_state;
 
-static void draw_centered_text(char *, ucg_int_t);
-
-static void draw_centered_text(char *str, ucg_int_t y) {
-	ucg_int_t x;
-
-	x = (ucg_GetWidth(ucg) / 2) - (ucg_GetStrWidth(ucg, str) / 2);
-	if(!y)
-		y = (ucg_GetHeight(ucg) / 2) + (ucg_GetFontAscent(ucg) / 2);
-	ucg_DrawString(ucg, x, y, 0, str);
-}
-
 static void draw(void) {
 	char buff[30];
 	ucg_int_t y_offset = 0;
@@ -50,7 +39,7 @@ static void draw(void) {
 				ucg_SetColor(ucg, 0, 39, 39, 39);
 				ucg_SetFont(ucg, ucg_font_helvB24_hf);
 				y_offset = ucg_GetFontAscent(ucg) + 2;
-				draw_centered_text("USB", y_offset);
+				ucg_DrawStringCentered(ucg, "USB", y_offset);
 
 				ucg_DrawPixmap(
 					ucg,
@@ -75,7 +64,7 @@ static void draw(void) {
 					){
 						ucg_SetColor(ucg, 0, 128, 128, 128);
 						ucg_SetFont(ucg, ucg_font_helvB14_hf);
-						draw_centered_text("reset", y_offset);
+						ucg_DrawStringCentered(ucg, "reset", y_offset);
 					}
 					break;
 				case USBD_STATE_SUSPENDED:
@@ -85,7 +74,7 @@ static void draw(void) {
 					){
 						ucg_SetColor(ucg, 0, 128, 128, 255);
 						ucg_SetFont(ucg, ucg_font_helvB14_hf);
-						draw_centered_text("suspended", y_offset);
+						ucg_DrawStringCentered(ucg, "suspended", y_offset);
 					}
 					break;
 				case USBD_STATE_ADDRESSED:
@@ -95,7 +84,7 @@ static void draw(void) {
 					){
 						ucg_SetColor(ucg, 0, 128, 255, 128);
 						ucg_SetFont(ucg, ucg_font_helvB14_hf);
-						draw_centered_text("addressed", y_offset);
+						ucg_DrawStringCentered(ucg, "addressed", y_offset);
 					}
 					break;
 			}
@@ -113,7 +102,7 @@ static void draw(void) {
 				ucg_SetColor(ucg, 0, 39, 39, 39);
 				ucg_SetFont(ucg, ucg_font_helvB24_hf);
 				y_offset = ucg_GetFontAscent(ucg) + 2;
-				draw_centered_text("DFU", y_offset);
+				ucg_DrawStringCentered(ucg, "DFU", y_offset);
 
 				y_offset += (ucg_GetHeight(ucg) - y_offset - UFQFPN48_height) / 2;
 
@@ -137,23 +126,23 @@ static void draw(void) {
 						case STATE_DFU_DNLOAD_SYNC:
 						case STATE_DFU_DNLOAD_IDLE:
 							sprintf(buff, "%ldkb", current_state.dfu_bytes / 1024);
-							draw_centered_text(buff, y_offset);
+							ucg_DrawStringCentered(ucg, buff, y_offset);
 							break;
 						case STATE_DFU_MANIFEST_SYNC:
 							ucg_SetColor(ucg, 0, 0, 255, 0);
-							draw_centered_text("Complete", y_offset);
+							ucg_DrawStringCentered(ucg, "Complete", y_offset);
 							break;
 						case STATE_DFU_ERROR:
 							ucg_SetColor(ucg, 0, 255, 0, 0);
-							draw_centered_text("Error!", y_offset);
+							ucg_DrawStringCentered(ucg, "Error!", y_offset);
 							break;
 						default:
 							ucg_SetColor(ucg, 0, 255, 0, 0);
-							draw_centered_text("Unknown", y_offset);
+							ucg_DrawStringCentered(ucg, "Unknown", y_offset);
 							break;
 					}
 				} else {
-					draw_centered_text("Error!", y_offset);
+					ucg_DrawStringCentered(ucg, "Error!", y_offset);
 				}
 			}
 			break;
@@ -161,7 +150,7 @@ static void draw(void) {
 			ucg_ClearScreen(ucg);
 			ucg_SetColor(ucg, 0, 255, 0, 0);
 			ucg_SetFont(ucg, ucg_font_helvB14_hf);
-			draw_centered_text("USB Unknown", 0);
+			ucg_DrawStringCentered(ucg, "USB Unknown", 0);
 			break;
 	}
 	ucg_SendBuffer(ucg);
@@ -191,6 +180,8 @@ void display_setup(void) {
 
 	ucg = display_setup_base();
 
+	get_new_display_state(&new_state);
+
 	set_display_state(&new_state);
 	set_display_state(&new_state); // Populate last_state
 
@@ -210,4 +201,3 @@ void display_update(void) {
 		draw();
 	}
 }
-

@@ -226,15 +226,24 @@ ucg_t *display_setup_base(void) {
   return &ucg;
 }
 
-void ucg_DrawPixmap(ucg_t *ucg_px, ucg_int_t x, ucg_int_t y, ucg_int_t width, ucg_int_t height, const unsigned char *data) {
+void ucg_DrawPixmap(ucg_t *_ucg, ucg_int_t x, ucg_int_t y, ucg_int_t width, ucg_int_t height, const unsigned char *data) {
   for(ucg_int_t k=0 ; k < height ; k++){
     const unsigned char *row;
     row = data + (k * width * 3);
     for(ucg_int_t j=0 ; j < width ; j++){
       const unsigned char *pixel;
       pixel = row + (j * 3);
-      ucg_SetColor(ucg_px, 0, *pixel, *(pixel + 1), *(pixel + 2));
-      ucg_DrawPixel(ucg_px, x + j, y + k);
+      ucg_SetColor(_ucg, 0, *pixel, *(pixel + 1), *(pixel + 2));
+      ucg_DrawPixel(_ucg, x + j, y + k);
     }
   }
+}
+
+void ucg_DrawStringCentered(ucg_t *_ucg, const char *str, ucg_int_t y) {
+  ucg_int_t x;
+
+  x = (ucg_GetWidth(_ucg) / 2) - (ucg_GetStrWidth(_ucg, str) / 2);
+  if(!y)
+    y = (ucg_GetHeight(_ucg) / 2) + (ucg_GetFontAscent(_ucg) / 2);
+  ucg_DrawString(_ucg, x, y, 0, str);
 }
