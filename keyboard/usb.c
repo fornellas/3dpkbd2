@@ -6,7 +6,7 @@
 // Variables
 //
 
-uint8_t usbd_control_buffer[sizeof(struct hid_in_report_data)];
+uint8_t usbd_control_buffer[];
 uint8_t usb_remote_wakeup_enabled = 0;
 
 //

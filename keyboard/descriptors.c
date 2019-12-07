@@ -91,7 +91,7 @@ const struct usb_hid_function hid_function = {
 };
 
 // Must match hid_in_report_data & hid_out_report_data
-const uint8_t hid_report_descriptor[64] = {
+const uint8_t hid_report_descriptor[] = {
 	// https://www.usb.org/document-library/device-class-definition-hid-111
 	// From "Device Class Definition for HID 1.11" Appendix B.
 	// This a Boot Interface Descriptor, Protocol 1 (Keyboard) required by
