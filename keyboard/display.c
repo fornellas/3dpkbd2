@@ -9,9 +9,22 @@ static ucg_t *ucg;
 
 struct display_state {
   uint8_t usbd_state;
+
   uint8_t hid_protocol;
   int16_t hid_idle_rate_ms;
-  hid_out_report_data hid_led_report;
+  unsigned int hid_led_num_lock : 1;
+  unsigned int hid_led_caps_lock : 1;
+  unsigned int hid_led_scroll_lock : 1;
+  unsigned int hid_led_compose : 1;
+  unsigned int hid_led_kana : 1;
+
+  // unsigned int layout_keypad : 1;
+  // unsigned int layout_shift_lock : 1;
+  // unsigned int layout_fn : 1;
+  // unsigned int layout_keyboard : 2;
+  // unsigned int layout_computer : 2;
+
+  // uint32_t counter_keys : 0;
 } __attribute__((packed));
 
 static struct display_state current_state;
@@ -36,7 +49,11 @@ static void display_get_current_state(struct display_state *state) {
   state->usbd_state = usbd_state;
   state->hid_protocol = hid_protocol;
   state->hid_idle_rate_ms = hid_idle_rate_ms;
-  state->hid_led_report = hid_led_report;
+  state->hid_led_num_lock = hid_led_report & (1<<0);
+  state->hid_led_caps_lock = hid_led_report & (1<<1);
+  state->hid_led_scroll_lock = hid_led_report & (1<<2);
+  state->hid_led_compose = hid_led_report & (1<<3);
+  state->hid_led_kana = hid_led_report & (1<<4);
 }
 
 void display_setup(void) {
