@@ -9,6 +9,7 @@ static ucg_t *ucg;
 
 struct display_state {
   uint8_t usbd_state;
+  uint8_t usbd_remote_wakeup_enabled;
 
   uint8_t hid_protocol;
   int16_t hid_idle_rate_ms;
@@ -47,6 +48,8 @@ static void display_draw(void) {
 
 static void display_get_current_state(struct display_state *state) {
   state->usbd_state = usbd_state;
+  state->usbd_remote_wakeup_enabled = usbd_remote_wakeup_enabled;
+
   state->hid_protocol = hid_protocol;
   state->hid_idle_rate_ms = hid_idle_rate_ms;
   state->hid_led_num_lock = hid_led_report & (1<<0);

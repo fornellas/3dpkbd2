@@ -7,7 +7,7 @@
 //
 
 uint8_t usbd_control_buffer[];
-uint8_t usb_remote_wakeup_enabled = 0;
+uint8_t usbd_remote_wakeup_enabled = 0;
 
 //
 // Prototypes
@@ -33,7 +33,7 @@ static enum usbd_request_return_codes control_device_get_status_callback(
 	if(req->bRequest == USB_REQ_GET_STATUS) {
 		*len = 2;
 		(*buf)[0] = USB_DEV_STATUS_SELF_POWERED;
-		if(usb_remote_wakeup_enabled)
+		if(usbd_remote_wakeup_enabled)
 			(*buf)[0] |= USB_DEV_STATUS_REMOTE_WAKEUP;
 		(*buf)[1] = 0;
 		return USBD_REQ_HANDLED;
@@ -60,7 +60,7 @@ static enum usbd_request_return_codes control_device_feature_callback(
 			// case USB_FEAT_ENDPOINT_HALT:
 			// 	return USBD_REQ_HANDLED;
 			case USB_FEAT_DEVICE_REMOTE_WAKEUP:
-				usb_remote_wakeup_enabled = 0;
+				usbd_remote_wakeup_enabled = 0;
 				return USBD_REQ_HANDLED;
 			// case USB_FEAT_TEST_MODE:
 			// 	return USBD_REQ_HANDLED;
@@ -73,7 +73,7 @@ static enum usbd_request_return_codes control_device_feature_callback(
 			// case USB_FEAT_ENDPOINT_HALT:
 			// 	return USBD_REQ_HANDLED;
 			case USB_FEAT_DEVICE_REMOTE_WAKEUP:
-				usb_remote_wakeup_enabled = 1;
+				usbd_remote_wakeup_enabled = 1;
 				return USBD_REQ_HANDLED;
 			// case USB_FEAT_TEST_MODE:
 			// 	return USBD_REQ_HANDLED;
@@ -96,7 +96,7 @@ void set_config_callback(usbd_device *dev, uint16_t wValue) {
 		control_device_get_status_callback
 	);
 
-	usb_remote_wakeup_enabled = 0;
+	usbd_remote_wakeup_enabled = 0;
 	usbd_register_control_callback(
 		dev,
 		USB_REQ_TYPE_OUT | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DEVICE,

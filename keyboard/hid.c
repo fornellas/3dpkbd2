@@ -292,7 +292,7 @@ void hid_poll(usbd_device *dev) {
 	struct hid_in_report_data new_hid_in_report;
 	uint32_t now;
 
-	if((usbd_state == USBD_STATE_SUSPENDED) && usb_remote_wakeup_enabled) {
+	if((usbd_state == USBD_STATE_SUSPENDED) && usbd_remote_wakeup_enabled) {
 		uint8_t *new_hid_in_report_bytes;
 
 		get_hid_in_report(&new_hid_in_report);
@@ -301,7 +301,7 @@ void hid_poll(usbd_device *dev) {
 		for(uint16_t i=0 ; i < sizeof(struct hid_in_report_data) ; i++ ) {
 			if(new_hid_in_report_bytes[i]) {
 				usdb_remote_wakeup_signal();
-				usb_remote_wakeup_enabled = 0;
+				usbd_remote_wakeup_enabled = 0;
 				break;
 			}
 		}
