@@ -1,12 +1,15 @@
 TODO
+- HID Display
+- Left part key scan
+- Right side key scan
+- stm32 board socket
+- i/o expander socket
 - Make keyboard & bootloader targets depend on libopencm3 build
 - cppcheck rule:  cppcheck --error-exitcode=1 $(CPPCHECK_ARGS) -I$(OPENCM3_INC) -I$(GCC_INCLUDES) -I$(NEWLIB_INCLUDES) $(CGLAGS) $<
 - Review all TODO comments
 
 WIP
-- PR for build with external LDSCRIPT.
 - PR with HID defines.
-- PR with extra USB defines.
 
 WAITING
 - PR to configure OTG_GCCFG_NOVBUSSENS.
