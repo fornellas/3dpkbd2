@@ -1,20 +1,28 @@
 #include "display.h"
-
+#include "hid.h"
+#include "usb.h"
 #include "lib/systick.h"
 #include <stdio.h>
 #include <string.h>
 
 static ucg_t *ucg;
 
-void display_setup(void) {
-  ucg = display_setup_base();
-}
+struct display_state {
+  uint8_t usbd_state;
+  uint8_t hid_protocol;
+  int16_t hid_idle_rate_ms;
+  hid_out_report_data hid_led_report;
+} __attribute__((packed));
 
-void display_update(void) {
-  static uint8_t first=1;
+static struct display_state current_state;
+static struct display_state last_state;
 
-  if(!first)
+static void display_draw(void) {
+  if(current_state.usbd_state != USBD_STATE_CONFIGURED) {
+    usb_draw_display_not_configured(current_state.usbd_state);
+    ucg_SendBuffer(ucg);
     return;
+  }
 
   ucg_SetColor(ucg, 0, 255, 0, 0);
   ucg_SetColor(ucg, 2, 0, 255, 0);
@@ -22,40 +30,38 @@ void display_update(void) {
   ucg_SetColor(ucg, 3, 255, 255, 255);
   ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
   ucg_SendBuffer(ucg);
+}
 
-  first = 0;
-  // while(1) {
-  //   // Blue > Red > Green > White
-  //   for(int16_t d=255, i=0 ; d >= 0 && i <= 255 ; d-=5, i+=5) {
-  //     ucg_SetColor(ucg, 2, i, 0, d); // Blue > Red
-  //     ucg_SetColor(ucg, 0, d, i, 0);  // Red > Green
-  //     ucg_SetColor(ucg, 1, i, 255, i); // Green > White
-  //     ucg_SetColor(ucg, 3, d, d, 255);  // White > Blue
-  //     ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
-  //   }
-  //   // Red > Green > White > Blue
-  //   for(int16_t d=255, i=0 ; d >= 0 && i <= 255 ; d-=5, i+=5) {
-  //     ucg_SetColor(ucg, 2, d, i, 0); // Red > Green
-  //     ucg_SetColor(ucg, 0, i, 255, i);  // Green > White
-  //     ucg_SetColor(ucg, 1, d, d, 255); // White > Blue
-  //     ucg_SetColor(ucg, 3, i, 0, d);  // Blue > Red
-  //     ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
-  //   }
-  //   // Green > White > Blue > Red
-  //   for(int16_t d=255, i=0 ; d >= 0 && i <= 255 ; d-=5, i+=5) {
-  //     ucg_SetColor(ucg, 2, i, 255, i); // Green > White
-  //     ucg_SetColor(ucg, 0, d, d, 255);  // White > Blue
-  //     ucg_SetColor(ucg, 1, i, 0, d); // Blue > Red
-  //     ucg_SetColor(ucg, 3, d, i, 0);  // Red > Green
-  //     ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
-  //   }
-  //   // White > Blue > Red > Green
-  //   for(int16_t d=255, i=0 ; d >= 0 && i <= 255 ; d-=5, i+=5) {
-  //     ucg_SetColor(ucg, 2, d, d, 255); // White > Blue
-  //     ucg_SetColor(ucg, 0, i, 0, d);  // Blue > Red
-  //     ucg_SetColor(ucg, 1, d, i, 0); // Red > Green
-  //     ucg_SetColor(ucg, 3, i, 255, i);  // Green > White
-  //     ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
-  //   }
-  // }
+static void display_get_current_state(struct display_state *state) {
+  state->usbd_state = usbd_state;
+  state->hid_protocol = hid_protocol;
+  state->hid_idle_rate_ms = hid_idle_rate_ms;
+  state->hid_led_report = hid_led_report;
+}
+
+void display_setup(void) {
+  struct display_state new_state;
+
+  ucg = display_setup_base();
+
+  display_get_current_state(&new_state);
+
+  memcpy(&last_state, &new_state, sizeof(struct display_state));
+  memcpy(&current_state, &new_state, sizeof(struct display_state));
+
+  display_draw();
+
+  ucg_SetFontMode(ucg, UCG_FONT_MODE_TRANSPARENT);
+}
+
+void display_update(void) {
+  struct display_state new_state;
+
+  display_get_current_state(&new_state);
+
+  if(memcmp(&current_state, &new_state, sizeof(struct display_state))) {
+    memcpy(&last_state, &current_state, sizeof(struct display_state));
+    memcpy(&current_state, &new_state, sizeof(struct display_state));
+    display_draw();
+  }
 }
