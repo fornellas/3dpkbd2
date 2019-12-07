@@ -22,7 +22,7 @@ extern const struct usb_interface interfaces[];
 extern const struct usb_interface_descriptor hid_interface;
 
 #define HID_ENDPOINT_NUMBER 1
-#define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_GEN(USB_ENDPOINT_DIR_IN, HID_ENDPOINT_NUMBER)
+#define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER)
 
 extern const struct usb_endpoint_descriptor hid_endpoint;
 

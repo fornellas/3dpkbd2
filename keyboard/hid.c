@@ -11,7 +11,7 @@
 // Variables
 //
 
-uint8_t hid_protocol = 1;
+uint8_t hid_protocol = USB_HID_PROTOCOL_REPORT;
 int16_t hid_idle_rate_ms = -1;
 hid_out_report_data hid_led_report;
 
