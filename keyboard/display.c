@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#define TOGGLE_WIDTH 24
+#define TOGGLE_HEIGHT 20
+
 static ucg_t *ucg;
 
 struct display_state {
@@ -13,23 +16,47 @@ struct display_state {
 
   uint8_t hid_protocol;
   int16_t hid_idle_rate_ms;
-  unsigned int hid_led_num_lock : 1;
-  unsigned int hid_led_caps_lock : 1;
-  unsigned int hid_led_scroll_lock : 1;
-  unsigned int hid_led_compose : 1;
-  unsigned int hid_led_kana : 1;
+  uint8_t hid_led_num_lock;
+  uint8_t hid_led_caps_lock;
+  uint8_t hid_led_scroll_lock;
+  uint8_t hid_led_compose;
+  uint8_t hid_led_kana;
 
-  // unsigned int layout_keypad : 1;
-  // unsigned int layout_shift_lock : 1;
-  // unsigned int layout_fn : 1;
-  // unsigned int layout_keyboard : 2;
-  // unsigned int layout_computer : 2;
+  // unsigned int layout_keypad;
+  // unsigned int layout_shift_lock;
+  // unsigned int layout_fn;
+  // unsigned int layout_keyboard;
+  // unsigned int layout_computer;
 
-  // uint32_t counter_keys : 0;
+  // uint32_t counter_keys;
 } __attribute__((packed));
 
 static struct display_state current_state;
 static struct display_state last_state;
+
+void display_draw_toggle(
+    ucg_int_t x,
+    ucg_int_t y,
+    ucg_int_t width,
+    ucg_int_t height,
+    const char *str,
+    uint8_t state
+) {
+  ucg_int_t str_x, str_y;
+
+  ucg_DrawFrame(ucg, x, y, width, height);
+
+  if(state) {
+    ucg_DrawBox(ucg, x + 2, y + 2, width - 4, height - 4);
+    ucg_SetColor(ucg, 0, 255, 255, 255);
+  }
+
+  str_x = x + (width / 2) - (ucg_GetStrWidth(ucg, str) / 2);
+  str_y = y + (height / 2) + (ucg_GetFontAscent(ucg) / 2);
+
+  ucg_DrawString(ucg, str_x, str_y, 0, str);
+
+}
 
 static void display_draw(void) {
   if(current_state.usbd_state != USBD_STATE_CONFIGURED) {
@@ -38,11 +65,26 @@ static void display_draw(void) {
     return;
   }
 
+  ucg_SetColor(ucg, 0, 255, 255, 255);
+  ucg_DrawBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
+
+  ucg_SetFont(ucg, ucg_font_helvB12_hf);
+
+  ucg_SetColor(ucg, 0, 0, 0, 0);
+  display_draw_toggle(76, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "1", current_state.hid_led_num_lock);
+
+  ucg_SetColor(ucg, 0, 0, 0, 0);
+  display_draw_toggle(50, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "S", current_state.hid_led_scroll_lock);
+
+  // ucg_SetColor(ucg, 0, 0, 0, 0);
+  // display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layout_keypad);
+
   ucg_SetColor(ucg, 0, 255, 0, 0);
-  ucg_SetColor(ucg, 2, 0, 255, 0);
-  ucg_SetColor(ucg, 1, 0, 0, 255);
-  ucg_SetColor(ucg, 3, 255, 255, 255);
-  ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
+  display_draw_toggle(102, 54, TOGGLE_WIDTH, TOGGLE_HEIGHT, "A", current_state.hid_led_caps_lock);
+
+  // ucg_SetColor(ucg, 0, 0, 0, 0);
+  // display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "A", current_state.layout_fn);
+
   ucg_SendBuffer(ucg);
 }
 
@@ -57,6 +99,14 @@ static void display_get_current_state(struct display_state *state) {
   state->hid_led_scroll_lock = hid_led_report & (1<<2);
   state->hid_led_compose = hid_led_report & (1<<3);
   state->hid_led_kana = hid_led_report & (1<<4);
+
+  // state->layout_keypad = layout_keypad;
+  // state->layout_shift_lock = layout_shift_lock;
+  // state->layout_fn = layout_fn;
+  // state->layout_keyboard = layout_keyboard;
+  // state->layout_computer = layout_computer;
+
+  // state->counter_keys = counter_keys;
 }
 
 void display_setup(void) {
