@@ -22,9 +22,20 @@ MAIN_MEMORY_BASE = 134217728
 BOOTLOADER_SIZE_KB = 128
 FLASH_SIZE_KB = 512
 
+OOCD_INTERFACE = stlink-v2
+OOCD_TARGET= stm32f4x
+
+GDB = arm-none-eabi-gdb
+
 include $(OPENCM3_DIR)/mk/genlink-config.mk
 
 include ../rules.mk
+
+openocd:
+	$(Q)openocd --file interface/$(OOCD_INTERFACE).cfg --file target/$(OOCD_TARGET).cfg
+
+gdb: $(PROJECT).elf
+	$(Q)$(GDB) --init-command=lib/gdb.init $(PROJECT).elf
 
 ifeq ($(CUSTOM_LDSCRIPT_TEMPLATE),)
 include $(OPENCM3_DIR)/mk/genlink-rules.mk
