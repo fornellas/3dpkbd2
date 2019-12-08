@@ -12,7 +12,7 @@
 //
 
 uint8_t hid_protocol = USB_HID_PROTOCOL_REPORT;
-int16_t hid_idle_rate_ms = -1;
+uint16_t hid_idle_rate_ms = 0;
 hid_out_report_data hid_led_report;
 
 static uint32_t idle_finish_ms = 0;
@@ -267,7 +267,7 @@ void hid_set_config_callback(usbd_device *dev) {
 	);
 
 	hid_report_transmitting = 0;
-	hid_idle_rate_ms = -1;
+	hid_idle_rate_ms = 0;
 	idle_finish_ms = 0;
 
 	get_hid_in_report(&old_hid_in_report);
@@ -320,7 +320,7 @@ void hid_poll(usbd_device *dev) {
 		if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
 			send_in_report(dev, &new_hid_in_report);
 	// Only send if there are changes or at idle rate
-	}else if(hid_idle_rate_ms > 0) {
+	} else {
 		get_hid_in_report(&new_hid_in_report);
 		now = uptime_ms();
 		if(now >= idle_finish_ms) {
@@ -330,9 +330,5 @@ void hid_poll(usbd_device *dev) {
 			if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
 				send_in_report(dev, &new_hid_in_report);
 		}
-	// Always send
-	} else {
-		get_hid_in_report(&new_hid_in_report);
-		send_in_report(dev, &new_hid_in_report);
 	}
 }

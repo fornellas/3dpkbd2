@@ -3,7 +3,7 @@
 #include <libopencm3/usb/usbd.h>
 
 extern uint8_t hid_protocol;
-extern int16_t hid_idle_rate_ms;
+extern uint16_t hid_idle_rate_ms;
 extern hid_out_report_data hid_led_report;
 
 void hid_poll(usbd_device *dev);
