@@ -17,6 +17,7 @@ void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, const char 
 
 struct display_state {
   uint8_t usbd_state;
+  uint8_t usbd_suspended;
   uint8_t usbd_remote_wakeup_enabled;
 
   uint8_t hid_protocol;
@@ -66,9 +67,10 @@ void display_draw_toggle(
 static void display_draw(void) {
   char buff[30];
 
-  if(current_state.usbd_state != USBD_STATE_CONFIGURED) {
-    usb_draw_display_not_configured(
+  if(!(current_state.usbd_state == USBD_STATE_CONFIGURED && !current_state.usbd_suspended)) {
+    display_draw_usbd_status(
       current_state.usbd_state,
+      current_state.usbd_suspended,
       current_state.usbd_remote_wakeup_enabled
     );
     ucg_SendBuffer(ucg);
@@ -122,6 +124,7 @@ static void display_draw(void) {
 
 static void display_get_current_state(struct display_state *state) {
   state->usbd_state = usbd_state;
+  state->usbd_suspended = usbd_suspended;
   state->usbd_remote_wakeup_enabled = usbd_remote_wakeup_enabled;
 
   state->hid_protocol = hid_protocol;

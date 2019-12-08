@@ -9,6 +9,8 @@ static ucg_t *ucg;
 
 struct display_state {
 	uint8_t usbd_state;
+	uint8_t usbd_suspended;
+
 	uint8_t dfu_status;
 	uint8_t dfu_state;
 	uint32_t dfu_address;
@@ -23,8 +25,8 @@ static void display_draw(void) {
 	char buff[30];
 	ucg_int_t y_offset = 0;
 
-	if(current_state.usbd_state != USBD_STATE_CONFIGURED) {
-		usb_draw_display_not_configured(current_state.usbd_state);
+	if(!(current_state.usbd_state == USBD_STATE_CONFIGURED && !current_state.usbd_suspended)) {
+		display_draw_usbd_status(current_state.usbd_state, current_state.usbd_suspended, 0);
 		ucg_SendBuffer(ucg);
 		return;
 	}
@@ -33,8 +35,8 @@ static void display_draw(void) {
 	ucg_DrawBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
 
 	ucg_SetColor(ucg, 0, 39, 39, 39);
-	ucg_SetFont(ucg, ucg_font_helvB24_hf);
-	y_offset = ucg_GetFontAscent(ucg) + 2;
+	ucg_SetFont(ucg, ucg_font_helvB18_hf);
+	y_offset = 1 + ucg_GetFontAscent(ucg);
 	ucg_DrawStringCentered(ucg, "DFU", y_offset);
 
 	y_offset += (ucg_GetHeight(ucg) - y_offset - UFQFPN48_height) / 2;
@@ -48,7 +50,7 @@ static void display_draw(void) {
 		UFQFPN48_data
 	);
 
-	ucg_SetFont(ucg, ucg_font_helvB14_hf);
+	ucg_SetFont(ucg, ucg_font_helvB12_hf);
 	y_offset += UFQFPN48_height / 2 + ucg_GetFontAscent(ucg) / 2 - 6;
 	ucg_SetColor(ucg, 0, 255, 255, 255);
 
@@ -83,6 +85,8 @@ static void display_draw(void) {
 
 static void display_get_current_state(struct display_state *state) {
 	state->usbd_state = usbd_state;
+	state->usbd_suspended = usbd_suspended;
+
 	state->dfu_status = dfu_status;
 	state->dfu_state = dfu_state;
 	state->dfu_address = dfu_address;

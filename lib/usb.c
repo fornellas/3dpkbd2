@@ -9,6 +9,7 @@
 //
 
 uint8_t usbd_state;
+uint8_t usbd_suspended;
 
 //
 // Prototypes
@@ -24,8 +25,13 @@ static void resume_callback(void);
 // Functions
 //
 
+static void set_state(uint8_t state) {
+	usbd_state = state;
+	usbd_suspended = 0;
+}
+
 static void reset_callback() {
-	usbd_state = USBD_STATE_RESET;
+	set_state(USBD_STATE_RESET);
 }
 
 static enum usbd_request_return_codes set_address_callback(
@@ -41,17 +47,17 @@ static enum usbd_request_return_codes set_address_callback(
 	(void)len;
 	(void)complete;
 
-	usbd_state = USBD_STATE_ADDRESSED;
+	set_state(USBD_STATE_ADDRESSED);
 
 	return USBD_REQ_NEXT_CALLBACK;
 }
 
 static void suspend_callback() {
-	usbd_state = USBD_STATE_SUSPENDED;
+	usbd_suspended = 1;
 }
 
 static void resume_callback() {
-	usbd_state = USBD_STATE_RESET;
+	usbd_suspended = 0;
 }
 
 #ifdef USBD_REMOTE_WAKEUP
@@ -126,7 +132,7 @@ void set_config_callback_base(usbd_device *dev, uint16_t wValue) {
 	(void)dev;
 	(void)wValue;
 
-	usbd_state = USBD_STATE_CONFIGURED;
+	set_state(USBD_STATE_CONFIGURED);
 
 	#ifdef USBD_REMOTE_WAKEUP
 	usbd_register_control_callback(
@@ -172,7 +178,7 @@ usbd_device *usbd_setup_base(
 		control_buffer_size
 	);
 
-	usbd_state = USBD_STATE_RESET;
+	set_state(USBD_STATE_RESET);
 
 	usbd_register_reset_callback(usbd_dev, reset_callback);
 

@@ -1,11 +1,11 @@
 #include <libopencm3/usb/usbd.h>
 
 #define USBD_STATE_RESET 0
-#define USBD_STATE_SUSPENDED 1
-#define USBD_STATE_ADDRESSED 2
-#define USBD_STATE_CONFIGURED 3
+#define USBD_STATE_ADDRESSED 1
+#define USBD_STATE_CONFIGURED 2
 
 extern uint8_t usbd_state;
+extern uint8_t usbd_suspended;
 
 usbd_device *usbd_setup_base(
 	const struct usb_device_descriptor *,

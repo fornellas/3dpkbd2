@@ -228,20 +228,11 @@ ucg_t *display_setup_base(void) {
   return &ucg;
 }
 
-#ifdef USBD_REMOTE_WAKEUP
-void usb_draw_display_not_configured(uint8_t _usbd_state, uint8_t _usbd_remote_wakeup_enabled) {
-#else
-void usb_draw_display_not_configured(uint8_t _usbd_state) {
-#endif
+void display_draw_usbd_status(uint8_t state, uint8_t suspended, uint8_t remote_wakeup_enabled) {
   ucg_int_t y_offset;
 
   ucg_SetColor(&ucg, 0, 255, 255, 255);
   ucg_DrawBox(&ucg, 0, 0, ucg_GetWidth(&ucg), ucg_GetHeight(&ucg));
-
-  ucg_SetColor(&ucg, 0, 39, 39, 39);
-  ucg_SetFont(&ucg, ucg_font_helvB24_hf);
-  y_offset = ucg_GetFontAscent(&ucg) + 2;
-  ucg_DrawStringCentered(&ucg, "USB", y_offset);
 
   ucg_DrawPixmap(
     &ucg,
@@ -252,47 +243,45 @@ void usb_draw_display_not_configured(uint8_t _usbd_state) {
     usb_data
   );
 
-  ucg_SetFont(&ucg, ucg_font_helvB24_hf);
-  y_offset = ucg_GetFontAscent(&ucg) + 2;
-  ucg_SetFont(&ucg, ucg_font_helvB14_hf);
-  y_offset += (ucg_GetHeight(&ucg) - y_offset - usb_height) / 2 + ucg_GetFontAscent(&ucg) / 2;
+  ucg_SetColor(&ucg, 0, 39, 39, 39);
+  ucg_SetFont(&ucg, ucg_font_helvB18_hf);
+  y_offset = 1 + ucg_GetFontAscent(&ucg);
+  ucg_DrawStringCentered(&ucg, "USB", y_offset);
 
-  switch(_usbd_state) {
+  ucg_SetFont(&ucg, ucg_font_helvB10_hf);
+  y_offset += 1 + ucg_GetFontAscent(&ucg);
+
+  switch(state) {
     case USBD_STATE_RESET:
       ucg_SetColor(&ucg, 0, 128, 128, 128);
-      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
       ucg_DrawStringCentered(&ucg, "reset", y_offset);
-      break;
-    case USBD_STATE_SUSPENDED:
-      ucg_SetColor(&ucg, 0, 128, 128, 255);
-      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
-      ucg_DrawStringCentered(&ucg, "suspended", y_offset);
-
-      #ifdef USBD_REMOTE_WAKEUP
-      if(_usbd_remote_wakeup_enabled) {
-        ucg_SetFont(&ucg, ucg_font_helvB08_hf);
-        y_offset += ucg_GetFontAscent(&ucg) * 2;
-        ucg_DrawStringCentered(&ucg, "remote wakeup", y_offset);
-      }
-      #endif
-
       break;
     case USBD_STATE_ADDRESSED:
       ucg_SetColor(&ucg, 0, 128, 255, 128);
-      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
       ucg_DrawStringCentered(&ucg, "addressed", y_offset);
       break;
     case USBD_STATE_CONFIGURED:
       ucg_SetColor(&ucg, 0, 39, 39, 39);
-      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
       ucg_DrawStringCentered(&ucg, "configured", y_offset);
       break;
-    default:
-      ucg_ClearScreen(&ucg);
-      ucg_SetColor(&ucg, 0, 255, 0, 0);
-      ucg_SetFont(&ucg, ucg_font_helvB14_hf);
-      ucg_DrawStringCentered(&ucg, "USB Unknown", 0);
-      break;
+  }
+
+  if(suspended) {
+    y_offset += 1 - ucg_GetFontDescent(&ucg) + ucg_GetFontAscent(&ucg);
+    ucg_SetColor(&ucg, 0, 128, 128, 255);
+    ucg_DrawStringCentered(&ucg, "suspended", y_offset);
+
+    #ifdef USBD_REMOTE_WAKEUP
+    if(remote_wakeup_enabled) {
+      y_offset += 1 - ucg_GetFontDescent(&ucg);
+      ucg_SetFont(&ucg, ucg_font_helvB08_hf);
+      y_offset += ucg_GetFontAscent(&ucg);
+      ucg_SetColor(&ucg, 0, 0, 128, 0);
+      ucg_DrawStringCentered(&ucg, "remote wakeup", y_offset);
+    }
+    #else
+    (void)remote_wakeup_enabled;
+    #endif
   }
 }
 
