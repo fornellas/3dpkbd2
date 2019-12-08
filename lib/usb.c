@@ -203,12 +203,14 @@ usbd_device *usbd_setup_base(
 #ifdef USBD_REMOTE_WAKEUP
 
 void usdb_remote_wakeup_signal() {
-       uint32_t start_ms;
+	uint32_t start_ms;
 
-       start_ms = uptime_ms();
-       OTG_FS_DCTL |= OTG_DCTL_RWUSIG;
-       while(uptime_ms() - start_ms < 2);
-       OTG_FS_DCTL &= ~OTG_DCTL_RWUSIG;
+	start_ms = uptime_ms();
+	OTG_FS_DCTL |= OTG_DCTL_RWUSIG;
+	while(uptime_ms() - start_ms < 2);
+	OTG_FS_DCTL &= ~OTG_DCTL_RWUSIG;
+
+	usbd_suspended = 0;
  }
 
  #endif

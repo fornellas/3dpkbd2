@@ -16,8 +16,9 @@ uint16_t hid_idle_rate_ms = 0;
 hid_out_report_data hid_led_report;
 
 static uint32_t idle_finish_ms = 0;
-static uint8_t hid_report_transmitting=0;
+static uint8_t hid_report_transmitting = 0;
 static struct hid_in_report_data old_hid_in_report;
+static uint8_t hid_usbd_remote_wakeup_sent = 0;
 
 //
 // Prototypes
@@ -269,6 +270,7 @@ void hid_set_config_callback(usbd_device *dev) {
 	hid_report_transmitting = 0;
 	hid_idle_rate_ms = 0;
 	idle_finish_ms = 0;
+	hid_usbd_remote_wakeup_sent = 0;
 
 	get_hid_in_report(&old_hid_in_report);
 }
@@ -292,7 +294,10 @@ void hid_poll(usbd_device *dev) {
 	struct hid_in_report_data new_hid_in_report;
 	uint32_t now;
 
-	if(usbd_state == USBD_STATE_CONFIGURED && usbd_suspended && usbd_remote_wakeup_enabled) {
+	if(!usbd_suspended)
+		hid_usbd_remote_wakeup_sent = 0;
+
+	if(usbd_state == USBD_STATE_CONFIGURED && usbd_suspended && usbd_remote_wakeup_enabled && !hid_usbd_remote_wakeup_sent) {
 		uint8_t *new_hid_in_report_bytes;
 
 		get_hid_in_report(&new_hid_in_report);
@@ -301,7 +306,6 @@ void hid_poll(usbd_device *dev) {
 		for(uint16_t i=0 ; i < sizeof(struct hid_in_report_data) ; i++ ) {
 			if(new_hid_in_report_bytes[i]) {
 				usdb_remote_wakeup_signal();
-				usbd_remote_wakeup_enabled = 0;
 				break;
 			}
 		}
