@@ -24,8 +24,8 @@ int main(void) {
 	usbd_dev = usbd_setup();
 
 	while (1) {
+		display_update();
 		usbd_poll(usbd_dev);
 		hid_poll(usbd_dev);
-		display_update();
 	}
 }
