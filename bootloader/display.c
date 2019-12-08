@@ -24,6 +24,7 @@ static struct display_state last_state;
 static void display_draw(void) {
 	char buff[30];
 	ucg_int_t y_offset = 0;
+	ucg_int_t y_space;
 
 	if(!(current_state.usbd_state == USBD_STATE_CONFIGURED && !current_state.usbd_suspended)) {
 		display_draw_usbd_status(current_state.usbd_state, current_state.usbd_suspended, 0);
@@ -34,12 +35,15 @@ static void display_draw(void) {
 	ucg_SetColor(ucg, 0, 255, 255, 255);
 	ucg_DrawBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
 
+
 	ucg_SetColor(ucg, 0, 39, 39, 39);
 	ucg_SetFont(ucg, ucg_font_helvB18_hf);
-	y_offset = 1 + ucg_GetFontAscent(ucg);
+
+	y_space = (ucg_GetHeight(ucg) - ucg_GetFontAscent(ucg) - UFQFPN48_height) / 3;
+	y_offset = y_space + ucg_GetFontAscent(ucg);
 	ucg_DrawStringCentered(ucg, "DFU", y_offset);
 
-	y_offset += (ucg_GetHeight(ucg) - y_offset - UFQFPN48_height) / 2;
+	y_offset += y_space;
 
 	ucg_DrawPixmap(
 		ucg,
