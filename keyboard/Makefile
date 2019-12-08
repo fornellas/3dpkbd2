@@ -1,6 +1,7 @@
 PROJECT = keyboard
 CUSTOM_LDSCRIPT_TEMPLATE= lib/main_program.ld.template
 CFILES = $(wildcard *.c)
+CFLAGS += -DUSBD_REMOTE_WAKEUP
 
 include ../common.mk
 

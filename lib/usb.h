@@ -18,4 +18,10 @@ usbd_device *usbd_setup_base(
 
 void set_config_callback_base(usbd_device *, uint16_t);
 
+#ifdef USBD_REMOTE_WAKEUP
+
+extern uint8_t usbd_remote_wakeup_enabled;
+
 void usdb_remote_wakeup_signal(void);
+
+#endif

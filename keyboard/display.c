@@ -60,7 +60,10 @@ void display_draw_toggle(
 
 static void display_draw(void) {
   if(current_state.usbd_state != USBD_STATE_CONFIGURED) {
-    usb_draw_display_not_configured(current_state.usbd_state);
+    usb_draw_display_not_configured(
+      current_state.usbd_state,
+      current_state.usbd_remote_wakeup_enabled
+    );
     ucg_SendBuffer(ucg);
     return;
   }

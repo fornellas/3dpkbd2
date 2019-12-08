@@ -228,7 +228,11 @@ ucg_t *display_setup_base(void) {
   return &ucg;
 }
 
+#ifdef USBD_REMOTE_WAKEUP
+void usb_draw_display_not_configured(uint8_t _usbd_state, uint8_t _usbd_remote_wakeup_enabled) {
+#else
 void usb_draw_display_not_configured(uint8_t _usbd_state) {
+#endif
   ucg_int_t y_offset;
 
   ucg_SetColor(&ucg, 0, 255, 255, 255);
@@ -263,6 +267,15 @@ void usb_draw_display_not_configured(uint8_t _usbd_state) {
       ucg_SetColor(&ucg, 0, 128, 128, 255);
       ucg_SetFont(&ucg, ucg_font_helvB14_hf);
       ucg_DrawStringCentered(&ucg, "suspended", y_offset);
+
+      #ifdef USBD_REMOTE_WAKEUP
+      if(_usbd_remote_wakeup_enabled) {
+        ucg_SetFont(&ucg, ucg_font_helvB08_hf);
+        y_offset += ucg_GetFontAscent(&ucg) * 2;
+        ucg_DrawStringCentered(&ucg, "remote wakeup", y_offset);
+      }
+      #endif
+
       break;
     case USBD_STATE_ADDRESSED:
       ucg_SetColor(&ucg, 0, 128, 255, 128);

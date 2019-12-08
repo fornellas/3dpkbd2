@@ -29,6 +29,4 @@ extern uint8_t usbd_control_buffer[
 	)
 ];
 
-extern uint8_t usbd_remote_wakeup_enabled;
-
 usbd_device *usbd_setup(void);
