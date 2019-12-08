@@ -2,6 +2,9 @@
 #include "hid.h"
 #include "usb.h"
 #include "lib/systick.h"
+#include "lib/images/print_head.h"
+#include "lib/images/boot.h"
+#include "lib/images/report.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -10,12 +13,14 @@
 
 static ucg_t *ucg;
 
+void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, const char *, uint8_t);
+
 struct display_state {
   uint8_t usbd_state;
   uint8_t usbd_remote_wakeup_enabled;
 
   uint8_t hid_protocol;
-  int16_t hid_idle_rate_ms;
+  uint16_t hid_idle_rate_ms;
   uint8_t hid_led_num_lock;
   uint8_t hid_led_caps_lock;
   uint8_t hid_led_scroll_lock;
@@ -59,6 +64,8 @@ void display_draw_toggle(
 }
 
 static void display_draw(void) {
+  char buff[30];
+
   if(current_state.usbd_state != USBD_STATE_CONFIGURED) {
     usb_draw_display_not_configured(
       current_state.usbd_state,
@@ -71,22 +78,44 @@ static void display_draw(void) {
   ucg_SetColor(ucg, 0, 255, 255, 255);
   ucg_DrawBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
 
+  ucg_DrawPixmap(ucg, 2, 2, print_head_width, print_head_height, print_head_data);
+
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
 
   ucg_SetColor(ucg, 0, 0, 0, 0);
-  display_draw_toggle(76, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "1", current_state.hid_led_num_lock);
+  display_draw_toggle(50, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "S", current_state.hid_led_scroll_lock);
 
   ucg_SetColor(ucg, 0, 0, 0, 0);
-  display_draw_toggle(50, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "S", current_state.hid_led_scroll_lock);
+  display_draw_toggle(76, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "1", current_state.hid_led_num_lock);
 
   // ucg_SetColor(ucg, 0, 0, 0, 0);
   // display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layout_keypad);
 
   ucg_SetColor(ucg, 0, 255, 0, 0);
-  display_draw_toggle(102, 54, TOGGLE_WIDTH, TOGGLE_HEIGHT, "A", current_state.hid_led_caps_lock);
+  display_draw_toggle(102, 43, TOGGLE_WIDTH, TOGGLE_HEIGHT, "A", current_state.hid_led_caps_lock);
 
   // ucg_SetColor(ucg, 0, 0, 0, 0);
-  // display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "A", current_state.layout_fn);
+  // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, "!", current_state.layout_shift_lock);
+
+  // ucg_SetColor(ucg, 0, 0, 0, 0);
+  // display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "Fn", current_state.layout_fn);
+
+  ucg_SetColor(ucg, 0, 0, 0, 0);
+  ucg_SetFont(ucg, ucg_font_helvB08_hf);
+  if(current_state.hid_idle_rate_ms) {
+    sprintf(buff, "Idle rate: %dms", current_state.hid_idle_rate_ms);
+    ucg_DrawStringCentered(ucg, buff, 126);
+  } else
+    ucg_DrawStringCentered(ucg, "Idle rate: Inf", 126);
+
+  switch(current_state.hid_protocol) {
+    case USB_HID_PROTOCOL_BOOT:
+      ucg_DrawPixmap(ucg, 102, 106, boot_width, boot_height, boot_data);
+      break;
+    case USB_HID_PROTOCOL_REPORT:
+      ucg_DrawPixmap(ucg, 102, 106, report_width, report_height, report_data);
+      break;
+  }
 
   ucg_SendBuffer(ucg);
 }
