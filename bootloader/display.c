@@ -124,3 +124,7 @@ void display_update(void) {
 		display_draw();
 	}
 }
+
+void display_power_down(void) {
+	ucg_PowerDown(ucg);
+}

@@ -209,11 +209,10 @@ static enum usbd_request_return_codes dfu_control_request(
 	return USBD_REQ_NOTSUPP;
 }
 
-
-
 void reset_callback(void);
 
 void reset_callback(void) {
+	display_power_down();
 	scb_reset_system();
 }
 
