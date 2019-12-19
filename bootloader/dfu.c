@@ -5,7 +5,6 @@
 #include "lib/addresses.h"
 #include "usb.h"
 #include <libopencm3/cm3/scb.h>
-#include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/usb/dfu.h>
 #include <string.h>
