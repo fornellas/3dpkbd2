@@ -11,11 +11,13 @@ UCGLIB_DIR = ucglib
 INCLUDES += -I$(UCGLIB_DIR)/csrc
 CFILES += $(wildcard $(UCGLIB_DIR)/csrc/*.c)
 
- # http://pid.codes/
+# http://pid.codes/
 USB_VID=0x1209
- # TODO register PID
+# TODO register PID
 USB_PID=0x3dbd
 CFLAGS += -DUSB_VID=$(USB_VID) -DUSB_PID=$(USB_PID)
+
+CFLAGS += -D_GNU_SOURCE
 
 # 0x08000000
 MAIN_MEMORY_BASE = 134217728
@@ -34,8 +36,12 @@ include ../rules.mk
 openocd:
 	$(Q)openocd --file interface/$(OOCD_INTERFACE).cfg --file target/$(OOCD_TARGET).cfg
 
+.PHONY: openocd
+
 gdb: $(PROJECT).elf
 	$(Q)$(GDB) --init-command=lib/gdb.init $(PROJECT).elf
+
+.PHONY: gdb
 
 ifeq ($(CUSTOM_LDSCRIPT_TEMPLATE),)
 include $(OPENCM3_DIR)/mk/genlink-rules.mk
@@ -52,3 +58,8 @@ $(LDSCRIPT): $(CUSTOM_LDSCRIPT)
 	$(Q)ln -s $< $@
 
 endif
+
+monitor:
+	screen /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A50285BI-if00-port0 115200
+
+.PHONY: monitor
