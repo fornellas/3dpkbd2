@@ -206,7 +206,7 @@ static enum usbd_request_return_codes dfu_control_request(
 		return USBD_REQ_HANDLED;
 	}
 
-	return USBD_REQ_NOTSUPP;
+	return USBD_REQ_NEXT_CALLBACK;
 }
 
 void reset_callback(void);

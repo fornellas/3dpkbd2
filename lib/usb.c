@@ -82,7 +82,7 @@ static enum usbd_request_return_codes control_device_get_status_callback(
 		return USBD_REQ_HANDLED;
 	}
 
-	return USBD_REQ_NOTSUPP;
+	return USBD_REQ_NEXT_CALLBACK;
 }
 
 static enum usbd_request_return_codes control_device_feature_callback(
@@ -123,7 +123,7 @@ static enum usbd_request_return_codes control_device_feature_callback(
 		}
 	}
 
-	return USBD_REQ_NOTSUPP;
+	return USBD_REQ_NEXT_CALLBACK;
 }
 
 #endif

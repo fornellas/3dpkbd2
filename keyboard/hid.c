@@ -79,7 +79,7 @@ static enum usbd_request_return_codes hid_standard_request(
 	// ) {
 	// }
 
-	return USBD_REQ_NOTSUPP;
+	return USBD_REQ_NEXT_CALLBACK;
 }
 
 static enum usbd_request_return_codes hid_class_specific_request(
@@ -234,7 +234,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		}
 	}
 
-	return USBD_REQ_NOTSUPP;
+	return USBD_REQ_NEXT_CALLBACK;
 }
 
 static void hid_endpoint_interrupt_in_transfer_complete(usbd_device *usbd_dev, uint8_t ep) {
