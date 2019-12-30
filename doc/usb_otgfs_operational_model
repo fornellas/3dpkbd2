@@ -1,0 +1,53 @@
+22.17.5 Device programming model
+	WIP Endpoint initialization on USB reset
+	OK Endpoint initialization on enumeration completion
+	Endpoint initialization on SetAddress command
+	Endpoint initialization on SetConfiguration/SetInterface command
+	Endpoint activation
+	Endpoint deactivation
+22.17.6 Operational model
+	SETUP and OUT data transfers
+		Packet read
+		WIP SETUP transactions
+			Application requirements
+			Internal data flow
+			Application programming sequence
+			Handling more than three back-to-back SETUP packets
+		Setting the global OUT NAK
+			Internal data flow
+			Application programming sequence
+		Disabling an OUT endpoint
+			Application programming sequence
+		Generic non-isochronous OUT data transfers
+			Application requirements
+			Internal data flow
+			Application programming sequence
+		Generic isochronous OUT data transfer
+			Application requirements
+			Internal data flow
+			Application programming sequence
+		Incomplete isochronous OUT data transfers
+			Internal data flow
+			Application programming sequence
+		Stalling a non-isochronous OUT endpoint
+	IN data transfers
+		Packet write
+		Setting IN endpoint NAK
+			Internal data flow
+			Application programming sequence
+		IN endpoint disable
+			Application programming sequence
+		Generic non-periodic IN data transfers
+			Application requirements
+			Internal data flow
+			Application programming sequence
+		Generic periodic IN data transfers
+			Application requirements
+			Internal data flow
+			Application programming sequence
+		Incomplete isochronous IN data transfers
+			Internal data flow
+			Application programming sequence
+		Stalling non-isochronous IN endpoints
+			Application programming sequence
+			Special case: stalling the control OUT endpoint

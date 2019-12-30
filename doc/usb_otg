@@ -1,0 +1,48 @@
+22.5.2 Peripheral states
+	Powered state
+		Vbus detects power
+			SRQINT bit in OTG_FS_GINTSTS
+			Expects reset signaling
+				USBRST in OTG_FS_GINTSTS
+			Reset complete
+				ENUMDNE bit in OTG_FS_GINTSTS
+				Enters Default state
+		Vbus detects no power
+			SEDET bit in OTG_FS_GOTGINT
+	Soft disconnect
+		From powered state, device can trigger soft disconnect
+			SDIS bit in OTG_FS_DCTL
+	Default state
+		Expects to receive SET_ADDRESS
+		Writes received address to
+			DAD bit in OTG_FS_DCFG
+			Enters addressed state
+	Suspended state
+		3ms of USB idleness, early suspend interrupt
+			ESUSP bit in OTG_FS_GINTSTS
+		3ms later, suspend confirmed
+			USBSUSP bit in OTG_FS_GINTSTS
+			Device suspend bit set
+			SUSPSTS bit in OTG_FS_DSTS
+		Maybe exited by the device via remote wakeup
+			Set RWUSIG bit in OTG_FS_DCTL
+			Clear 1-15ms later
+		When resume signaling detected from host
+			WKUPINT bit in OTG_FS_GINTSTS
+
+
+
+
+- 3ms of USB idleness
+	ESUSP bit set in OTG_FS_GINTSTS (early suspend)
+	3ms later
+	USBSUSP bit set in OTG_FS_GINTSTS (suspend confirmed)
+	SUSPSTS bit set in OTG_FS_DSTS
+	OTG_FS enters suspended state
+
+- Suspend exit
+	- By device remote wakeup by setting RWUSIG bit in OTG_FS_DCTL
+		- And clearing after 1-15ms.
+	- Resume signaling from host
+		WKUPINT bit is set in OTG_FS_GINTSTS
+		suspend bit is cleared
