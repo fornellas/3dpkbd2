@@ -267,12 +267,12 @@ void hid_set_config_callback(usbd_device *dev) {
 		hid_endpoint_interrupt_in_transfer_complete
 	);
 
-	hid_report_transmitting = 0;
+	hid_protocol = USB_HID_PROTOCOL_REPORT;
 	hid_idle_rate_ms = 0;
 	idle_finish_ms = 0;
-	hid_usbd_remote_wakeup_sent = 0;
-
+	hid_report_transmitting = 0;
 	get_hid_in_report(&old_hid_in_report);
+	hid_usbd_remote_wakeup_sent = 0;
 }
 
 static void get_hid_in_report(struct hid_in_report_data *hid_in_report) {
