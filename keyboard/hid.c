@@ -161,7 +161,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	// 7.2.3 Get_Idle Request
 	if(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
-		&& (req->bRequest == USB_HID_REQ_TYPE_SET_IDLE)
+		&& (req->bRequest == USB_HID_REQ_TYPE_GET_IDLE)
 	) {
 		report_id = req->wValue & 0xFF;
 		interface_number = req->wIndex;
