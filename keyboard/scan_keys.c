@@ -137,8 +137,9 @@ void scan_keys(void (*callback)(uint8_t row, uint8_t column)) {
 		set_row_level(row, 0);
 		// Due to line capacitances we have to wait for the high signal to be
 		// drained by the high pull down resistor so the input signal is back to
-		// logic low
+		// logic low.
 		if(pressed){
+			// ~10us
 			for(uint16_t i=0 ; i < 200 ; i++)
 				__asm__("nop");
 		}
