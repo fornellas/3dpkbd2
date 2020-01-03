@@ -196,6 +196,7 @@ usbd_device *usbd_setup_base(
 	// https://github.com/libopencm3/libopencm3/issues/1119#issuecomment-549071405
 	// Fix for otgfs_usb_driver setting VBUSBSEN regardless of what board it is.
 	OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS;
+	OTG_FS_GCCFG &= ~OTG_GCCFG_VBUSBSEN;
 
 	return usbd_dev;
 }
