@@ -4,6 +4,7 @@
 #include "lib/led.h"
 #include "systick.h"
 #include "usb.h"
+#include "scan_keys.h"
 #include <libopencm3/stm32/rcc.h>
 
 int main(void) {
@@ -20,6 +21,7 @@ int main(void) {
 	led_setup();
 	systick_setup();
 	display_setup();
+	scan_keys_setup();
 
 	usbd_dev = usbd_setup();
 
