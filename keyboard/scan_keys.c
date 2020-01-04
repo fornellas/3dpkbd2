@@ -3,8 +3,10 @@
 #include <libopencm3/stm32/rcc.h>
 #include <systick.h>
 
-#define COLUMNS 7
 #define ROWS 7
+#define COLUMNS 7
+
+static uint8_t previous_key_state[ROWS][COLUMNS] = {};
 
 static void set_rows_as_intput_with_pullup(void) {
 	// Row 0 > B12
@@ -54,6 +56,9 @@ static void set_columns_as_output_and_low(void) {
 void scan_keys_setup(void) {
 	set_rows_as_intput_with_pullup();
 	set_columns_as_output_and_low();
+	for(uint8_t row=0 ; row < ROWS ; row++)
+		for(uint8_t column=0; column < COLUMNS ; column++)
+			previous_key_state[row][column] = 0;
 }
 
 static void set_row_level(uint8_t row, uint8_t level) {
@@ -123,22 +128,36 @@ static uint16_t get_column(uint8_t column) {
 	return 1;
 }
 
-void scan_keys(void (*callback)(uint8_t row, uint8_t column)) {
+void scan_keys(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
 	for (uint8_t row = 0; row < ROWS ; row++) {
+		uint8_t any_pressed;
+		uint8_t state;
 		uint8_t pressed;
-		pressed = 0;
+		uint8_t released;
+
+		any_pressed = 0;
 		set_row_level(row, 1);
 		for (uint8_t column = 0 ; column < COLUMNS ; column++) {
 			if (get_column(column)){
-				pressed = 1;
-				(*callback)(row, column);
+				any_pressed = 1;
+				state = 1;
+				pressed = !previous_key_state[row][column];
+				released = 0;
+				previous_key_state[row][column] = 1;
+			}else{
+				state = 0;
+				pressed = 0;
+				released = previous_key_state[row][column];
+				previous_key_state[row][column] = 0;
 			}
+			if(state || pressed || released)
+				(*callback)(row, column, state, pressed, released, data);
 		}
 		set_row_level(row, 0);
-		// Due to line capacitances we have to wait for the high signal to be
-		// drained by the high pull down resistor so the input signal is back to
-		// logic low.
-		if(pressed){
+		// Due to line capacitances we have to wait for the previous row high
+		// signal to be drained by the pull down resistor so the column input
+		// signal is back to logic low.
+		if(any_pressed){
 			// ~10us
 			for(uint16_t i=0 ; i < 200 ; i++)
 				__asm__("nop");
