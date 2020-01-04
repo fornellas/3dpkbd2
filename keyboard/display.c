@@ -129,6 +129,7 @@ static void display_get_current_state(struct display_state *state) {
 
   state->hid_protocol = hid_protocol;
   state->hid_idle_rate_ms = hid_idle_rate_ms;
+  // TODO move bit logic to hid.c
   state->hid_led_num_lock = hid_led_report & (1<<0);
   state->hid_led_caps_lock = hid_led_report & (1<<1);
   state->hid_led_scroll_lock = hid_led_report & (1<<2);
