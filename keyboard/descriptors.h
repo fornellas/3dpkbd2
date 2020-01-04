@@ -40,10 +40,13 @@ extern const uint8_t hid_report_descriptor[64];
 
 // Must match hid_report_descriptor
 struct hid_in_report_data {
-	uint8_t modifier_keys;
+	uint8_t keyboard_keypad_modifiers;
 	uint8_t reserved;
-	uint8_t keyboard_keys[6];
-};
+	uint8_t keyboard_keypad[6];
+} __attribute__((packed));
+
+// Must match hid_report_descriptor
+void hid_in_report_add(struct hid_in_report_data *, uint16_t, uint16_t);
 
 // Must match hid_report_descriptor
 typedef uint8_t hid_out_report_data;

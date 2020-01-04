@@ -1,4 +1,5 @@
 #include "descriptors.h"
+#include <libopencm3/usb/hid_usage_tables.h>
 
 char usb_serial_number[25];
 
@@ -154,3 +155,34 @@ const uint8_t hid_report_descriptor[] = {
 	// 0x81, 0x00,        //   INPUT (Data,Ary)
 	0xc0,             // END_COLLECTION
 };
+
+// Must match hid_report_descriptor
+void hid_in_report_add(struct hid_in_report_data *hid_in_report, uint16_t hid_usage_page, uint16_t hid_usage_id) {
+	switch(hid_usage_page) {
+		case USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD:
+			if(
+				hid_usage_id >= USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFTCONTROL
+				&& hid_usage_id <= USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_GUI
+			) {
+				uint8_t modifier_bit;
+				modifier_bit = hid_usage_id - USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFTCONTROL;
+				hid_in_report->keyboard_keypad_modifiers = (1 << modifier_bit);
+			} else {
+				uint8_t error_roll_over;
+				error_roll_over = 1;
+				for(uint8_t i=0 ; i < 6 ; i++) {
+					if(hid_in_report->keyboard_keypad[i] != USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_RESERVED_NO_EVENT_INDICATED){
+						continue;
+					} else {
+						hid_in_report->keyboard_keypad[i] = hid_usage_id;
+						error_roll_over = 0;
+						break;
+					}
+				}
+				if(error_roll_over)
+					for(uint8_t i=0 ; i < 6 ; i++)
+						hid_in_report->keyboard_keypad[i] = USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ERRORROLLOVER;
+			}
+			break;
+	}
+}
