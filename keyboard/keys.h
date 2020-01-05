@@ -1,5 +1,19 @@
+#ifndef KEYS_H
+#define KEYS_H
+
 #include "descriptors.h"
 #include <stdint.h>
+
+enum keys_layer_states {
+  KEYS_LAYER_STATE_ENABLED,
+  KEYS_LAYER_STATE_DISABLED,
+  KEYS_LAYER_STATE_CONFIG,
+};
+
+struct keys_hid_usage_data {
+	uint16_t page;
+	uint16_t id;
+} __attribute__((packed));
 
 void keys_setup(void);
 
@@ -8,3 +22,5 @@ void keys_reset(void);
 void keys_populate_hid_in_report(struct hid_in_report_data *);
 
 void keys_scan(void (*)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *);
+
+#endif
