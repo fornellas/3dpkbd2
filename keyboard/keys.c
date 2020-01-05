@@ -8,7 +8,8 @@ void keys_setup() {
 }
 
 void keys_reset() {
-
+	// TODO reset keys state
+	keys_scan_reset();
 }
 
 static void get_hid_usage(uint8_t column, uint8_t row, uint16_t *hid_usage_page, uint16_t *hid_usage_id) {
