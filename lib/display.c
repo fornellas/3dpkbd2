@@ -244,11 +244,11 @@ void display_draw_usbd_status(uint8_t state, uint8_t suspended, uint8_t remote_w
   );
 
   ucg_SetColor(&ucg, 0, 39, 39, 39);
-  ucg_SetFont(&ucg, ucg_font_helvB18_hf);
+  ucg_SetFont(&ucg, ucg_font_helvB18_hr);
   y_offset = 1 + ucg_GetFontAscent(&ucg);
   ucg_DrawStringCentered(&ucg, "USB", y_offset);
 
-  ucg_SetFont(&ucg, ucg_font_helvB10_hf);
+  ucg_SetFont(&ucg, ucg_font_helvB10_hr);
   y_offset += 1 + ucg_GetFontAscent(&ucg);
 
   switch(state) {
@@ -274,7 +274,7 @@ void display_draw_usbd_status(uint8_t state, uint8_t suspended, uint8_t remote_w
     #ifdef USBD_REMOTE_WAKEUP
     if(remote_wakeup_enabled) {
       y_offset += 1 - ucg_GetFontDescent(&ucg);
-      ucg_SetFont(&ucg, ucg_font_helvB08_hf);
+      ucg_SetFont(&ucg, ucg_font_helvB08_hr);
       y_offset += ucg_GetFontAscent(&ucg);
       ucg_SetColor(&ucg, 0, 0, 128, 0);
       ucg_DrawStringCentered(&ucg, "remote wakeup", y_offset);

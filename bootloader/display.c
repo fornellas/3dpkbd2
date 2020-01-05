@@ -37,7 +37,7 @@ static void display_draw(void) {
 
 
 	ucg_SetColor(ucg, 0, 39, 39, 39);
-	ucg_SetFont(ucg, ucg_font_helvB18_hf);
+	ucg_SetFont(ucg, ucg_font_helvB18_hr);
 
 	y_space = (ucg_GetHeight(ucg) - ucg_GetFontAscent(ucg) - UFQFPN48_height) / 3;
 	y_offset = y_space + ucg_GetFontAscent(ucg);
@@ -54,7 +54,7 @@ static void display_draw(void) {
 		UFQFPN48_data
 	);
 
-	ucg_SetFont(ucg, ucg_font_helvB12_hf);
+	ucg_SetFont(ucg, ucg_font_helvB12_hr);
 	y_offset += UFQFPN48_height / 2 + ucg_GetFontAscent(ucg) / 2 - 6;
 	ucg_SetColor(ucg, 0, 255, 255, 255);
 
