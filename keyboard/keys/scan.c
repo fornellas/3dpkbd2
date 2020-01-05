@@ -1,11 +1,8 @@
-#include "keys.h"
-#include "keys_scan.h"
+#include "../keys.h"
+#include "scan.h"
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <systick.h>
-
-#define ROWS 7
-#define COLUMNS 7
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
 

@@ -1,5 +1,5 @@
 #include "keys.h"
-#include "keys_scan.h"
+#include "keys/scan.h"
 #include <descriptors.h>
 #include <libopencm3/usb/hid_usage_tables.h>
 
