@@ -108,6 +108,7 @@ static void set_row_level(uint8_t row, uint8_t level) {
 			gpio_clear(GPIOA, GPIO10);
 		break;
 	}
+	// TODO right side
 }
 
 static uint16_t get_column(uint8_t column) {
@@ -127,7 +128,8 @@ static uint16_t get_column(uint8_t column) {
 	case 6:
 		return gpio_get(GPIOB, GPIO7);
 	}
-	return 1;
+	// TODO right side
+	return 0;
 }
 
 void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
