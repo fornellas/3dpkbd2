@@ -1,10 +1,9 @@
 #include "display.h"
 #include "hid.h"
-#include "lib/key.h"
 #include "lib/led.h"
 #include "systick.h"
+#include "keys.h"
 #include "usb.h"
-#include "scan_keys.h"
 #include <libopencm3/stm32/rcc.h>
 
 int main(void) {
@@ -17,11 +16,10 @@ int main(void) {
 	// PLLQ 4
 	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[RCC_CLOCK_3V3_84MHZ]);
 
-	key_setup();
-	led_setup();
 	systick_setup();
+	led_setup();
+	keys_setup();
 	display_setup();
-	scan_keys_setup();
 
 	usbd_dev = usbd_setup();
 

@@ -1,11 +1,10 @@
 #include "descriptors.h"
 #include "hid.h"
-#include "lib/key.h"
-#include "lib/led.h"
 #include "lib/systick.h"
 #include "usb.h"
 #include <stdlib.h>
 #include <string.h>
+#include "keys.h"
 
 //
 // Variables
@@ -146,12 +145,6 @@ static enum usbd_request_return_codes hid_class_specific_request(
 					return USBD_REQ_NOTSUPP;
 
 				hid_led_report = *buf[0];
-
-				// TODO OLED Display
-				if(hid_led_report & (1<<1)) // Caps Lock
-					led_on();
-				else
-					led_off();
 				return USBD_REQ_HANDLED;
 			// case USB_HID_REPORT_TYPE_FEATURE:
 			// 	break;
@@ -271,23 +264,41 @@ void hid_set_config_callback(usbd_device *dev) {
 	hid_idle_rate_ms = 0;
 	idle_finish_ms = 0;
 	hid_report_transmitting = 0;
+	keys_reset();
 	get_hid_in_report(&old_hid_in_report);
 	hid_usbd_remote_wakeup_sent = 0;
 }
 
 static void get_hid_in_report(struct hid_in_report_data *hid_in_report) {
 	memset(hid_in_report, 0, sizeof(struct hid_in_report_data));
-
-	// TODO scan keys
-	if(key_pressed())
-		hid_in_report->keyboard_keys[0] = 4; // A
+	keys_populate_hid_in_report(hid_in_report);
 }
-
 
 static void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_in_report) {
 	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data));
 	hid_report_transmitting = 1;
 	usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, sizeof(struct hid_in_report_data));
+}
+
+static void remote_wakeup_key_event_callback(
+	uint8_t column,
+	uint8_t row,
+	uint8_t state,
+	uint8_t pressed,
+	uint8_t released,
+	void *data
+) {
+	uint8_t *any_key_pressed;
+
+	(void)column;
+	(void)row;
+	(void)pressed;
+	(void)released;
+
+	any_key_pressed = (uint8_t *)data;
+
+	if(state)
+		*any_key_pressed = 1;
 }
 
 void hid_poll(usbd_device *dev) {
@@ -298,16 +309,13 @@ void hid_poll(usbd_device *dev) {
 		hid_usbd_remote_wakeup_sent = 0;
 
 	if(usbd_state == USBD_STATE_CONFIGURED && usbd_suspended && usbd_remote_wakeup_enabled && !hid_usbd_remote_wakeup_sent) {
-		uint8_t *new_hid_in_report_bytes;
+		uint8_t any_key_pressed;
 
-		get_hid_in_report(&new_hid_in_report);
-		new_hid_in_report_bytes = (uint8_t *)(&new_hid_in_report);
-
-		for(uint16_t i=0 ; i < sizeof(struct hid_in_report_data) ; i++ ) {
-			if(new_hid_in_report_bytes[i]) {
-				usdb_remote_wakeup_signal();
-				break;
-			}
+		any_key_pressed = 0;
+		keys_scan(remote_wakeup_key_event_callback, &any_key_pressed);
+		if(any_key_pressed){
+			usdb_remote_wakeup_signal();
+			hid_usbd_remote_wakeup_sent = 1;
 		}
 		return;
 	}
