@@ -161,11 +161,11 @@ void hid_in_report_add(struct hid_in_report_data *hid_in_report, uint16_t hid_us
 	switch(hid_usage_page) {
 		case USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD:
 			if(
-				hid_usage_id >= USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFTCONTROL
+				hid_usage_id >= USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_CONTROL
 				&& hid_usage_id <= USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_GUI
 			) {
 				uint8_t modifier_bit;
-				modifier_bit = hid_usage_id - USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFTCONTROL;
+				modifier_bit = hid_usage_id - USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_CONTROL;
 				hid_in_report->keyboard_keypad_modifiers = (1 << modifier_bit);
 			} else {
 				uint8_t error_roll_over;
