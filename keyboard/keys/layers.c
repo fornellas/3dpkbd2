@@ -2,10 +2,16 @@
 #include "../keys.h"
 #include <libopencm3/usb/hid_usage_tables.h>
 
+#define KK(value) { \
+	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_ ## value \
+}
+
 #define KBD(value) { \
 	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
 	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ ## value \
 }
+
 #define KPD(value) { \
 	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
 	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYPAD_ ## value \
@@ -16,7 +22,7 @@
 	.id=USB_HID_USAGE_PAGE_GENERIC_DESKTOP_ ## value \
 }
 
-#define CSM(value) { \
+#define CSMR(value) { \
 	.page=USB_HID_USAGE_PAGE_CONSUMER, \
 	.id=USB_HID_USAGE_PAGE_CONSUMER_ ## value \
 }
@@ -131,11 +137,11 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,          FUNC(FUNC_DESKTOP),     ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
 		FUNC(FUNC_FN), KBD(LEFT_GUI),          SEQ(SEQ_SHUFFLE),                      KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
-		KBD(DELETE),           KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(FUNC_KEYPAD),
-		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               KBD(MEDIA_CALCULATOR),
-		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KC(AL_EMAIL_READER_SEL),
+		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(FUNC_KEYPAD),
+		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               KK(CALCULATOR),
+		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AL_EMAIL_READER),
 		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KBD(CAPS_LOCK),
-		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KC(AL_INTERNET_BROWSER_SEL),
+		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AL_INTERNET_BROWSER),
 		KBD(SPACEBAR),                           KBD(RIGHT_SHIFT),                          KBD(HOME),                      KBD(UP_ARROW),                  KBD(END),         ____,               KBD(PAGE_UP),
 		KBD(RIGHT_ALT),                          KBD(RIGHT_CONTROL),                        KBD(LEFT_ARROW),                KBD(DOWN_ARROW),                KBD(RIGHT_ARROW), ____,               KBD(PAGE_DOWN)
 	),
