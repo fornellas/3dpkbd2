@@ -2,22 +2,55 @@
 #include "../keys.h"
 #include <libopencm3/usb/hid_usage_tables.h>
 
+#define KBD(value) { \
+	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ ## value \
+}
+#define KPD(value) { \
+	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYPAD_ ## value \
+}
+
+#define GD(value) { \
+	.page=USB_HID_USAGE_PAGE_GENERIC_DESKTOP, \
+	.id=USB_HID_USAGE_PAGE_GENERIC_DESKTOP_ ## value \
+}
+
+#define CSM(value) { \
+	.page=USB_HID_USAGE_PAGE_CONSUMER, \
+	.id=USB_HID_USAGE_PAGE_CONSUMER_ ## value \
+}
+
+#define NONE { \
+	.page=USB_HID_USAGE_PAGE_NONE, \
+	.id=0 \
+}
+
+#define ____ { \
+	.page=USB_HID_USAGE_PAGE_NEXT_LAYER, \
+	.id=0 \
+}
+
+#define FUNC(value) { \
+	.page=USB_HID_USAGE_PAGE_FUNCTION, \
+	.id=value \
+}
+
+#define SEQ(value) { \
+	.page=USB_HID_USAGE_PAGE_SEQUENCE, \
+	.id=value \
+}
+
 const uint8_t layers_default_state[] = {
 	[LAYER_FN] = KEYS_LAYER_STATE_DISABLED,
 	[LAYER_KEYPAD] = KEYS_LAYER_STATE_DISABLED,
-	[LAYER_QWERTY_QWERTY] = KEYS_LAYER_STATE_CONFIG,
-	[LAYER_QWERTY_DVORAK] = KEYS_LAYER_STATE_CONFIG,
-	[LAYER_DVORAK_DVORAK] = KEYS_LAYER_STATE_CONFIG,
-	[LAYER_DVORAK_QWERTY] = KEYS_LAYER_STATE_CONFIG,
+	[LAYER_QWERTY_QWERTY] = KEYS_LAYER_STATE_LOAD,
+	[LAYER_QWERTY_DVORAK] = KEYS_LAYER_STATE_LOAD,
+	[LAYER_DVORAK_DVORAK] = KEYS_LAYER_STATE_LOAD,
+	[LAYER_DVORAK_QWERTY] = KEYS_LAYER_STATE_LOAD,
 	[LAYER_SHIFTED_NUMBER] = KEYS_LAYER_STATE_DISABLED,
 	[LAYER_COMMON] = KEYS_LAYER_STATE_ENABLED,
 };
-
-// FIXME Implement No action
-#define NONE { \
-	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
-	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_A \
-}
 
 #define NEW_LAYER( \
 	/* Left */ \
@@ -46,21 +79,25 @@ const uint8_t layers_default_state[] = {
 	{k6x0, k6x1, k6x2, NONE, k6x4, NONE, k6x6,   k6x7, NONE, k6x9, NONE,  k6x11, k6x12, k6x13, k6x14, k6x15}, \
 }
 
-
-#define ____ NONE // FIXME: next layer
-
-// Keyboard/Keypad Usage Page
-#define KBD(value) { \
-	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
-	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ ## value \
-}
-#define KPD(value) { \
-	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
-	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYPAD_ ## value \
-}
-
 const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
-	// [LAYER_FN] = NEW_LAYER(),
+	// [LAYER_FN] = NEW_LAYER(
+	// 	// Left
+	// 	____, ____, ____, ____, ____, ____, ____,
+	// 	____, ____, ____, ____, ____, ____, ____,
+	// 	____, ____, ____, ____, ____, ____,
+	// 	____, ____, ____, ____, ____, ____, ____,
+	// 	____, ____, ____, ____, ____, ____,
+	// 	____, ____, ____,       ____,       ____,
+	// 	____, ____, ____,       ____,       ____,
+	// 	// Right
+	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
+	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
+	// 	      ____, ____, ____, ____, ____, ____, ____, ____,
+	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
+	// 	      ____, ____, ____, ____, ____, ____, ____, ____,
+	// 	____,       ____,       ____, ____, ____, ____, ____,
+	// 	____,       ____,       ____, ____, ____, ____, ____
+	// ),
 	// [LAYER_KEYPAD] = NEW_LAYER(),
 	// [LAYER_QWERTY_QWERTY] = NEW_LAYER(),
 	// [LAYER_QWERTY_DVORAK] = NEW_LAYER(),
@@ -84,22 +121,22 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	),
 	// [LAYER_DVORAK_QWERTY] = NEW_LAYER(),
 	// [LAYER_SHIFTED_NUMBER] = NEW_LAYER(),
-	// [LAYER_COMMON] = NEW_LAYER(
-	// 	// Left
-	// 	____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____,       ____,       ____,
-	// 	____, ____, ____,       ____,       ____,
-	// 	// Right
-	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	      ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	      ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	____,       ____,       ____, ____, ____, ____, ____,
-	// 	____,       ____,       ____, ____, ____, ____, ____
-	// ),
+	[LAYER_COMMON] = NEW_LAYER(
+		// Left
+		KBD(ESCAPE),   KBD(F1),                KBD(F2),          KBD(F3),             KBD(F4),           KBD(F5),               KBD(DELETE_FORWARD),
+		____,          KBD(1_AND_EXCLAMATION), KBD(2_AND_AT),    KBD(3_AND_HASHMARK), KBD(4_AND_DOLLAR), KBD(5_AND_PERCENTAGE), KBD(DELETE_BACKSPACE),
+		KBD(TAB),      ____,                   ____,             ____,                ____,              ____,
+		____,          ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
+		____,          ____,                   ____,             ____,                ____,              ____,
+		____,          FUNC(FUNC_DESKTOP),     ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
+		FUNC(FUNC_FN), KBD(LEFT_GUI),          SEQ(SEQ_SHUFFLE),                      KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
+		// Right
+		KBD(DELETE),           KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(FUNC_KEYPAD),
+		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               KBD(MEDIA_CALCULATOR),
+		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KC(AL_EMAIL_READER_SEL),
+		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KBD(CAPS_LOCK),
+		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KC(AL_INTERNET_BROWSER_SEL),
+		KBD(SPACEBAR),                           KBD(RIGHT_SHIFT),                          KBD(HOME),                      KBD(UP_ARROW),                  KBD(END),         ____,               KBD(PAGE_UP),
+		KBD(RIGHT_ALT),                          KBD(RIGHT_CONTROL),                        KBD(LEFT_ARROW),                KBD(DOWN_ARROW),                KBD(RIGHT_ARROW), ____,               KBD(PAGE_DOWN)
+	),
 };

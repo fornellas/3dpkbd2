@@ -4,10 +4,15 @@
 #include "descriptors.h"
 #include <stdint.h>
 
+#define USB_HID_USAGE_PAGE_NONE 0xFF00
+#define USB_HID_USAGE_PAGE_NEXT_LAYER 0xFF01
+#define USB_HID_USAGE_PAGE_FUNCTION 0xFF02
+#define USB_HID_USAGE_PAGE_SEQUENCE 0xFF03
+
 enum keys_layer_states {
   KEYS_LAYER_STATE_ENABLED,
   KEYS_LAYER_STATE_DISABLED,
-  KEYS_LAYER_STATE_CONFIG,
+  KEYS_LAYER_STATE_LOAD,
 };
 
 struct keys_hid_usage_data {
