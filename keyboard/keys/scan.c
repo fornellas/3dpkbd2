@@ -135,11 +135,13 @@ static uint16_t get_column(uint8_t column) {
 void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
 	for (uint8_t row = 0; row < ROWS ; row++) {
 		uint8_t any_pressed;
+		uint8_t any_triggered;
 		uint8_t state;
 		uint8_t pressed;
 		uint8_t released;
 
 		any_pressed = 0;
+		any_triggered = 0;
 		set_row_level(row, 1);
 		for (uint8_t column = 0 ; column < COLUMNS ; column++) {
 			if (get_column(column)){
@@ -156,6 +158,8 @@ void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, voi
 			}
 			if(state || pressed || released)
 				(*callback)(row, column, state, pressed, released, data);
+			if(pressed || released)
+				any_triggered = 1;
 		}
 		set_row_level(row, 0);
 		// Due to line capacitances we have to wait for the previous row high
@@ -164,6 +168,12 @@ void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, voi
 		if(any_pressed){
 			// ~10us
 			for(uint16_t i=0 ; i < 200 ; i++)
+				__asm__("nop");
+		}
+		// Debouncing
+		if(any_triggered){
+			// ~1ms
+			for(uint16_t i=0 ; i < 20000 ; i++)
 				__asm__("nop");
 		}
 	}
