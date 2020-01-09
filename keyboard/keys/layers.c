@@ -253,7 +253,24 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,         ____,           ____,   ____,                                   ____,                      ____,                                   ____,
 		____,         ____,           ____,   ____,                                   ____,                      ____,                                   ____
 	),
-	// [LAYER_SHIFTED_NUMBER] = LAYER_KEYMAP(),
+	[LAYER_SHIFTED_NUMBER] = LAYER_KEYMAP(
+		// Left
+		____, ____,               ____,               ____,               ____,               ____,               ____,
+		____, FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), ____,
+		____, ____,               ____,               ____,               ____,               ____,
+		____, ____,               ____,               ____,               ____,               ____,               ____,
+		____, ____,               ____,               ____,               ____,               ____,
+		____, ____,               ____,                                   ____,                                   ____,
+		____, ____,               ____,                                   ____,                                   ____,
+		// Right
+		____, ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
+		____, FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), ____, ____, ____,
+		      ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
+		____, ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
+		      ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
+		____,                     ____,                                   ____,               ____,               ____, ____, ____,
+		____,                     ____,                                   ____,               ____,               ____, ____, ____
+	),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
 		KBD(ESCAPE),   KBD(F1),                KBD(F2),          KBD(F3),             KBD(F4),           KBD(F5),               KBD(DELETE_FORWARD),
