@@ -1,6 +1,7 @@
 #include "keys.h"
 #include "keys/scan.h"
 #include "keys/layers.h"
+#include "keys/sequence.h"
 #include <descriptors.h>
 #include <libopencm3/usb/hid_usage_tables.h>
 
@@ -26,6 +27,7 @@ static void load_layer_state(void) {
 void keys_setup() {
 	keys_scan_setup();
 	load_layer_state();
+	sequence_init();
 }
 
 void keys_reset() {
@@ -61,7 +63,6 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 			hid_in_report_add(hid_in_report, hid_usage_page, hid_usage_id);
 	// Vendor Defined HID Usage Tables
 	} else {
-		(void)pressed;
 		(void)released;
 		switch(hid_usage_page) {
 			case USB_HID_USAGE_PAGE_NONE:
@@ -73,7 +74,8 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 				// TODO
 				break;
 			case USB_HID_USAGE_PAGE_SEQUENCE:
-				// TODO
+				if(pressed)
+					sequence_register(sequences[hid_usage_id]);
 				break;
 		}
 		// TODO layout
@@ -83,6 +85,6 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 }
 
 void keys_populate_hid_in_report(struct hid_in_report_data *hid_in_report) {
-	// TODO play sequences
+	sequence_play(hid_in_report);
 	keys_scan(key_event_callback, (void *)hid_in_report);
 }

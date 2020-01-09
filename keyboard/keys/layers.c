@@ -2,6 +2,10 @@
 #include "../keys.h"
 #include <libopencm3/usb/hid_usage_tables.h>
 
+////////////////////////////////////////////////////////////////////////////////
+// Macros
+////////////////////////////////////////////////////////////////////////////////
+
 #define KK(value) { \
 	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
 	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_ ## value \
@@ -47,6 +51,46 @@
 	.id=value \
 }
 
+#define SEQ_STEP(c, ...) { \
+	.count = c, \
+	.hid_usage = &(struct keys_hid_usage_data[]) { \
+		__VA_ARGS__ \
+	}, \
+}
+
+#define SEQ_END SEQ_STEP(0)
+
+////////////////////////////////////////////////////////////////////////////////
+// Sequences
+////////////////////////////////////////////////////////////////////////////////
+
+static struct sequence_step_data seq_shuffle[] = {
+	SEQ_STEP(1, KBD(LEFT_ALT)),
+	SEQ_STEP(2, KBD(LEFT_ALT), KBD(TAB)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_00[] = {
+	SEQ_STEP(2, KBD(0_AND_CLOSING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_b_tab[] = {
+	SEQ_STEP(1, KBD(LEFT_SHIFT)),
+	SEQ_STEP(1, KBD(LEFT_SHIFT), KBD(TAB)),
+	SEQ_END
+};
+
+const struct sequence_step_data *sequences[SEQ_COUNT] = {
+  [SEQ_SHUFFLE] = seq_shuffle,
+  [SEQ_00] = seq_00,
+  [SEQ_B_TAB] = seq_b_tab,
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Layers
+////////////////////////////////////////////////////////////////////////////////
+
 const uint8_t layers_default_state[] = {
 	[LAYER_FN] = KEYS_LAYER_STATE_DISABLED,
 	[LAYER_KEYPAD] = KEYS_LAYER_STATE_DISABLED,
@@ -58,7 +102,7 @@ const uint8_t layers_default_state[] = {
 	[LAYER_COMMON] = KEYS_LAYER_STATE_ENABLED,
 };
 
-#define NEW_LAYER( \
+#define LAYER_KEYMAP( \
 	/* Left */ \
 	k0x0, k0x1, k0x2, k0x3, k0x4, k0x5, k0x6, \
 	k1x0, k1x1, k1x2, k1x3, k1x4, k1x5, k1x6, \
@@ -86,7 +130,7 @@ const uint8_t layers_default_state[] = {
 }
 
 const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
-	// [LAYER_FN] = NEW_LAYER(
+	// [LAYER_FN] = LAYER_KEYMAP(
 	// 	// Left
 	// 	____, ____, ____, ____, ____, ____, ____,
 	// 	____, ____, ____, ____, ____, ____, ____,
@@ -104,10 +148,10 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	// 	____,       ____,       ____, ____, ____, ____, ____,
 	// 	____,       ____,       ____, ____, ____, ____, ____
 	// ),
-	// [LAYER_KEYPAD] = NEW_LAYER(),
-	// [LAYER_QWERTY_QWERTY] = NEW_LAYER(),
-	// [LAYER_QWERTY_DVORAK] = NEW_LAYER(),
-	[LAYER_DVORAK_DVORAK] = NEW_LAYER(
+	// [LAYER_KEYPAD] = LAYER_KEYMAP(),
+	// [LAYER_QWERTY_QWERTY] = LAYER_KEYMAP(),
+	// [LAYER_QWERTY_DVORAK] = LAYER_KEYMAP(),
+	[LAYER_DVORAK_DVORAK] = LAYER_KEYMAP(
 		// Left
 		____,                        ____,   ____,   ____,   ____,   ____,   ____,
 		KBD(GRAVE_ACCENT_AND_TILDE), ____,   ____,   ____,   ____,   ____,   ____,
@@ -125,9 +169,9 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,         ____,                                  ____,                           ____,                         ____,                                   ____,                                   ____,
 		____,         ____,                                  ____,                           ____,                         ____,                                   ____,                                   ____
 	),
-	// [LAYER_DVORAK_QWERTY] = NEW_LAYER(),
-	// [LAYER_SHIFTED_NUMBER] = NEW_LAYER(),
-	[LAYER_COMMON] = NEW_LAYER(
+	// [LAYER_DVORAK_QWERTY] = LAYER_KEYMAP(),
+	// [LAYER_SHIFTED_NUMBER] = LAYER_KEYMAP(),
+	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
 		KBD(ESCAPE),   KBD(F1),                KBD(F2),          KBD(F3),             KBD(F4),           KBD(F5),               KBD(DELETE_FORWARD),
 		____,          KBD(1_AND_EXCLAMATION), KBD(2_AND_AT),    KBD(3_AND_HASHMARK), KBD(4_AND_DOLLAR), KBD(5_AND_PERCENTAGE), KBD(DELETE_BACKSPACE),
