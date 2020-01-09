@@ -78,9 +78,6 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 					sequence_register(sequences[hid_usage_id]);
 				break;
 		}
-		// TODO layout
-		// TODO macro
-		// TODO sequence
 	}
 }
 
