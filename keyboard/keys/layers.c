@@ -71,7 +71,8 @@ static struct sequence_step_data seq_shuffle[] = {
 };
 
 static struct sequence_step_data seq_00[] = {
-	SEQ_STEP(2, KBD(0_AND_CLOSING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS)),
+	SEQ_STEP(1, KBD(0_AND_CLOSING_PARENTHESIS)),
+	SEQ_STEP(1, KBD(0_AND_CLOSING_PARENTHESIS)),
 	SEQ_END,
 };
 
