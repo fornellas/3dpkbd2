@@ -181,7 +181,7 @@ void hid_in_report_add(struct hid_in_report_data *hid_in_report, uint16_t hid_us
 				}
 				if(error_roll_over)
 					for(uint8_t i=0 ; i < 6 ; i++)
-						hid_in_report->keyboard_keypad[i] = USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ERRORROLLOVER;
+						hid_in_report->keyboard_keypad[i] = USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ERROR_ROLLOVER;
 			}
 			break;
 	}
