@@ -64,6 +64,12 @@
 // Sequences
 ////////////////////////////////////////////////////////////////////////////////
 
+static struct sequence_step_data seq_desktop_dvorak[] = {
+	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(LEFT_ALT)),
+	SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_ALT), KBD(H)),
+	SEQ_END,
+};
+
 static struct sequence_step_data seq_shuffle[] = {
 	SEQ_STEP(1, KBD(LEFT_ALT)),
 	SEQ_STEP(2, KBD(LEFT_ALT), KBD(TAB)),
@@ -83,6 +89,7 @@ static struct sequence_step_data seq_b_tab[] = {
 };
 
 const struct sequence_step_data *sequences[SEQ_COUNT] = {
+  [SEQ_DESKTOP_DVORAK] = seq_desktop_dvorak,
   [SEQ_SHUFFLE] = seq_shuffle,
   [SEQ_00] = seq_00,
   [SEQ_B_TAB] = seq_b_tab,
@@ -154,13 +161,13 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	// [LAYER_QWERTY_DVORAK] = LAYER_KEYMAP(),
 	[LAYER_DVORAK_DVORAK] = LAYER_KEYMAP(
 		// Left
-		____,                        ____,   ____,   ____,   ____,   ____,   ____,
-		KBD(GRAVE_ACCENT_AND_TILDE), ____,   ____,   ____,   ____,   ____,   ____,
-		____,                        KBD(Q), KBD(W), KBD(E), KBD(R), KBD(T),
-		____,                        KBD(A), KBD(S), KBD(D), KBD(F), KBD(G), ____,
-		____,                        KBD(Z), KBD(X), KBD(C), KBD(V), KBD(B),
-		____,                        ____,   ____,           ____,           ____,
-		____,                        ____,   ____,           ____,           ____,
+		____,                        ____,   ____,                    ____,   ____,   ____,   ____,
+		KBD(GRAVE_ACCENT_AND_TILDE), ____,   ____,                    ____,   ____,   ____,   ____,
+		____,                        KBD(Q), KBD(W),                  KBD(E), KBD(R), KBD(T),
+		____,                        KBD(A), KBD(S),                  KBD(D), KBD(F), KBD(G), ____,
+		____,                        KBD(Z), KBD(X),                  KBD(C), KBD(V), KBD(B),
+		____,                        ____,   SEQ(SEQ_DESKTOP_DVORAK),         ____,           ____,
+		____,                        ____,   ____,                            ____,           ____,
 		// Right
 		____, ____,   ____,   ____,                          ____,                           ____,                         ____,                                   ____,                                   ____,
 		____, ____,   ____,   ____,                          ____,                           ____,                         KBD(MINUS_AND_UNDERSCORE),              KBD(EQUAL_AND_PLUS),                    ____,
@@ -179,7 +186,7 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		KBD(TAB),      ____,                   ____,             ____,                ____,              ____,
 		____,          ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
 		____,          ____,                   ____,             ____,                ____,              ____,
-		____,          FUNC(FUNC_DESKTOP),     ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
+		____,          ____,                   ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
 		FUNC(FUNC_FN), KBD(LEFT_GUI),          SEQ(SEQ_SHUFFLE),                      KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
 		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(FUNC_KEYPAD),
