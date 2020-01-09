@@ -166,7 +166,7 @@ void hid_in_report_add(struct hid_in_report_data *hid_in_report, uint16_t hid_us
 			) {
 				uint8_t modifier_bit;
 				modifier_bit = hid_usage_id - USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_CONTROL;
-				hid_in_report->keyboard_keypad_modifiers = (1 << modifier_bit);
+				hid_in_report->keyboard_keypad_modifiers |= (1 << modifier_bit);
 			} else {
 				uint8_t error_roll_over;
 				error_roll_over = 1;
