@@ -1,15 +1,25 @@
 TODO
-- HID Display
-- Left part key scan
-- Right side key scan
-- stm32 board socket
-- i/o expander socket
+- Layout
+	- Use sequence for some functions
+	- Implement functions
+	- Add interface to enable / disable layers.
+	- Implement save / load layer state.
+- Display
+	- Add hid_usbd_remote_wakeup_sent.
+	- Layout status
+	- Keypress counter
+	- Screensaver
+- Right side
+	- Solder everything
+	- I/O expander socket
+	- Write code
+- Clean up clowny ln -s: this works https://github.com/libopencm3/libopencm3/issues/1117#issuecomment-570827827
 - Make keyboard & bootloader targets depend on libopencm3 build
 - cppcheck rule:  cppcheck --error-exitcode=1 $(CPPCHECK_ARGS) -I$(OPENCM3_INC) -I$(GCC_INCLUDES) -I$(NEWLIB_INCLUDES) $(CGLAGS) $<
 - Review all TODO comments
+- Add test to broken config PR https://github.com/libopencm3/libopencm3/pull/1155
 
 WIP
-- PR with HID defines.
 
 WAITING
 - PR to configure OTG_GCCFG_NOVBUSSENS.
