@@ -11,6 +11,7 @@ enum function_defs {
 };
 
 enum sequence_defs {
+  SEQ_DESKTOP_QWERTY,
   SEQ_DESKTOP_DVORAK,
   SEQ_SHUFFLE,
   SEQ_00,
