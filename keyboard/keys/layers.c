@@ -235,24 +235,24 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,         ____,                                  ____,                           ____,                         ____,                                   ____,                                   ____,
 		____,         ____,                                  ____,                           ____,                         ____,                                   ____,                                   ____
 	),
-	// [LAYER_DVORAK_QWERTY] = LAYER_KEYMAP((
-	// 	// Left
-	// 	____,  ____,   ____,                   ____,  ____,  ____,  ____,
-	// 	KBD(), ____,   ____,                   ____,  ____,  ____,  ____,
-	// 	____,  KBD(), KBD(),                   KBD(), KBD(), KBD(),
-	// 	____,  KBD(), KBD(),                   KBD(), KBD(), KBD(), ____,
-	// 	____,  KBD(), KBD(),                   KBD(), KBD(), KBD(),
-	// 	____,  ____,  SEQ(SEQ_DESKTOP_DVORAK), ____,         ____,
-	// 	____,  ____,  ____,                    ____,         ____,
-	// 	// Right
-	// 	____, ____,  ____,  ____,  ____,  ____,  ____,  ____,  ____,
-	// 	____, ____,  ____,  ____,  ____,  ____,  KBD(), KBD(), ____,
-	// 	      KBD(), KBD(), KBD(), KBD(), KBD(), KBD(), KBD(), ____,
-	// 	____, KBD(), KBD(), KBD(), KBD(), KBD(), KBD(), ____,  ____,
-	// 	      KBD(), KBD(), KBD(), KBD(), KBD(), KBD(), ____,  ____,
-	// 	____,        ____,         ____,  ____,  ____,  ____,  ____,
-	// 	____,        ____,         ____,  ____,  ____,  ____,  ____
-	// ),
+	[LAYER_DVORAK_QWERTY] = LAYER_KEYMAP(
+		// Left
+		____,                        ____,                         ____,                          ____,   ____,                           ____,   ____,
+		KBD(GRAVE_ACCENT_AND_TILDE), ____,                         ____,                          ____,   ____,                           ____,   ____,
+		____,                        KBD(X),                       KBD(COMMA_AND_LESS_THAN_SIGN), KBD(D), KBD(O),                         KBD(K),
+		____,                        KBD(A),                       KBD(SEMICOLON_AND_COLON),      KBD(H), KBD(Y),                         KBD(U), ____,
+		____,                        KBD(SLASH_AND_QUESTION_MARK), KBD(B),                        KBD(I), KBD(DOT_AND_GREATER_THAN_SIGN), KBD(N),
+		____,                        ____,                         SEQ(SEQ_DESKTOP_DVORAK),       ____,                                   ____,
+		____,                        ____,                         ____,                          ____,                                   ____,
+		// Right
+		____, ____,   ____,   ____,   ____,   ____,                                   ____,                      ____,                                   ____,
+		____, ____,   ____,   ____,   ____,   ____,                                   KBD(APOSTROPHE_AND_QUOTE), KBD(CLOSING_BRACKET_AND_CLOSING_BRACE), ____,
+		      KBD(T), KBD(F), KBD(G), KBD(S), KBD(R),                                 KBD(MINUS_AND_UNDERSCORE), KBD(EQUAL_AND_PLUS),                    ____,
+		____, KBD(J), KBD(C), KBD(V), KBD(P), KBD(Z),                                 KBD(Q),                    ____,                                   ____,
+		      KBD(P), KBD(M), KBD(W), KBD(E), KBD(OPENING_BRACKET_AND_OPENING_BRACE), KBD(BACKSLASH_AND_PIPE),   ____,                                   ____,
+		____,         ____,           ____,   ____,                                   ____,                      ____,                                   ____,
+		____,         ____,           ____,   ____,                                   ____,                      ____,                                   ____
+	),
 	// [LAYER_SHIFTED_NUMBER] = LAYER_KEYMAP(),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
