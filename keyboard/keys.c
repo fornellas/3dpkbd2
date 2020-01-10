@@ -71,7 +71,7 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 				layer_idx++;
 				goto retry;
 			case USB_HID_USAGE_PAGE_FUNCTION:
-				// TODO
+				functions[hid_usage_id](row, column, state, pressed, released, hid_in_report);
 				break;
 			case USB_HID_USAGE_PAGE_SEQUENCE:
 				if(pressed)

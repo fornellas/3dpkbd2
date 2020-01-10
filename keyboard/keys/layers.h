@@ -1,6 +1,7 @@
 #include "scan.h"
 #include "sequence.h"
 #include "../keys.h"
+#include "../descriptors.h"
 
 enum function_defs {
   FUNC_QWERTY_QWERTY,
@@ -16,6 +17,8 @@ enum function_defs {
   FUNC_TOGGLE_SHIFTED_NUMBER_LAYER,
   FUNC_COUNT,
 };
+
+extern void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
 
 enum sequence_defs {
   SEQ_DESKTOP_QWERTY,
