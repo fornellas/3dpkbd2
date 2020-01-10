@@ -145,24 +145,24 @@ const uint8_t layers_default_state[] = {
 }
 
 const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
-	// [LAYER_FN] = LAYER_KEYMAP(
-	// 	// Left
-	// 	____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____,       ____,       ____,
-	// 	____, ____, ____,       ____,       ____,
-	// 	// Right
-	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	      ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	____, ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	      ____, ____, ____, ____, ____, ____, ____, ____,
-	// 	____,       ____,       ____, ____, ____, ____, ____,
-	// 	____,       ____,       ____, ____, ____, ____, ____
-	// ),
+	[LAYER_FN] = LAYER_KEYMAP(
+		// Left
+		____, FUNC(FUNC_QWERTY_QWERTY), FUNC(FUNC_QWERTY_DVORAK), FUNC(FUNC_DVORAK_DVORAK), FUNC(FUNC_DVORAK_QWERTY), ____, KBD(INSERT),
+		____, ____,                     ____,                     ____,                     ____,                     ____, KBD(VOLUME_UP),
+		____, ____,                     ____,                     ____,                     ____,                     ____,
+		____, ____,                     ____,                     ____,                     ____,                     ____, KBD(VOLUME_DOWN),
+		____, ____,                     ____,                     ____,                     ____,                     ____,
+		____, FUNC(FUNC_CUT),           FUNC(FUNC_COPY),                                    FUNC(FUNC_PASTE),               KBD(MUTE),
+		____, ____,                     ____,                                               ____,                           ____,
+		// Right
+		KBD(INSERT),      KK(MEDIA_EJECT), KBD(POWER),         KK(SLEEP), GD(SYSTEM_WAKE_UP), KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), ____, KPD(NUM_LOCK_AND_CLEAR),
+		KBD(VOLUME_UP),   ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
+		                  ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
+		KBD(VOLUME_DOWN), ____,            ____,               ____,      ____,               ____,              ____,             ____, FUNC(FUNC_TOGGLE_SHIFTED_NUMBER_LAYER),
+		                  ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
+		KBD(MUTE),                         KK(MEDIA_PREVIOUS),            ____,               ____,              ____,             ____, KK(BACK),
+		____,                              KK(MEDIA_NEXT),                ____,               ____,              ____,             ____, KK(FORWARD)
+	),
 	[LAYER_KEYPAD] = LAYER_KEYMAP(
 		// Left
 		____, ____, ____, ____, ____, ____, ____,

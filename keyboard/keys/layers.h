@@ -3,6 +3,13 @@
 #include "../keys.h"
 
 enum function_defs {
+  FUNC_QWERTY_QWERTY,
+  FUNC_QWERTY_DVORAK,
+  FUNC_DVORAK_DVORAK,
+  FUNC_DVORAK_QWERTY,
+  FUNC_CUT,
+  FUNC_COPY,
+  FUNC_PASTE,
   FUNC_FN,
   FUNC_KEYPAD,
   FUNC_SHIFTED,
