@@ -60,7 +60,7 @@ const struct usb_interface_descriptor dfu_interface = {
 	// Only the control pipe is used.
 	.bNumEndpoints = 0,
 	// DFU
-	.bInterfaceClass = 0xFE, // TODO PR for libopencm3
+	.bInterfaceClass = USB_CLASS_DFU,
 	// Device Firmware Upgrade Code
 	.bInterfaceSubClass = 1,
 	// DFU mode protocol.
