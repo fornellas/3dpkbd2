@@ -3,8 +3,96 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <systick.h>
+#include <libopencm3/stm32/i2c.h>
+#include "lib/led.h"
+#include "lib/systick.h"
+
+#define RCC_GPIO_I2C RCC_GPIOB
+#define RCC_I2C RCC_I2C1
+#define GPIO_I2C GPIOB
+
+#define I2C I2C1
+#define GPIO_SCL GPIO8
+#define GPIO_SDA GPIO9
+
+#define MCP23017_ADDRESS 0x4E
+#define MCP23017_BANK0_IOCON 0x0A
+#define MCP23017_BANK1_IODIRA 0x00
+#define MCP23017_BANK1_GPPUA 0x06
+#define MCP23017_BANK1_GPIOA 0x09
+#define MCP23017_BANK1_OLATA 0x0A
+#define MCP23017_BANK1_IODIRB 0x10
+#define MCP23017_BANK1_GPPUB 0x16
+#define MCP23017_BANK1_GPIOB 0x19
+#define MCP23017_BANK1_OLATB 0x1A
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
+
+static void i2c_setup(void) {
+	rcc_periph_clock_enable(RCC_GPIO_I2C);
+	rcc_periph_clock_enable(RCC_I2C);
+
+	gpio_mode_setup(GPIO_I2C, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_SCL | GPIO_SDA);
+	gpio_set_output_options(GPIO_I2C, GPIO_OTYPE_OD, GPIO_OSPEED_50MHZ, GPIO_SCL | GPIO_SDA);
+	gpio_set_af(GPIO_I2C, GPIO_AF4, GPIO_SCL | GPIO_SDA);
+
+	i2c_peripheral_disable(I2C);
+
+	i2c_reset(I2C);
+
+	i2c_set_fast_mode(I2C3);
+	i2c_set_clock_frequency(I2C3, I2C_CR2_FREQ_42MHZ);
+	i2c_set_ccr(I2C3, 35);
+	i2c_set_trise(I2C3, 43);
+	//i2c_set_speed(I2C3, 0);	
+
+	i2c_peripheral_enable(I2C);
+}
+
+static void mcp23017_write(uint8_t reg, uint8_t value) {
+	uint8_t data[2];
+
+	data[0] = reg;
+	data[1] = value;
+	i2c_transfer7(I2C, MCP23017_ADDRESS, data, 2, NULL, 0);
+}
+
+static void mcp23017_read(uint8_t reg, uint8_t *value) {
+	i2c_transfer7(I2C, MCP23017_ADDRESS, &reg, 1, NULL, 0);
+	i2c_transfer7(I2C, MCP23017_ADDRESS, NULL, 0, value, 1);
+}
+
+static void mcp23017_setup(void) {
+	// Rows Input, Pull up
+	// 0 PB0
+	// 1 PB1
+	// 2 PB2
+	// 3 PB3
+	// 4 PB4
+	// 5 PB5
+	// 6 PB6
+	// Columns Output, High
+	// 7 PB7
+	// 8 PA7
+	// 9 PA6
+	// 10 PA5
+	// 11 PA4
+	// 12 PA3
+	// 13 PA2
+	// 14 PA1
+	// 15 PA0
+
+	// BANK=1, SEQOP=1
+	mcp23017_write(MCP23017_BANK0_IOCON, 0b10100000);
+	// Rows as input, columns as output
+	mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111);
+	mcp23017_write(MCP23017_BANK1_IODIRA, 0b00000000);
+	// Row input pull up
+	mcp23017_write(MCP23017_BANK1_GPPUB, 0b01111111);
+	// Columns output high
+	mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000);
+	mcp23017_write(MCP23017_BANK1_OLATA, 0b11111111);
+}
 
 static void set_rows_as_intput_with_pullup(void) {
 	// Row 0 > B12
@@ -57,10 +145,34 @@ void keys_scan_reset() {
 			previous_key_state[row][column] = 0;
 }
 
-void keys_scan_setup(void) {
-	set_rows_as_intput_with_pullup();
-	set_columns_as_output_and_low();
-	keys_scan_reset();
+void keys_scan_setup(void) {	
+	led_off();
+	delay_ms(1);
+	led_on();
+	delay_ms(1);
+	led_off();
+
+	i2c_setup();
+
+	led_on();
+	delay_ms(1);
+	led_off();
+
+	uint8_t data[2];
+
+	data[0] = 85;
+	data[1] = 85;
+	i2c_transfer7(I2C, 85, data, 2, NULL, 0);
+
+	// mcp23017_setup();
+
+	led_on();
+	delay_ms(1);
+	led_off();
+	// // set_rows_as_intput_with_pullup();
+	// // set_columns_as_output_and_low();
+	// // keys_scan_reset();
+	// led_off();
 }
 
 static void set_row_level(uint8_t row, uint8_t level) {
@@ -133,6 +245,7 @@ static uint16_t get_column(uint8_t column) {
 }
 
 void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
+	return;
 	for (uint8_t row = 0; row < ROWS ; row++) {
 		uint8_t any_pressed;
 		uint8_t any_triggered;
