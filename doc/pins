@@ -1,3 +1,5 @@
+STM32
+
  Connection  | Function  |     Label     | Function  | Connection
 -------------+-----------+-------+-------+-----------+-----------  
        Row 0 |           |  PB12 | 5V    |           | SSD1351 5V
@@ -17,6 +19,25 @@
     Column 6 |           |   PB7 | PA0   |           | Column 1
 MCP23017 SCL | I2C1_SCL  |   PB8 | NRST  |           | Reset Button
 MCP23017 SDA | I2C1_SDA  |   PB9 | PC15  |           |
-MCP23017 5V  |           |    5V | PC14  |           |
-Reset Button |           |   GND | PC13  |           |
-             |           |  3.3V | VBAT  |           |
+             |           |    5V | PC14  |           |
+MCP23017 GND |           |   GND | PC13  |           |
+MCP23017 VDD |           |  3.3V | VBAT  |           |
+
+MCP23017
+
+Connection | Function |  Pin  | Function | Connection
+-----------+----------+-------+----------+-----------
+     Row 0 |   GPB0   | 1  28 |   GPA7   | Column 8
+     Row 1 |   GPB1   | 2  27 |   GPA6   | Column 9
+     Row 2 |   GPB2   | 3  26 |   GPA5   | Column 10
+     Row 3 |   GPB3   | 4  25 |   GPA4   | Column 11
+     Row 4 |   GPB4   | 5  24 |   GPA3   | Column 12
+     Row 5 |   GPB5   | 6  23 |   GPA2   | Column 13
+     Row 6 |   GPB6   | 7  22 |   GPA1   | Column 14
+  Column 7 |   GPB7   | 8  21 |   GPA0   | Column 15
+           |   VDD    | 9  20 |   INTA   |
+           |   VSS    | 10 19 |   INTB   |
+           |          | 11 18 |   RESET  | VCC
+           | I2C0_SCL | 12 17 |    A2    | VCC
+           | I2C0_SDA | 13 16 |    A1    | VCC
+           |          | 14 15 |    A0    | VCC
