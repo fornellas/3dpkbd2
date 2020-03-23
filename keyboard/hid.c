@@ -292,12 +292,12 @@ static void remote_wakeup_key_event_callback(
 
 	(void)column;
 	(void)row;
-	(void)pressed;
+	(void)state;
 	(void)released;
 
 	any_key_pressed = (uint8_t *)data;
 
-	if(state)
+	if(pressed)
 		*any_key_pressed = 1;
 }
 
