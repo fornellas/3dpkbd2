@@ -124,7 +124,7 @@ static void display_draw(void) {
 
 static void display_get_current_state(struct display_state *state) {
   state->usbd_state = usbd_state;
-  state->usbd_suspended = usbd_suspended;
+  state->usbd_suspended = usbd_is_suspended();
   state->usbd_remote_wakeup_enabled = usbd_remote_wakeup_enabled;
 
   state->hid_protocol = hid_protocol;

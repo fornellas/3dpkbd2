@@ -5,7 +5,6 @@
 #define USBD_STATE_CONFIGURED 2
 
 extern uint8_t usbd_state;
-extern uint8_t usbd_suspended;
 
 usbd_device *usbd_setup_base(
 	const struct usb_device_descriptor *,
@@ -25,3 +24,5 @@ extern uint8_t usbd_remote_wakeup_enabled;
 void usdb_remote_wakeup_signal(void);
 
 #endif
+
+bool usbd_is_suspended(void);

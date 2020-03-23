@@ -89,7 +89,7 @@ static void display_draw(void) {
 
 static void display_get_current_state(struct display_state *state) {
 	state->usbd_state = usbd_state;
-	state->usbd_suspended = usbd_suspended;
+	state->usbd_suspended = usbd_is_suspended();
 
 	state->dfu_status = dfu_status;
 	state->dfu_state = dfu_state;

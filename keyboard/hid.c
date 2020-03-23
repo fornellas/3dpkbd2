@@ -305,10 +305,10 @@ void hid_poll(usbd_device *dev) {
 	struct hid_in_report_data new_hid_in_report;
 	uint32_t now;
 
-	if(!usbd_suspended)
+	if(!usbd_is_suspended())
 		hid_usbd_remote_wakeup_sent = 0;
 
-	if(usbd_state == USBD_STATE_CONFIGURED && usbd_suspended && usbd_remote_wakeup_enabled && !hid_usbd_remote_wakeup_sent) {
+	if(usbd_state == USBD_STATE_CONFIGURED && usbd_is_suspended() && usbd_remote_wakeup_enabled && !hid_usbd_remote_wakeup_sent) {
 		uint8_t any_key_pressed;
 
 		any_key_pressed = 0;
@@ -320,7 +320,7 @@ void hid_poll(usbd_device *dev) {
 		return;
 	}
 
-	if(!(usbd_state == USBD_STATE_CONFIGURED && !usbd_suspended))
+	if(!(usbd_state == USBD_STATE_CONFIGURED && !usbd_is_suspended()))
 		return;
 
 	if(hid_report_transmitting)

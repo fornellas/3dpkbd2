@@ -4,12 +4,13 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/usb/dwc/otg_fs.h>
 
+#define REBASE(x)        MMIO32((x) + (USB_OTG_FS_BASE))
+
 //
 // Variables
 //
 
 uint8_t usbd_state;
-uint8_t usbd_suspended;
 
 //
 // Prototypes
@@ -17,17 +18,12 @@ uint8_t usbd_suspended;
 
 static void reset_callback(void);
 
-static void suspend_callback(void);
-
-static void resume_callback(void);
-
 //
 // Functions
 //
 
 static void set_state(uint8_t state) {
 	usbd_state = state;
-	usbd_suspended = 0;
 }
 
 static void reset_callback() {
@@ -50,14 +46,6 @@ static enum usbd_request_return_codes set_address_callback(
 	set_state(USBD_STATE_ADDRESSED);
 
 	return USBD_REQ_NEXT_CALLBACK;
-}
-
-static void suspend_callback() {
-	usbd_suspended = 1;
-}
-
-static void resume_callback() {
-	usbd_suspended = 0;
 }
 
 #ifdef USBD_REMOTE_WAKEUP
@@ -189,10 +177,6 @@ usbd_device *usbd_setup_base(
 		set_address_callback
 	);
 
-	usbd_register_suspend_callback(usbd_dev, suspend_callback);
-
-	usbd_register_resume_callback(usbd_dev, resume_callback);
-
 	// https://github.com/libopencm3/libopencm3/issues/1119#issuecomment-549071405
 	// Fix for otgfs_usb_driver setting VBUSBSEN regardless of what board it is.
 	OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS;
@@ -210,8 +194,10 @@ void usdb_remote_wakeup_signal() {
 	OTG_FS_DCTL |= OTG_DCTL_RWUSIG;
 	while(uptime_ms() - start_ms < 2);
 	OTG_FS_DCTL &= ~OTG_DCTL_RWUSIG;
-
-	usbd_suspended = 0;
  }
 
  #endif
+
+ bool usbd_is_suspended() {
+	return REBASE(OTG_DSTS) & OTG_DSTS_SUSPSTS;
+ }
