@@ -235,9 +235,9 @@ static void func_keypad(
 	// TODO
 };
 
-static void func_shifted(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_shifted_number(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
 
-static void func_shifted(
+static void func_shifted_number(
 	uint8_t row,
 	uint8_t column,
 	uint8_t state,
@@ -283,7 +283,7 @@ void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t
   [FUNC_PASTE] = &func_paste,
   [FUNC_FN] = &func_fn,
   [FUNC_KEYPAD] = &func_keypad,
-  [FUNC_SHIFTED] = &func_shifted,
+  [FUNC_SHIFTED_NUMBER] = &func_shifted_number,
   [FUNC_TOGGLE_SHIFTED_NUMBER_LAYER] = &func_toggle_shifted_number_layer,
 };
 
@@ -482,21 +482,21 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	),
 	[LAYER_SHIFTED_NUMBER] = LAYER_KEYMAP(
 		// Left
-		____, ____,               ____,               ____,               ____,               ____,               ____,
-		____, FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), ____,
-		____, ____,               ____,               ____,               ____,               ____,
-		____, ____,               ____,               ____,               ____,               ____,               ____,
-		____, ____,               ____,               ____,               ____,               ____,
-		____, ____,               ____,                                   ____,                                   ____,
-		____, ____,               ____,                                   ____,                                   ____,
+		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____,
+		____, FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), ____,
+		____, ____,                      ____,                      ____,                      ____,                      ____,
+		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____,
+		____, ____,                      ____,                      ____,                      ____,                      ____,
+		____, ____,                      ____,                                                 ____,                                                 ____,
+		____, ____,                      ____,                                                 ____,                                                 ____,
 		// Right
-		____, ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
-		____, FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), FUNC(FUNC_SHIFTED), ____, ____, ____,
-		      ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
-		____, ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
-		      ____,               ____,               ____,               ____,               ____,               ____, ____, ____,
-		____,                     ____,                                   ____,               ____,               ____, ____, ____,
-		____,                     ____,                                   ____,               ____,               ____, ____, ____
+		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
+		____, FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), ____, ____, ____,
+		      ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
+		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
+		      ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
+		____,                            ____,                                                 ____,                      ____,                      ____, ____, ____,
+		____,                            ____,                                                 ____,                      ____,                      ____, ____, ____
 	),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
