@@ -15,7 +15,7 @@
 #define GPIO_SCL GPIO8
 #define GPIO_SDA GPIO9
 
-#define MCP23017_ADDRESS 0x4E
+#define MCP23017_ADDRESS 0x27
 #define MCP23017_BANK0_IOCON 0x0A
 #define MCP23017_BANK1_IODIRA 0x00
 #define MCP23017_BANK1_GPPUA 0x06
@@ -40,13 +40,15 @@ static void i2c_setup(void) {
 
 	i2c_reset(I2C);
 
-	i2c_set_fast_mode(I2C3);
-	i2c_set_clock_frequency(I2C3, I2C_CR2_FREQ_42MHZ);
-	i2c_set_ccr(I2C3, 35);
-	i2c_set_trise(I2C3, 43);
-	//i2c_set_speed(I2C3, 0);	
+	i2c_set_fast_mode(I2C);
+	i2c_set_clock_frequency(I2C, I2C_CR2_FREQ_42MHZ);
+	i2c_set_ccr(I2C, 35);
+	i2c_set_trise(I2C, 43);
+	//i2c_set_speed(I2C, 0);
 
 	i2c_peripheral_enable(I2C);
+
+	i2c_set_own_7bit_slave_address(I2C, 0x00);
 }
 
 static void mcp23017_write(uint8_t reg, uint8_t value) {
@@ -146,33 +148,9 @@ void keys_scan_reset() {
 }
 
 void keys_scan_setup(void) {	
-	led_off();
-	delay_ms(1);
-	led_on();
-	delay_ms(1);
-	led_off();
-
 	i2c_setup();
-
-	led_on();
-	delay_ms(1);
-	led_off();
-
-	uint8_t data[2];
-
-	data[0] = 85;
-	data[1] = 85;
-	i2c_transfer7(I2C, 85, data, 2, NULL, 0);
-
-	// mcp23017_setup();
-
-	led_on();
-	delay_ms(1);
-	led_off();
-	// // set_rows_as_intput_with_pullup();
-	// // set_columns_as_output_and_low();
-	// // keys_scan_reset();
-	// led_off();
+	mcp23017_setup();
+	keys_scan_reset();
 }
 
 static void set_row_level(uint8_t row, uint8_t level) {
