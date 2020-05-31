@@ -70,9 +70,9 @@ $(CUSTOM_LDSCRIPT): $(CUSTOM_LDSCRIPT_TEMPLATE)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)sed -r s/__MAIN_PROGRAM_MEMORY_ROM_ORIGIN__/$(shell dc -e "$(MAIN_MEMORY_BASE) $(BOOTLOADER_SIZE_KB) 1024 * + p")/g < $< | sed -r s/__MAIN_PROGRAM_MEMORY_ROM_LENGTH__/$(shell dc -e "$(FLASH_SIZE_KB) $(BOOTLOADER_SIZE_KB) - p")/g > $@
 
-$(LDSCRIPT): $(CUSTOM_LDSCRIPT)
+$(LDSCRIPT): $(CUSTOM_LDSCRIPT) $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
 	@printf "  GENLNK  $(DEVICE) ($<)\n"
-	$(Q)ln -s $< $@
+	$(Q)ln -s -f $< $@
 
 endif
 
