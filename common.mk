@@ -31,7 +31,24 @@ GDB = arm-none-eabi-gdb
 
 include $(OPENCM3_DIR)/mk/genlink-config.mk
 
+# genlink-config.mk does not populate these at first run,
+# as it depends on opencm3_stm32f4.a existing.
+EXPECTED_LIBNAME = opencm3_stm32f4
+ifeq ($(LIBNAME),)
+LIBNAME = $(EXPECTED_LIBNAME)
+LDLIBS += -l$(LIBNAME)
+LIBDEPS += $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
+endif
+ifneq ($(LIBNAME), $(EXPECTED_LIBNAME))
+$(error Unexpected LIBNAME value $(LIBNAME))
+endif
+
 include ../rules.mk
+
+$(OPENCM3_DIR)/lib/lib$(LIBNAME).a:
+	make -C $(OPENCM3_DIR) lib/stm32/f4
+
+.PHONY: $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
 
 openocd:
 	$(Q)openocd --file interface/$(OOCD_INTERFACE).cfg --file target/$(OOCD_TARGET).cfg

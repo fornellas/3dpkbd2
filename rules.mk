@@ -189,6 +189,7 @@ $(ADDRESSES_HEADER): $(ADDRESSES_TEMPLATE)
 
 clean:
 	rm -rf $(BUILD_DIR) $(GENERATED_BINS)
+	make -C $(OPENCM3_DIR) clean
 
 .PHONY: all clean flash
 -include $(OBJS:.o=.d)
