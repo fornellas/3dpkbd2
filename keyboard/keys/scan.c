@@ -225,7 +225,6 @@ static uint16_t get_column(uint8_t column) {
 }
 
 void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
-	return;
 	for (uint8_t row = 0; row < ROWS ; row++) {
 		uint8_t any_pressed;
 		uint8_t any_triggered;
