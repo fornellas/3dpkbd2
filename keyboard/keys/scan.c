@@ -148,11 +148,16 @@ void keys_scan_reset() {
 			previous_key_state[row][column] = 0;
 }
 
-void keys_scan_setup(void) {	
+void keys_scan_setup(void) {
+	// Common
+	keys_scan_reset();
+	// Left Side
+	set_rows_as_intput_with_pullup();
+	set_columns_as_output_and_low();
+	// Right Side
 	keys_scan_right_side_disconnected = 1;
 	// i2c_setup();
 	// mcp23017_setup();
-	keys_scan_reset();
 }
 
 static void set_row_level(uint8_t row, uint8_t level) {
