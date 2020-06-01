@@ -26,6 +26,7 @@
 #define MCP23017_BANK1_GPIOB 0x19
 #define MCP23017_BANK1_OLATB 0x1A
 
+uint8_t keys_scan_right_side_disconnected;
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
 
 static void i2c_setup(void) {
@@ -148,8 +149,9 @@ void keys_scan_reset() {
 }
 
 void keys_scan_setup(void) {	
-	i2c_setup();
-	mcp23017_setup();
+	keys_scan_right_side_disconnected = 1;
+	// i2c_setup();
+	// mcp23017_setup();
 	keys_scan_reset();
 }
 
