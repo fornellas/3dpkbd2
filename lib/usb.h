@@ -1,3 +1,6 @@
+#ifndef USB_H
+#define USB_H
+
 #include <libopencm3/usb/usbd.h>
 
 #define USBD_STATE_RESET 0
@@ -26,3 +29,5 @@ void usdb_remote_wakeup_signal(void);
 #endif
 
 bool usbd_is_suspended(void);
+
+#endif
