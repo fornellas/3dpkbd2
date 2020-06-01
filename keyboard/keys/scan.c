@@ -6,98 +6,27 @@
 #include <libopencm3/stm32/i2c.h>
 #include "lib/led.h"
 #include "lib/systick.h"
+#include "lib/i2c.h"
+#include "lib/mcp23017.h"
 
-#define RCC_GPIO_I2C RCC_GPIOB
-#define RCC_I2C RCC_I2C1
-#define GPIO_I2C GPIOB
+//
+// Common
+//
 
-#define I2C I2C1
-#define GPIO_SCL GPIO8
-#define GPIO_SDA GPIO9
-
-#define MCP23017_ADDRESS 0x27
-#define MCP23017_BANK0_IOCON 0x0A
-#define MCP23017_BANK1_IODIRA 0x00
-#define MCP23017_BANK1_GPPUA 0x06
-#define MCP23017_BANK1_GPIOA 0x09
-#define MCP23017_BANK1_OLATA 0x0A
-#define MCP23017_BANK1_IODIRB 0x10
-#define MCP23017_BANK1_GPPUB 0x16
-#define MCP23017_BANK1_GPIOB 0x19
-#define MCP23017_BANK1_OLATB 0x1A
-
-uint8_t keys_scan_right_side_disconnected;
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
+uint8_t keys_scan_right_side_disconnected;
 
-static void i2c_setup(void) {
-	rcc_periph_clock_enable(RCC_GPIO_I2C);
-	rcc_periph_clock_enable(RCC_I2C);
-
-	gpio_mode_setup(GPIO_I2C, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_SCL | GPIO_SDA);
-	gpio_set_output_options(GPIO_I2C, GPIO_OTYPE_OD, GPIO_OSPEED_50MHZ, GPIO_SCL | GPIO_SDA);
-	gpio_set_af(GPIO_I2C, GPIO_AF4, GPIO_SCL | GPIO_SDA);
-
-	i2c_peripheral_disable(I2C);
-
-	i2c_reset(I2C);
-
-	i2c_set_fast_mode(I2C);
-	i2c_set_clock_frequency(I2C, I2C_CR2_FREQ_42MHZ);
-	i2c_set_ccr(I2C, 35);
-	i2c_set_trise(I2C, 43);
-	//i2c_set_speed(I2C, 0);
-
-	i2c_peripheral_enable(I2C);
-
-	i2c_set_own_7bit_slave_address(I2C, 0x00);
+void keys_scan_reset() {
+	for(uint8_t row=0 ; row < ROWS ; row++)
+		for(uint8_t column=0; column < COLUMNS ; column++)
+			previous_key_state[row][column] = 0;
 }
 
-static void mcp23017_write(uint8_t reg, uint8_t value) {
-	uint8_t data[2];
+static void setup_left_side(void) {
+	//
+	// Set rows as input with pull-up
+	//
 
-	data[0] = reg;
-	data[1] = value;
-	i2c_transfer7(I2C, MCP23017_ADDRESS, data, 2, NULL, 0);
-}
-
-static void mcp23017_read(uint8_t reg, uint8_t *value) {
-	i2c_transfer7(I2C, MCP23017_ADDRESS, &reg, 1, NULL, 0);
-	i2c_transfer7(I2C, MCP23017_ADDRESS, NULL, 0, value, 1);
-}
-
-static void mcp23017_setup(void) {
-	// Rows Input, Pull up
-	// 0 PB0
-	// 1 PB1
-	// 2 PB2
-	// 3 PB3
-	// 4 PB4
-	// 5 PB5
-	// 6 PB6
-	// Columns Output, High
-	// 7 PB7
-	// 8 PA7
-	// 9 PA6
-	// 10 PA5
-	// 11 PA4
-	// 12 PA3
-	// 13 PA2
-	// 14 PA1
-	// 15 PA0
-
-	// BANK=1, SEQOP=1
-	mcp23017_write(MCP23017_BANK0_IOCON, 0b10100000);
-	// Rows as input, columns as output
-	mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111);
-	mcp23017_write(MCP23017_BANK1_IODIRA, 0b00000000);
-	// Row input pull up
-	mcp23017_write(MCP23017_BANK1_GPPUB, 0b01111111);
-	// Columns output high
-	mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000);
-	mcp23017_write(MCP23017_BANK1_OLATA, 0b11111111);
-}
-
-static void set_rows_as_intput_with_pullup(void) {
 	// Row 0 > B12
 	rcc_periph_clock_enable(RCC_GPIOB);
 	gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12);
@@ -121,9 +50,11 @@ static void set_rows_as_intput_with_pullup(void) {
 	// Row 6 > A10
 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO10);
 	gpio_set(GPIOA, GPIO10);
-}
 
-static void set_columns_as_output_and_low(void) {
+	//
+	// Set columns as output and low
+	//
+
 	// Column 0       A1
 	rcc_periph_clock_enable(RCC_GPIOA);
 	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO1);
@@ -142,25 +73,47 @@ static void set_columns_as_output_and_low(void) {
 	gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO7);
 }
 
-void keys_scan_reset() {
-	for(uint8_t row=0 ; row < ROWS ; row++)
-		for(uint8_t column=0; column < COLUMNS ; column++)
-			previous_key_state[row][column] = 0;
+static void setup_right_side(void) {
+	// Rows Input, Pull up
+	// 0 PB0
+	// 1 PB1
+	// 2 PB2
+	// 3 PB3
+	// 4 PB4
+	// 5 PB5
+	// 6 PB6
+	// Columns Output, High
+	// 7 PB7
+	// 8 PA7
+	// 9 PA6
+	// 10 PA5
+	// 11 PA4
+	// 12 PA3
+	// 13 PA2
+	// 14 PA1
+	// 15 PA0
+
+	// // BANK=1, SEQOP=1
+	// mcp23017_write(MCP23017_BANK0_IOCON, 0b10100000);
+	// // Rows as input, columns as output
+	// mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111);
+	// mcp23017_write(MCP23017_BANK1_IODIRA, 0b00000000);
+	// // Row input pull up
+	// mcp23017_write(MCP23017_BANK1_GPPUB, 0b01111111);
+	// // Columns output high
+	// mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000);
+	// mcp23017_write(MCP23017_BANK1_OLATA, 0b11111111);
 }
 
 void keys_scan_setup(void) {
-	// Common
 	keys_scan_reset();
-	// Left Side
-	set_rows_as_intput_with_pullup();
-	set_columns_as_output_and_low();
-	// Right Side
+	setup_left_side();
+	i2c_setup();
 	keys_scan_right_side_disconnected = 1;
-	// i2c_setup();
-	// mcp23017_setup();
+	setup_right_side();
 }
 
-static void set_row_level(uint8_t row, uint8_t level) {
+static void set_left_row_level(uint8_t row, uint8_t level) {
 	switch(row) {
 	case 0:
 		if (level)
@@ -205,10 +158,20 @@ static void set_row_level(uint8_t row, uint8_t level) {
 			gpio_clear(GPIOA, GPIO10);
 		break;
 	}
-	// TODO right side
 }
 
-static uint16_t get_column(uint8_t column) {
+static void set_right_row_level(uint8_t row, uint8_t level) {
+	// TODO
+	(void)row;
+	(void)level;
+}
+
+static void set_row_level(uint8_t row, uint8_t level) {
+	set_left_row_level(row, level);
+	set_right_row_level(row, level);
+}
+
+static uint16_t get_left_column(uint8_t column) {
 	switch (column) {
 	case 0:
 		return gpio_get(GPIOA, GPIO1);
@@ -225,8 +188,20 @@ static uint16_t get_column(uint8_t column) {
 	case 6:
 		return gpio_get(GPIOB, GPIO7);
 	}
-	// TODO right side
 	return 0;
+}
+
+static uint16_t get_right_column(uint8_t column) {
+	// TODO
+	(void)column;
+	return 0;
+}
+
+static uint16_t get_column(uint8_t column) {
+	if(column < LEFT_COLUMNS)
+		return get_left_column(column);
+	else
+		return get_right_column(column);
 }
 
 void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
