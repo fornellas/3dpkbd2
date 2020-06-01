@@ -93,16 +93,35 @@ static void setup_right_side(void) {
 	// 14 PA1
 	// 15 PA0
 
-	// // BANK=1, SEQOP=1
-	// mcp23017_write(MCP23017_BANK0_IOCON, 0b10100000);
-	// // Rows as input, columns as output
-	// mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111);
-	// mcp23017_write(MCP23017_BANK1_IODIRA, 0b00000000);
-	// // Row input pull up
-	// mcp23017_write(MCP23017_BANK1_GPPUB, 0b01111111);
-	// // Columns output high
-	// mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000);
-	// mcp23017_write(MCP23017_BANK1_OLATA, 0b11111111);
+	// BANK=1, SEQOP=1
+	if(mcp23017_write(MCP23017_BANK0_IOCON, 0b10100000)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+	// Rows as input, columns as output
+	if(mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+	if(mcp23017_write(MCP23017_BANK1_IODIRA, 0b00000000)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+	// Row input pull up
+	if(mcp23017_write(MCP23017_BANK1_GPPUB, 0b01111111)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+	// Columns output high
+	if(mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+	if(mcp23017_write(MCP23017_BANK1_OLATA, 0b11111111)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+	keys_scan_right_side_disconnected = 0;
 }
 
 void keys_scan_setup(void) {
@@ -161,6 +180,8 @@ static void set_left_row_level(uint8_t row, uint8_t level) {
 }
 
 static void set_right_row_level(uint8_t row, uint8_t level) {
+	if(keys_scan_right_side_disconnected)
+		return;
 	// TODO
 	(void)row;
 	(void)level;
@@ -192,6 +213,8 @@ static uint16_t get_left_column(uint8_t column) {
 }
 
 static uint16_t get_right_column(uint8_t column) {
+	if(keys_scan_right_side_disconnected)
+		return 0;
 	// TODO
 	(void)column;
 	return 0;
@@ -205,6 +228,9 @@ static uint16_t get_column(uint8_t column) {
 }
 
 void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
+	if(keys_scan_right_side_disconnected)
+		setup_right_side();
+
 	for (uint8_t row = 0; row < ROWS ; row++) {
 		uint8_t any_pressed;
 		uint8_t any_triggered;

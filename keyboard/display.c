@@ -164,7 +164,7 @@ static void display_get_current_state(struct display_state *state) {
   // state->counter_keys = counter_keys;
 
   // Right Side
-  // state->keys_scan_right_side_disconnected = keys_scan_right_side_disconnected;
+  state->keys_scan_right_side_disconnected = keys_scan_right_side_disconnected;
 }
 
 void display_setup(void) {

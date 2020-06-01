@@ -13,8 +13,8 @@
 #define MCP23017_BANK1_GPIOB 0x19
 #define MCP23017_BANK1_OLATB 0x1A
 
-void mcp23017_write(uint8_t reg, uint8_t value);
+uint8_t mcp23017_write(uint8_t reg, uint8_t value);
 
-void mcp23017_read(uint8_t reg, uint8_t *value);
+uint8_t mcp23017_read(uint8_t reg, uint8_t *value);
 
 #endif
