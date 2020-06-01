@@ -2,6 +2,8 @@
 #include "lib/i2c.h"
 #include <libopencm3/stm32/i2c.h>
 
+#define MCP23017_ADDRESS 0x27
+
 void mcp23017_write(uint8_t reg, uint8_t value) {
 	uint8_t data[2];
 

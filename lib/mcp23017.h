@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#define MCP23017_ADDRESS 0x27
 #define MCP23017_BANK0_IOCON 0x0A
 #define MCP23017_BANK1_IODIRA 0x00
 #define MCP23017_BANK1_GPPUA 0x06
