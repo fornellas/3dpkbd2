@@ -53,5 +53,6 @@ void usart_setup() {
 	};
 
 	stdout = fopencookie(NULL, "w", usart_output_fns);
+	setvbuf(stdout, NULL, _IONBF, 0);
 	setlinebuf(stdout);
 }
