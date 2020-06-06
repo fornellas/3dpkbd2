@@ -13,6 +13,7 @@ uint8_t mcp23017_write(uint8_t reg, uint8_t value) {
 }
 
 uint8_t mcp23017_read(uint8_t reg, uint8_t *value) {
+	// FIXME have a single write/read cycle
 	if(i2c_write(MCP23017_ADDRESS, &reg, 1))
 		return 1;
 	if(i2c_read(MCP23017_ADDRESS, value, 1))
