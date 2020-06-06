@@ -77,6 +77,6 @@ $(LDSCRIPT): $(CUSTOM_LDSCRIPT) $(OPENCM3_DIR)/lib/lib$(LIBNAME).a
 endif
 
 monitor:
-	screen /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A50285BI-if00-port0 115200
+	screen /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A700eCbB-if00-port0 115200
 
 .PHONY: monitor
