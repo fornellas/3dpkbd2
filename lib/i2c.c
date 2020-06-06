@@ -13,13 +13,16 @@
 
 #define TIMEOUT_MS 2
 
-void i2c_setup(void) {
+static void setup_io(void) {
 	rcc_periph_clock_enable(RCC_GPIO_I2C);
-	rcc_periph_clock_enable(RCC_I2C);
 
 	gpio_mode_setup(GPIO_I2C, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_SCL | GPIO_SDA);
 	gpio_set_output_options(GPIO_I2C, GPIO_OTYPE_OD, GPIO_OSPEED_50MHZ, GPIO_SCL | GPIO_SDA);
 	gpio_set_af(GPIO_I2C, GPIO_AF4, GPIO_SCL | GPIO_SDA);
+}
+
+static void setup_peripheral(void) {
+	rcc_periph_clock_enable(RCC_I2C);
 
 	i2c_peripheral_disable(I2C);
 
@@ -36,6 +39,11 @@ void i2c_setup(void) {
 	i2c_set_own_7bit_slave_address(I2C, 0x00);
 }
 
+void i2c_setup(void) {
+	setup_io();
+	setup_peripheral();
+}
+
 static uint8_t abort_if_error_condition(uint32_t start_ms) {
 	if(
 		(uptime_ms() - start_ms >= TIMEOUT_MS)
@@ -48,7 +56,7 @@ static uint8_t abort_if_error_condition(uint32_t start_ms) {
 			)
 		)
 	) {
-		i2c_setup();
+		setup_peripheral();
 		return 1;
 	}
 
@@ -60,7 +68,7 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 
 	// Deal with stuck BUSY
 	if ((I2C_SR2(I2C) & I2C_SR2_BUSY))
-		i2c_setup();
+		setup_peripheral();
 
 	// Send start
 	start_ms = uptime_ms();
