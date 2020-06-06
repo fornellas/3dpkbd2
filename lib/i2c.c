@@ -17,7 +17,7 @@ void i2c_setup(void) {
 	rcc_periph_clock_enable(RCC_GPIO_I2C);
 	rcc_periph_clock_enable(RCC_I2C);
 
-	gpio_mode_setup(GPIO_I2C, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_SCL | GPIO_SDA);
+	gpio_mode_setup(GPIO_I2C, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_SCL | GPIO_SDA);
 	gpio_set_output_options(GPIO_I2C, GPIO_OTYPE_OD, GPIO_OSPEED_50MHZ, GPIO_SCL | GPIO_SDA);
 	gpio_set_af(GPIO_I2C, GPIO_AF4, GPIO_SCL | GPIO_SDA);
 
@@ -41,10 +41,10 @@ static uint8_t abort_if_error_condition(uint32_t start_ms) {
 		(uptime_ms() - start_ms >= TIMEOUT_MS)
 		|| (
 			I2C_SR1(I2C) & (
-				I2C_SR1_BERR |
-				I2C_SR1_ARLO |
-				I2C_SR1_AF |
-				I2C_SR1_TIMEOUT
+				I2C_SR1_BERR
+				| I2C_SR1_ARLO
+				| I2C_SR1_AF
+				| I2C_SR1_TIMEOUT
 			)
 		)
 	) {
@@ -58,13 +58,11 @@ static uint8_t abort_if_error_condition(uint32_t start_ms) {
 uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 	uint32_t start_ms;
 
-	// Ensure lines are not busy
-	if((I2C_SR2(I2C) & I2C_SR2_BUSY)){
+	// Deal with stuck BUSY
+	if ((I2C_SR2(I2C) & I2C_SR2_BUSY))
 		i2c_setup();
-		return 1;
-	}
 
-	// Send start condition
+	// Send start
 	start_ms = uptime_ms();
 	i2c_send_start(I2C);
 	while (!(I2C_SR2(I2C) & I2C_SR2_BUSY))
@@ -96,6 +94,7 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 
 	// Send stop
 	i2c_send_stop(I2C);
+
 	return 0;
 }
 
