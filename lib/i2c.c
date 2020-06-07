@@ -86,11 +86,11 @@ static uint8_t send_start_condition(void) {
 	return 0;
 }
 
-static uint8_t send_slave_address(uint8_t addr) {
+static uint8_t send_slave_address(uint8_t addr, uint8_t readwrite) {
 	uint32_t start_ms;
 
 	start_ms = uptime_ms();
-	i2c_send_7bit_address(I2C, addr, I2C_WRITE);
+	i2c_send_7bit_address(I2C, addr, readwrite);
 	while (!(I2C_SR1(I2C) & I2C_SR1_ADDR))
 		if(abort_if_error_condition(start_ms))
 			return 1;;
@@ -105,7 +105,7 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 	if(send_start_condition())
 		return 1;
 
-	if(send_slave_address(addr))
+	if(send_slave_address(addr, I2C_WRITE))
 		return 1;
 
 	for (size_t i = 0; i < len; i++) {
@@ -129,7 +129,7 @@ uint8_t i2c_read(uint8_t addr, uint8_t *data, size_t len) {
 	if(send_start_condition())
 		return 1;
 
-	if(send_slave_address(addr))
+	if(send_slave_address(addr, I2C_READ))
 		return 1;
 
 	for (size_t i = 0; i < len; ++i) {
