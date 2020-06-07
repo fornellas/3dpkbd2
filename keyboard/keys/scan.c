@@ -299,7 +299,6 @@ static uint8_t set_right_column(uint8_t column) {
     return 0;
 }
 
-
 static uint8_t get_right_rows(uint8_t *rows_state) {
     if(mcp23017_read(MCP23017_BANK1_GPIOB, rows_state)){
         keys_scan_right_side_disconnected = 1;
@@ -323,9 +322,8 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 		uint8_t released;
         uint8_t rows_state;
 
-        // if(get_right_rows(&rows_state))
-        //     return;
-        rows_state = 0;
+        if(get_right_rows(&rows_state))
+            return;
 
 		if(clear_right_column(column))
             return;
