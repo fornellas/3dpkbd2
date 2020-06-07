@@ -9,12 +9,14 @@
 #include "lib/i2c.h"
 #include "lib/mcp23017.h"
 
-//
-// Common
-//
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
 uint8_t keys_scan_right_side_disconnected;
+
+
+//
+// setup
+//
 
 void keys_scan_reset() {
 	for(uint8_t row=0 ; row < ROWS ; row++)
@@ -24,7 +26,7 @@ void keys_scan_reset() {
 
 static void setup_left_side(void) {
 	//
-	// Set rows as input with pull-up
+	// Set rows as output and high
 	//
 
 	// Row 0 > B12
@@ -52,7 +54,7 @@ static void setup_left_side(void) {
 	gpio_set(GPIOA, GPIO10);
 
 	//
-	// Set columns as output and low
+	// Set columns as input with pull-down
 	//
 
 	// Column 0       A1
@@ -98,6 +100,7 @@ static void setup_right_side(void) {
 		keys_scan_right_side_disconnected = 1;
 		return;
 	}
+
 	// Rows as input, columns as output
 	if(mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111)){
 		keys_scan_right_side_disconnected = 1;
@@ -107,11 +110,13 @@ static void setup_right_side(void) {
 		keys_scan_right_side_disconnected = 1;
 		return;
 	}
+
 	// Row input pull up
 	if(mcp23017_write(MCP23017_BANK1_GPPUB, 0b01111111)){
 		keys_scan_right_side_disconnected = 1;
 		return;
 	}
+
 	// Columns output high
 	if(mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000)){
 		keys_scan_right_side_disconnected = 1;
@@ -131,6 +136,10 @@ void keys_scan_setup(void) {
 	keys_scan_right_side_disconnected = 1;
 	setup_right_side();
 }
+
+//
+// left
+//
 
 static void set_left_row_level(uint8_t row, uint8_t level) {
 	switch(row) {
@@ -179,18 +188,6 @@ static void set_left_row_level(uint8_t row, uint8_t level) {
 	}
 }
 
-static void set_right_row_level(uint8_t row, uint8_t level) {
-	if(keys_scan_right_side_disconnected)
-		return;
-	// TODO
-	(void)row;
-	(void)level;
-}
-
-static void set_row_level(uint8_t row, uint8_t level) {
-	set_left_row_level(row, level);
-	set_right_row_level(row, level);
-}
 
 static uint16_t get_left_column(uint8_t column) {
 	switch (column) {
@@ -212,25 +209,8 @@ static uint16_t get_left_column(uint8_t column) {
 	return 0;
 }
 
-static uint16_t get_right_column(uint8_t column) {
-	if(keys_scan_right_side_disconnected)
-		return 0;
-	// TODO
-	(void)column;
-	return 0;
-}
 
-static uint16_t get_column(uint8_t column) {
-	if(column < LEFT_COLUMNS)
-		return get_left_column(column);
-	else
-		return get_right_column(column);
-}
-
-void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
-	if(keys_scan_right_side_disconnected)
-		setup_right_side();
-
+static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
 	for (uint8_t row = 0; row < ROWS ; row++) {
 		uint8_t any_pressed;
 		uint8_t any_triggered;
@@ -240,9 +220,9 @@ void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, voi
 
 		any_pressed = 0;
 		any_triggered = 0;
-		set_row_level(row, 1);
-		for (uint8_t column = 0 ; column < COLUMNS ; column++) {
-			if (get_column(column)){
+		set_left_row_level(row, 1);
+		for (uint8_t column = 0 ; column < LEFT_COLUMNS ; column++) {
+			if (get_left_column(column)){
 				any_pressed = 1;
 				state = 1;
 				pressed = !previous_key_state[row][column];
@@ -259,7 +239,7 @@ void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, voi
 			if(pressed || released)
 				any_triggered = 1;
 		}
-		set_row_level(row, 0);
+		set_left_row_level(row, 0);
 		// Due to line capacitances we have to wait for the previous row high
 		// signal to be drained by the pull down resistor so the column input
 		// signal is back to logic low.
@@ -275,4 +255,24 @@ void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, voi
 				__asm__("nop");
 		}
 	}
+}
+
+//
+// right
+//
+
+static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
+	(void)callback;
+	(void)data;
+	if(keys_scan_right_side_disconnected)
+			setup_right_side();
+}
+
+//
+// keys_scan
+//
+
+void keys_scan(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
+	keys_scan_left(callback, data);
+	keys_scan_right(callback, data);
 }
