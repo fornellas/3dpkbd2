@@ -43,6 +43,12 @@ void i2c_setup(void) {
 	setup_peripheral();
 }
 
+static void reset_and_setup_if_busy(void) {
+	// Deal with stuck BUSY
+	if ((I2C_SR2(I2C) & I2C_SR2_BUSY))
+		setup_peripheral();
+}
+
 static uint8_t abort_if_error_condition(uint32_t start_ms) {
 	if(
 		(uptime_ms() - start_ms >= TIMEOUT_MS)
@@ -62,14 +68,9 @@ static uint8_t abort_if_error_condition(uint32_t start_ms) {
 	return 0;
 }
 
-uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
+static uint8_t send_start_condition(void) {
 	uint32_t start_ms;
 
-	// Deal with stuck BUSY
-	if ((I2C_SR2(I2C) & I2C_SR2_BUSY))
-		setup_peripheral();
-
-	// Send start
 	start_ms = uptime_ms();
 	i2c_send_start(I2C);
 	while (!(I2C_SR2(I2C) & I2C_SR2_BUSY))
@@ -82,13 +83,32 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 		if(abort_if_error_condition(start_ms))
 			return 1;
 
-	// Send slave address
+	return 0;
+}
+
+static uint8_t send_slave_address(uint8_t addr) {
+	uint32_t start_ms;
+
 	start_ms = uptime_ms();
 	i2c_send_7bit_address(I2C, addr, I2C_WRITE);
 	while (!(I2C_SR1(I2C) & I2C_SR1_ADDR))
 		if(abort_if_error_condition(start_ms))
 			return 1;;
 	(void)I2C_SR2(I2C);
+
+	return 0;
+}
+
+uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
+	uint32_t start_ms;
+
+	reset_and_setup_if_busy();
+
+	if(send_start_condition())
+		return 1;
+
+	if(send_slave_address(addr))
+		return 1;
 
 	// Send data
 	for (size_t i = 0; i < len; i++) {
@@ -99,7 +119,6 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 				return 1;
 	}
 
-	// Send stop
 	i2c_send_stop(I2C);
 
 	return 0;
