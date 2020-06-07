@@ -1,5 +1,15 @@
 I2C
 
+- Required sequence for master
+	- Program the peripheral input clock in I2C_CR2 Register in order to generate correct timings
+		- The peripheral input clock frequency must be at least:
+			- 2 MHz in Sm mode
+			- 4 MHz in Fm mode
+	- Configure the clock control registers
+	- Configure the rise time register
+	- Program the I2C_CR1 register to enable the peripheral
+	- Set the START bit in the I2C_CR1 register to generate a Start condition
+
 - Master
 	- initiates a data transfer
 	- generates a clock signal
