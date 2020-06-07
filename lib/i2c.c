@@ -100,8 +100,6 @@ static uint8_t send_slave_address(uint8_t addr) {
 }
 
 uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
-	uint32_t start_ms;
-
 	reset_and_setup_if_busy();
 
 	if(send_start_condition())
@@ -110,8 +108,9 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 	if(send_slave_address(addr))
 		return 1;
 
-	// Send data
 	for (size_t i = 0; i < len; i++) {
+		uint32_t start_ms;
+
 		start_ms = uptime_ms();
 		i2c_send_data(I2C, data[i]);
 		while (!(I2C_SR1(I2C) & (I2C_SR1_BTF)))
@@ -125,40 +124,27 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 }
 
 uint8_t i2c_read(uint8_t addr, uint8_t *data, size_t len) {
-	uint32_t start_ms;
+	reset_and_setup_if_busy();
 
-	i2c_send_start(I2C);
+	if(send_start_condition())
+		return 1;
 
-	i2c_enable_ack(I2C);
-
-	/* Wait for master mode selected */
-	while (!((I2C_SR1(I2C) & I2C_SR1_SB) & (I2C_SR2(I2C) & (I2C_SR2_MSL | I2C_SR2_BUSY))));
-
-	start_ms = uptime_ms();
-	i2c_send_7bit_address(I2C, addr, I2C_READ);
-	while (!(I2C_SR1(I2C) & I2C_SR1_ADDR)) {
-		if(uptime_ms() - start_ms >= TIMEOUT_MS){
-			i2c_send_stop(I2C);
-			return 1;
-		}
-	};
-
-	/* Clearing ADDR condition sequence. */
-	(void)I2C_SR2(I2C);
+	if(send_slave_address(addr))
+		return 1;
 
 	for (size_t i = 0; i < len; ++i) {
-		if (i == len - 1) {
+		uint32_t start_ms;
+
+		if (i == len - 1)
 			i2c_disable_ack(I2C);
-		}
+
 		start_ms = uptime_ms();
-		while (!(I2C_SR1(I2C) & I2C_SR1_RxNE)) {
-			if(uptime_ms() - start_ms >= TIMEOUT_MS){
-				i2c_send_stop(I2C);
+		while (!(I2C_SR1(I2C) & I2C_SR1_RxNE))
+			if(abort_if_error_condition(start_ms))
 				return 1;
-			}
-		}
 		data[i] = i2c_get_data(I2C);
 	}
+
 	i2c_send_stop(I2C);
 
 	return 0;
