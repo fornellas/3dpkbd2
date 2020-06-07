@@ -102,14 +102,15 @@ static void setup_right_side(void) {
 	}
 
 	// Rows as input, columns as output
-	if(mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111)){
-		keys_scan_right_side_disconnected = 1;
-		return;
-	}
 	if(mcp23017_write(MCP23017_BANK1_IODIRA, 0b00000000)){
 		keys_scan_right_side_disconnected = 1;
 		return;
 	}
+	if(mcp23017_write(MCP23017_BANK1_IODIRB, 0b01111111)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+
 
 	// Row input pull up
 	if(mcp23017_write(MCP23017_BANK1_GPPUB, 0b01111111)){
@@ -118,14 +119,15 @@ static void setup_right_side(void) {
 	}
 
 	// Columns output high
-	if(mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000)){
-		keys_scan_right_side_disconnected = 1;
-		return;
-	}
 	if(mcp23017_write(MCP23017_BANK1_OLATA, 0b11111111)){
 		keys_scan_right_side_disconnected = 1;
 		return;
 	}
+	if(mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000)){
+		keys_scan_right_side_disconnected = 1;
+		return;
+	}
+
 	keys_scan_right_side_disconnected = 0;
 }
 
@@ -261,11 +263,91 @@ static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, 
 // right
 //
 
+static uint8_t clear_right_column(uint8_t column) {
+    if(column == 7) {
+		if(mcp23017_write(MCP23017_BANK1_OLATB, 0x00)){
+			keys_scan_right_side_disconnected = 1;
+			return 1;
+		}
+    } else {
+        uint8_t bit;
+
+        bit = 15 - column;
+
+        if(mcp23017_write(MCP23017_BANK1_OLATA, 0xFF & ~(1 << bit))) {
+            keys_scan_right_side_disconnected = 1;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static uint8_t set_right_column(uint8_t column) {
+    if(column == 7) {
+        if(mcp23017_write(MCP23017_BANK1_OLATB, 0b10000000)){
+            keys_scan_right_side_disconnected = 1;
+            return 1;
+        }
+    } else {
+        if(mcp23017_write(MCP23017_BANK1_OLATA, 0xFF)) {
+            keys_scan_right_side_disconnected = 1;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+static uint8_t get_right_rows(uint8_t *rows_state) {
+    if(mcp23017_read(MCP23017_BANK1_GPIOB, rows_state)){
+        keys_scan_right_side_disconnected = 1;
+        return 1;
+    }
+
+    return 0;
+}
+
 static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
-	(void)callback;
-	(void)data;
-	if(keys_scan_right_side_disconnected)
-			setup_right_side();
+	if(keys_scan_right_side_disconnected) {
+		setup_right_side();
+		if(keys_scan_right_side_disconnected)
+			return;
+	}
+
+	for (uint8_t column = LEFT_COLUMNS; column < COLUMNS ; column++) {
+		uint8_t any_pressed;
+		uint8_t state;
+		uint8_t pressed;
+		uint8_t released;
+        uint8_t rows_state;
+
+        // if(get_right_rows(&rows_state))
+        //     return;
+        rows_state = 0;
+
+		if(clear_right_column(column))
+            return;
+
+		for (uint8_t row = 0 ; row < ROWS ; row++) {
+			if (!(rows_state & (1 << row))){
+				state = 1;
+				pressed = !previous_key_state[row][column];
+				released = 0;
+				previous_key_state[row][column] = 1;
+			}else{
+				state = 0;
+				pressed = 0;
+				released = previous_key_state[row][column];
+				previous_key_state[row][column] = 0;
+			}
+			if(state || pressed || released)
+				(*callback)(row, column, state, pressed, released, data);
+		}
+		if(set_right_column(column))
+            return;
+	}
 }
 
 //
