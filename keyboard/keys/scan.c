@@ -322,10 +322,10 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 		uint8_t released;
         uint8_t rows_state;
 
-        if(get_right_rows(&rows_state))
+		if(clear_right_column(column))
             return;
 
-		if(clear_right_column(column))
+        if(get_right_rows(&rows_state))
             return;
 
 		for (uint8_t row = 0 ; row < ROWS ; row++) {
