@@ -28,11 +28,10 @@ static void setup_peripheral(void) {
 
 	i2c_reset(I2C);
 
-	i2c_set_fast_mode(I2C);
-	i2c_set_clock_frequency(I2C, I2C_CR2_FREQ_42MHZ);
-	i2c_set_ccr(I2C, 35);
-	i2c_set_trise(I2C, 43);
-	//i2c_set_speed(I2C, 0);
+	i2c_set_speed(I2C, i2c_speed_fm_400k, rcc_apb1_frequency / 1e6);
+
+	// Without aggressive filter we see frequent communication loss
+	I2C_FLTR(I2C) = (I2C_FLTR(I2C) & ~I2C_FLTR_DNF_MASK) | (15<<I2C_FLTR_DNF_SHIFT);
 
 	i2c_peripheral_enable(I2C);
 
