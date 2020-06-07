@@ -53,7 +53,7 @@ I2C
 	- if Txe is set and no data byte written in DR before end of last transmission
 		- BTF is set
 		- interface waits until BTF is cleared by writing to DR
-- Closing the communication
-	- After last byte written to DR
-		- STOP bit is set by software
-		- must be programmed when either TxE or BTF is set
+	- Closing the communication
+		- After last byte written to DR
+			- STOP bit is set by software
+			- must be programmed when either TxE or BTF is set
