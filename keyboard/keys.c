@@ -18,7 +18,7 @@ static void load_layer_state(void) {
 				break;
 			case KEYS_LAYER_STATE_LOAD:
 				// TODO load config
-				layer_state[layer_idx] = (layer_idx == 4);
+				layer_state[layer_idx] = (layer_idx == LAYER_DVORAK_DVORAK); // FIXME
 				break;
 		}
 	}
@@ -34,6 +34,11 @@ void keys_reset() {
 	// TODO reset keyboard state: active layers, etc
 	keys_scan_reset();
 	load_layer_state();
+}
+
+static void set_layout(uint16_t layout) {
+	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
+		layer_state[layer_idx] = (layer_idx == layout);
 }
 
 static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8_t pressed, uint8_t released, void *data) {
@@ -77,6 +82,9 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 				if(pressed)
 					sequence_register(sequences[hid_usage_id]);
 				break;
+			case USB_HID_USAGE_PAGE_LAYOUT:
+				if(pressed)
+					set_layout(hid_usage_id);
 		}
 	}
 }

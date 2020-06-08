@@ -4,10 +4,6 @@
 #include "../descriptors.h"
 
 enum function_defs {
-  FUNC_QWERTY_QWERTY,
-  FUNC_QWERTY_DVORAK,
-  FUNC_DVORAK_DVORAK,
-  FUNC_DVORAK_QWERTY,
   FUNC_CUT,
   FUNC_COPY,
   FUNC_PASTE,
@@ -42,6 +38,9 @@ enum layers {
   LAYER_COMMON,
   LAYER_COUNT,
 };
+
+#define LAYER_LAYOUT_START LAYER_QWERTY_QWERTY
+#define LAYER_LAYOUT_END LAYER_DVORAK_QWERTY
 
 extern const uint8_t layers_default_state[LAYER_COUNT];
 extern const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS];

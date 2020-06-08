@@ -58,87 +58,16 @@
 	}, \
 }
 
+#define LAYOUT(value) { \
+	.page=USB_HID_USAGE_PAGE_LAYOUT, \
+	.id=LAYER_ ## value \
+}
+
 #define SEQ_END SEQ_STEP(0)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
-
-static void func_qwerty_qwerty(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
-
-static void func_qwerty_qwerty(
-	uint8_t row,
-	uint8_t column,
-	uint8_t state,
-	uint8_t pressed,
-	uint8_t released,
-	struct hid_in_report_data *hid_in_report
-) {
-	(void)row;
-	(void)column;
-	(void)state;
-	(void)pressed;
-	(void)released;
-	(void)hid_in_report;
-	// TODO
-};
-
-static void func_qwerty_dvorak(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
-
-static void func_qwerty_dvorak(
-	uint8_t row,
-	uint8_t column,
-	uint8_t state,
-	uint8_t pressed,
-	uint8_t released,
-	struct hid_in_report_data *hid_in_report
-) {
-	(void)row;
-	(void)column;
-	(void)state;
-	(void)pressed;
-	(void)released;
-	(void)hid_in_report;
-	// TODO
-};
-
-static void func_dvorak_dvorak(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
-
-static void func_dvorak_dvorak(
-	uint8_t row,
-	uint8_t column,
-	uint8_t state,
-	uint8_t pressed,
-	uint8_t released,
-	struct hid_in_report_data *hid_in_report
-) {
-	(void)row;
-	(void)column;
-	(void)state;
-	(void)pressed;
-	(void)released;
-	(void)hid_in_report;
-	// TODO
-};
-
-static void func_dvorak_qwerty(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
-
-static void func_dvorak_qwerty(
-	uint8_t row,
-	uint8_t column,
-	uint8_t state,
-	uint8_t pressed,
-	uint8_t released,
-	struct hid_in_report_data *hid_in_report
-) {
-	(void)row;
-	(void)column;
-	(void)state;
-	(void)pressed;
-	(void)released;
-	(void)hid_in_report;
-	// TODO
-};
 
 static void func_cut(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
 
@@ -274,10 +203,6 @@ static void func_toggle_shifted_number_layer(
 };
 
 void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *) = {
-  [FUNC_QWERTY_QWERTY] = &func_qwerty_qwerty,
-  [FUNC_QWERTY_DVORAK] = &func_qwerty_dvorak,
-  [FUNC_DVORAK_DVORAK] = &func_dvorak_dvorak,
-  [FUNC_DVORAK_QWERTY] = &func_dvorak_qwerty,
   [FUNC_CUT] = &func_cut,
   [FUNC_COPY] = &func_copy,
   [FUNC_PASTE] = &func_paste,
@@ -374,13 +299,13 @@ const uint8_t layers_default_state[] = {
 const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	[LAYER_FN] = LAYER_KEYMAP(
 		// Left
-		____, FUNC(FUNC_QWERTY_QWERTY), FUNC(FUNC_QWERTY_DVORAK), FUNC(FUNC_DVORAK_DVORAK), FUNC(FUNC_DVORAK_QWERTY), ____, KBD(INSERT),
-		____, ____,                     ____,                     ____,                     ____,                     ____, KBD(VOLUME_UP),
-		____, ____,                     ____,                     ____,                     ____,                     ____,
-		____, ____,                     ____,                     ____,                     ____,                     ____, KBD(VOLUME_DOWN),
-		____, ____,                     ____,                     ____,                     ____,                     ____,
-		____, FUNC(FUNC_CUT),           FUNC(FUNC_COPY),                                    FUNC(FUNC_PASTE),               KBD(MUTE),
-		____, ____,                     ____,                                               ____,                           ____,
+		____, LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),
+		____, ____,                  ____,                  ____,                  ____,                  ____, KBD(VOLUME_UP),
+		____, ____,                  ____,                  ____,                  ____,                  ____,
+		____, ____,                  ____,                  ____,                  ____,                  ____, KBD(VOLUME_DOWN),
+		____, ____,                  ____,                  ____,                  ____,                  ____,
+		____, FUNC(FUNC_CUT),        FUNC(FUNC_COPY),                              FUNC(FUNC_PASTE),            KBD(MUTE),
+		____, ____,                  ____,                                         ____,                        ____,
 		// Right
 		KBD(INSERT),      KK(MEDIA_EJECT), KBD(POWER),         KK(SLEEP), GD(SYSTEM_WAKE_UP), KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), ____, KPD(NUM_LOCK_AND_CLEAR),
 		KBD(VOLUME_UP),   ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
