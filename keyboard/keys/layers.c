@@ -43,7 +43,7 @@
 
 #define FUNC(value) { \
 	.page=USB_HID_USAGE_PAGE_FUNCTION, \
-	.id=value \
+	.id=FUNC_ ## value \
 }
 
 #define SEQ(value) { \
@@ -304,13 +304,13 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____, ____,                  ____,                  ____,                  ____,                  ____,
 		____, ____,                  ____,                  ____,                  ____,                  ____, KBD(VOLUME_DOWN),
 		____, ____,                  ____,                  ____,                  ____,                  ____,
-		____, FUNC(FUNC_CUT),        FUNC(FUNC_COPY),                              FUNC(FUNC_PASTE),            KBD(MUTE),
+		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 KBD(MUTE),
 		____, ____,                  ____,                                         ____,                        ____,
 		// Right
 		KBD(INSERT),      KK(MEDIA_EJECT), KBD(POWER),         KK(SLEEP), GD(SYSTEM_WAKE_UP), KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), ____, KPD(NUM_LOCK_AND_CLEAR),
 		KBD(VOLUME_UP),   ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
 		                  ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
-		KBD(VOLUME_DOWN), ____,            ____,               ____,      ____,               ____,              ____,             ____, FUNC(FUNC_TOGGLE_SHIFTED_NUMBER_LAYER),
+		KBD(VOLUME_DOWN), ____,            ____,               ____,      ____,               ____,              ____,             ____, FUNC(TOGGLE_SHIFTED_NUMBER_LAYER),
 		                  ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
 		KBD(MUTE),                         KK(MEDIA_PREVIOUS),            ____,               ____,              ____,             ____, KK(BACK),
 		____,                              KK(MEDIA_NEXT),                ____,               ____,              ____,             ____, KK(FORWARD)
@@ -407,21 +407,21 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	),
 	[LAYER_SHIFTED_NUMBER] = LAYER_KEYMAP(
 		// Left
-		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____,
-		____, FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), ____,
-		____, ____,                      ____,                      ____,                      ____,                      ____,
-		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____,
-		____, ____,                      ____,                      ____,                      ____,                      ____,
-		____, ____,                      ____,                                                 ____,                                                 ____,
-		____, ____,                      ____,                                                 ____,                                                 ____,
+		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____,
+		____, FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), ____,
+		____, ____,                 ____,                 ____,                 ____,                 ____,
+		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____,
+		____, ____,                 ____,                 ____,                 ____,                 ____,
+		____, ____,                 ____,                                       ____,                                       ____,
+		____, ____,                 ____,                                       ____,                                       ____,
 		// Right
-		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
-		____, FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), FUNC(FUNC_SHIFTED_NUMBER), ____, ____, ____,
-		      ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
-		____, ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
-		      ____,                      ____,                      ____,                      ____,                      ____,                      ____, ____, ____,
-		____,                            ____,                                                 ____,                      ____,                      ____, ____, ____,
-		____,                            ____,                                                 ____,                      ____,                      ____, ____, ____
+		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
+		____, FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), ____, ____, ____,
+		      ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
+		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
+		      ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
+		____,                       ____,                                       ____,                 ____,                 ____, ____, ____,
+		____,                       ____,                                       ____,                 ____,                 ____, ____, ____
 	),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
@@ -431,9 +431,9 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,          ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
 		____,          ____,                   ____,             ____,                ____,              ____,
 		____,          ____,                   ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
-		FUNC(FUNC_FN), KBD(LEFT_GUI),          SEQ(SEQ_SHUFFLE),                      KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
+		FUNC(FN),      KBD(LEFT_GUI),          SEQ(SEQ_SHUFFLE),                      KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
-		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(FUNC_KEYPAD),
+		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(KEYPAD),
 		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               KK(CALCULATOR),
 		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AL_EMAIL_READER),
 		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KBD(CAPS_LOCK),
