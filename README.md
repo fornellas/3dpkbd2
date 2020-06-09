@@ -1,5 +1,8 @@
 # 3dpkbd2
 
+[![Build Status](https://travis-ci.com/fornellas/3dpkbd2.svg?branch=master)](https://travis-ci.com/fornellas/3dpkbd2)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A 3D printed ergonomic keyboard project, fully designed and built from the ground up.
 
 ![](https://github.com/fornellas/3dpkbd2/raw/master/doc/images/render.png)
