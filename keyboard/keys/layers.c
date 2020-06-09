@@ -209,10 +209,10 @@ static void func_keypad(
 	(void)released;
 	(void)hid_in_report;
 
-  if(pressed) {
-    layer_keypad_state = !layer_keypad_state;
-    layers_state[LAYER_KEYPAD] = layer_keypad_state;
-  }
+	if(pressed) {
+		layer_keypad_state = !layer_keypad_state;
+		layers_state[LAYER_KEYPAD] = layer_keypad_state;
+	}
 };
 
 static void func_shifted_number(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
