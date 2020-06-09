@@ -21,6 +21,7 @@ TODO
 	- Set descriptor bMaxPower with real mA power.
 - Performance
 	- Increase frequency to 96MHz.
+	- Attempt 1MHz I2C.
 	- Use DMA for display data transfer.
 
 WAITING
