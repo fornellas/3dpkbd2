@@ -12,6 +12,13 @@ void layout_set(uint16_t layout) {
 		layers_state[layer_idx] = (layer_idx == layout);
 }
 
+static uint8_t layout_get(void) {
+	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
+		if(layers_state[layer_idx])
+			return layer_idx;
+	return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Macros
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,14 +158,12 @@ static void func_fn(
 	(void)state;
 	(void)hid_in_report;
 
-	uint8_t active_layout=0;
+	uint8_t active_layout;
 	uint8_t fn_alternative_layout;
 	static uint8_t last_active_layout;
 	static uint8_t last_layout_changes_counter;
 
-	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
-		if(layers_state[layer_idx])
-			active_layout = layer_idx;
+	active_layout = layout_get();
 
 	if(pressed) {
 		layers_state[LAYER_FN] = 1;
