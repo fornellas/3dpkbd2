@@ -331,7 +331,7 @@ static struct sequence_step_data seq_00[] = {
 
 static struct sequence_step_data seq_b_tab[] = {
 	SEQ_STEP(1, KBD(LEFT_SHIFT)),
-	SEQ_STEP(1, KBD(LEFT_SHIFT), KBD(TAB)),
+	SEQ_STEP(2, KBD(LEFT_SHIFT), KBD(TAB)),
 	SEQ_END,
 };
 
