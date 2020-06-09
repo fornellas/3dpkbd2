@@ -31,9 +31,9 @@ void keys_setup() {
 }
 
 void keys_reset() {
-	// TODO reset keyboard state: active layers, etc
 	keys_scan_reset();
 	load_layer_state();
+	sequence_reset();
 }
 
 static void set_layout(uint16_t layout) {

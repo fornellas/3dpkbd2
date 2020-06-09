@@ -57,3 +57,11 @@ void sequence_play(struct hid_in_report_data *hid_in_report) {
 		active_sequence_step = 0;
 	}
 }
+
+void sequence_reset(void) {
+	if(active_sequence) {
+		free(active_sequence);
+		active_sequence = NULL;
+		active_sequence_step = 0;
+	}
+}
