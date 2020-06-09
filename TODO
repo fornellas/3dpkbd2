@@ -9,6 +9,7 @@ TODO
 	- Layout status
 	- Keypress counter
 	- Screensaver
+	- DMA transfer
 - Clean up clowny ln -s: this works https://github.com/libopencm3/libopencm3/issues/1117#issuecomment-570827827
 - cppcheck rule:  cppcheck --error-exitcode=1 $(CPPCHECK_ARGS) -I$(OPENCM3_INC) -I$(GCC_INCLUDES) -I$(NEWLIB_INCLUDES) $(CGLAGS) $<
 - Review all TODO comments
