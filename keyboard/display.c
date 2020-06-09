@@ -33,12 +33,14 @@ struct display_state {
   uint8_t hid_led_compose;
   uint8_t hid_led_kana;
 
-  // Layers
-  // unsigned int layer_keypad;
-  // unsigned int layer_shift_lock;
-  unsigned int layer_fn;
-  // unsigned int layer_keyboard;
-  // unsigned int layer_computer;
+  // Layer toggles
+  // uint8_t layer_keypad;
+  // uint8_t layer_shift_lock;
+  uint8_t layer_fn;
+
+  // Layout layers
+  char * layer_keyboard;
+  char * layer_computer;
 
   // Counter
   // uint32_t counter_keys;
@@ -119,14 +121,19 @@ static void display_draw(void) {
       break;
   }
 
-  // Layers
-  // ucg_SetFont(ucg, ucg_font_helvB12_hf);
-  // ucg_SetColor(ucg, 0, 0, 0, 0);
-  // display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layer_keypad);
-  // ucg_SetColor(ucg, 0, 0, 0, 0);
-  // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, "!", current_state.layer_shift_lock);
+  // Layer Toggles
+  ucg_SetFont(ucg, ucg_font_helvB12_hf);
   ucg_SetColor(ucg, 0, 0, 0, 0);
+  // display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layer_keypad);
+  // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, "!", current_state.layer_shift_lock);
   display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "Fn", current_state.layer_fn);
+
+  // Layout Layers
+  ucg_SetFont(ucg, ucg_font_helvB12_hf);
+  ucg_SetColor(ucg, 0, 0, 0, 0);
+  display_draw_toggle(28, 43, 72, TOGGLE_HEIGHT, current_state.layer_keyboard, 0);
+  ucg_SetColor(ucg, 0, 128, 128, 128);
+  display_draw_toggle(28, 65, 72, TOGGLE_HEIGHT, current_state.layer_computer, 0);
 
   // Counter
   // TODO
@@ -154,12 +161,28 @@ static void display_get_current_state(struct display_state *state) {
   state->hid_led_compose = hid_led_report & (1<<3);
   state->hid_led_kana = hid_led_report & (1<<4);
 
-  // Layers
+  // Layer toggles
   // state->layer_keypad = layer_keypad;
   // state->layer_shift_lock = layer_shift_lock;
   state->layer_fn = layers_state[LAYER_FN];
-  // state->layer_keyboard = layer_keyboard;
-  // state->layer_computer = layer_computer;
+
+  // Layout layers
+  if(layers_state[LAYER_QWERTY_QWERTY]) {
+    state->layer_keyboard = "QWERTY";
+    state->layer_computer = "QWERTY";
+  }
+  if(layers_state[LAYER_QWERTY_DVORAK]) {
+    state->layer_keyboard = "Dvorak";
+    state->layer_computer = "QWERTY";
+  }
+  if(layers_state[LAYER_DVORAK_DVORAK]) {
+    state->layer_keyboard = "Dvorak";
+    state->layer_computer = "Dvorak";
+  }
+  if(layers_state[LAYER_DVORAK_QWERTY]) {
+    state->layer_keyboard = "QWERTY";
+    state->layer_computer = "Dvorak";
+  }
 
   // Counter
   // state->counter_keys = counter_keys;
