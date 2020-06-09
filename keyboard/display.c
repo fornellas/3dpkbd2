@@ -34,7 +34,7 @@ struct display_state {
   uint8_t hid_led_kana;
 
   // Layer toggles
-  // uint8_t layer_keypad;
+  uint8_t layer_keypad;
   // uint8_t layer_shift_lock;
   uint8_t layer_fn;
 
@@ -124,8 +124,10 @@ static void display_draw(void) {
   // Layer Toggles
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
   ucg_SetColor(ucg, 0, 0, 0, 0);
-  // display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layer_keypad);
+  display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layer_keypad);
+  // ucg_SetColor(ucg, 0, 0, 0, 0);
   // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, "!", current_state.layer_shift_lock);
+  ucg_SetColor(ucg, 0, 0, 0, 0);
   display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "Fn", current_state.layer_fn);
 
   // Layout Layers
@@ -162,7 +164,7 @@ static void display_get_current_state(struct display_state *state) {
   state->hid_led_kana = hid_led_report & (1<<4);
 
   // Layer toggles
-  // state->layer_keypad = layer_keypad;
+  state->layer_keypad = layers_state[LAYER_KEYPAD];
   // state->layer_shift_lock = layer_shift_lock;
   state->layer_fn = layers_state[LAYER_FN];
 

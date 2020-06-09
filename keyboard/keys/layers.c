@@ -3,6 +3,7 @@
 #include <libopencm3/usb/hid_usage_tables.h>
 
 uint8_t layers_state[LAYER_COUNT];
+static uint8_t layer_keypad_state = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Macros
@@ -144,13 +145,14 @@ static void func_fn(
 	(void)hid_in_report;
 
 	// TODO enable qwerty layout
-	// TODO enable keypad
 
 	if(pressed) {
 		layers_state[LAYER_FN] = 1;
+		layers_state[LAYER_KEYPAD] = 1;
 	}
 	if(released) {
 		layers_state[LAYER_FN] = 0;
+		layers_state[LAYER_KEYPAD] = layer_keypad_state;
 	}
 };
 
@@ -167,10 +169,13 @@ static void func_keypad(
 	(void)row;
 	(void)column;
 	(void)state;
-	(void)pressed;
 	(void)released;
 	(void)hid_in_report;
-	// TODO
+
+  if(pressed) {
+    layer_keypad_state = !layer_keypad_state;
+    layers_state[LAYER_KEYPAD] = layer_keypad_state;
+  }
 };
 
 static void func_shifted_number(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
