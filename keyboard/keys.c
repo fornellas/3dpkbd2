@@ -5,20 +5,19 @@
 #include <descriptors.h>
 #include <libopencm3/usb/hid_usage_tables.h>
 
-static uint8_t layer_state[LAYER_COUNT];
 
 static void load_layer_state(void) {
 	for(uint8_t layer_idx=0 ; layer_idx < LAYER_COUNT ; layer_idx++) {
 		switch(layers_default_state[layer_idx]) {
 			case KEYS_LAYER_STATE_ENABLED:
-				layer_state[layer_idx] = 1;
+				layers_state[layer_idx] = 1;
 				break;
 			case KEYS_LAYER_STATE_DISABLED:
-				layer_state[layer_idx] = 0;
+				layers_state[layer_idx] = 0;
 				break;
 			case KEYS_LAYER_STATE_LOAD:
 				// TODO load config
-				layer_state[layer_idx] = (layer_idx == LAYER_DVORAK_DVORAK); // FIXME
+				layers_state[layer_idx] = (layer_idx == LAYER_DVORAK_DVORAK); // FIXME
 				break;
 		}
 	}
@@ -38,7 +37,7 @@ void keys_reset() {
 
 static void set_layout(uint16_t layout) {
 	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
-		layer_state[layer_idx] = (layer_idx == layout);
+		layers_state[layer_idx] = (layer_idx == layout);
 }
 
 static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8_t pressed, uint8_t released, void *data) {
@@ -52,7 +51,7 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 	retry:
 
 	for(; layer_idx < LAYER_COUNT ; layer_idx++)
-		if(layer_state[layer_idx])
+		if(layers_state[layer_idx])
 			break;
 	if(layer_idx < LAYER_COUNT) {
 		hid_usage_page = layers_keymap[layer_idx][row][column].page;

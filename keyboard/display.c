@@ -2,6 +2,7 @@
 #include "hid.h"
 #include "usb.h"
 #include "keys/scan.h"
+#include "keys/layers.h"
 #include "lib/systick.h"
 #include "lib/images/boot.h"
 #include "lib/images/print_head.h"
@@ -35,7 +36,7 @@ struct display_state {
   // Layers
   // unsigned int layer_keypad;
   // unsigned int layer_shift_lock;
-  // unsigned int layer_fn;
+  unsigned int layer_fn;
   // unsigned int layer_keyboard;
   // unsigned int layer_computer;
 
@@ -124,8 +125,8 @@ static void display_draw(void) {
   // display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layer_keypad);
   // ucg_SetColor(ucg, 0, 0, 0, 0);
   // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, "!", current_state.layer_shift_lock);
-  // ucg_SetColor(ucg, 0, 0, 0, 0);
-  // display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "Fn", current_state.layer_fn);
+  ucg_SetColor(ucg, 0, 0, 0, 0);
+  display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "Fn", current_state.layer_fn);
 
   // Counter
   // TODO
@@ -156,7 +157,7 @@ static void display_get_current_state(struct display_state *state) {
   // Layers
   // state->layer_keypad = layer_keypad;
   // state->layer_shift_lock = layer_shift_lock;
-  // state->layer_fn = layer_fn;
+  state->layer_fn = layers_state[LAYER_FN];
   // state->layer_keyboard = layer_keyboard;
   // state->layer_computer = layer_computer;
 

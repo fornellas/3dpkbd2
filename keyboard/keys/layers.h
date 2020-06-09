@@ -42,5 +42,6 @@ enum layers {
 #define LAYER_LAYOUT_START LAYER_QWERTY_QWERTY
 #define LAYER_LAYOUT_END LAYER_DVORAK_QWERTY
 
+extern uint8_t layers_state[LAYER_COUNT];
 extern const uint8_t layers_default_state[LAYER_COUNT];
 extern const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS];

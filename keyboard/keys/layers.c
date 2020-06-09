@@ -2,6 +2,8 @@
 #include "../keys.h"
 #include <libopencm3/usb/hid_usage_tables.h>
 
+uint8_t layers_state[LAYER_COUNT];
+
 ////////////////////////////////////////////////////////////////////////////////
 // Macros
 ////////////////////////////////////////////////////////////////////////////////
@@ -139,10 +141,17 @@ static void func_fn(
 	(void)row;
 	(void)column;
 	(void)state;
-	(void)pressed;
-	(void)released;
 	(void)hid_in_report;
-	// TODO
+
+	// TODO enable qwerty layout
+	// TODO enable keypad
+
+	if(pressed) {
+		layers_state[LAYER_FN] = 1;
+	}
+	if(released) {
+		layers_state[LAYER_FN] = 0;
+	}
 };
 
 static void func_keypad(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
