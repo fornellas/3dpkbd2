@@ -99,10 +99,21 @@ static void func_cut(
 	(void)row;
 	(void)column;
 	(void)state;
-	(void)pressed;
 	(void)released;
 	(void)hid_in_report;
-	// TODO
+
+	if(pressed) {
+		switch(layout_get()) {
+			case LAYER_QWERTY_QWERTY:
+			case LAYER_QWERTY_DVORAK:
+				sequence_register(sequences[SEQ_CUT_QWERTY]);
+				break;
+			case LAYER_DVORAK_DVORAK:
+			case LAYER_DVORAK_QWERTY:
+				sequence_register(sequences[SEQ_CUT_DVORAK]);
+				break;
+		}
+	}
 };
 
 static void func_copy(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
@@ -118,10 +129,21 @@ static void func_copy(
 	(void)row;
 	(void)column;
 	(void)state;
-	(void)pressed;
 	(void)released;
 	(void)hid_in_report;
-	// TODO
+
+	if(pressed) {
+		switch(layout_get()) {
+			case LAYER_QWERTY_QWERTY:
+			case LAYER_QWERTY_DVORAK:
+				sequence_register(sequences[SEQ_COPY_QWERTY]);
+				break;
+			case LAYER_DVORAK_DVORAK:
+			case LAYER_DVORAK_QWERTY:
+				sequence_register(sequences[SEQ_COPY_DVORAK]);
+				break;
+		}
+	}
 };
 
 static void func_paste(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
@@ -137,10 +159,21 @@ static void func_paste(
 	(void)row;
 	(void)column;
 	(void)state;
-	(void)pressed;
 	(void)released;
 	(void)hid_in_report;
-	// TODO
+
+	if(pressed) {
+		switch(layout_get()) {
+			case LAYER_QWERTY_QWERTY:
+			case LAYER_QWERTY_DVORAK:
+				sequence_register(sequences[SEQ_PASTE_QWERTY]);
+				break;
+			case LAYER_DVORAK_DVORAK:
+			case LAYER_DVORAK_QWERTY:
+				sequence_register(sequences[SEQ_PASTE_DVORAK]);
+				break;
+		}
+	}
 };
 
 static void func_fn(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
@@ -304,37 +337,37 @@ static struct sequence_step_data seq_b_tab[] = {
 
 static struct sequence_step_data seq_cut_qwerty[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
-	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(X)),
+	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(X)),
 	SEQ_END,
 };
 
 static struct sequence_step_data seq_cut_dvorak[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
-	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(B)),
+	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(B)),
 	SEQ_END,
 };
 
 static struct sequence_step_data seq_copy_qwerty[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
-	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(C)),
+	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(C)),
 	SEQ_END,
 };
 
 static struct sequence_step_data seq_copy_dvorak[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
-	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(I)),
+	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(I)),
 	SEQ_END,
 };
 
 static struct sequence_step_data seq_paste_qwerty[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
-	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(V)),
+	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(V)),
 	SEQ_END,
 };
 
 static struct sequence_step_data seq_paste_dvorak[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
-	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(DOT_AND_GREATER_THAN_SIGN)),
+	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(DOT_AND_GREATER_THAN_SIGN)),
 	SEQ_END,
 };
 
