@@ -5,6 +5,7 @@
 #include <descriptors.h>
 #include <libopencm3/usb/hid_usage_tables.h>
 
+uint32_t layout_changes_counter = 0;
 
 static void load_layer_state(void) {
 	for(uint8_t layer_idx=0 ; layer_idx < LAYER_COUNT ; layer_idx++) {
@@ -33,11 +34,6 @@ void keys_reset() {
 	keys_scan_reset();
 	load_layer_state();
 	sequence_reset();
-}
-
-static void set_layout(uint16_t layout) {
-	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
-		layers_state[layer_idx] = (layer_idx == layout);
 }
 
 static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8_t pressed, uint8_t released, void *data) {
@@ -83,7 +79,7 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 				break;
 			case USB_HID_USAGE_PAGE_LAYOUT:
 				if(pressed)
-					set_layout(hid_usage_id);
+					layout_set(hid_usage_id);
 		}
 	}
 }

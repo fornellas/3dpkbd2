@@ -5,6 +5,13 @@
 uint8_t layers_state[LAYER_COUNT];
 static uint8_t layer_keypad_state = 0;
 
+void layout_set(uint16_t layout) {
+	layout_changes_counter += 1;
+
+	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
+		layers_state[layer_idx] = (layer_idx == layout);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Macros
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,15 +151,45 @@ static void func_fn(
 	(void)state;
 	(void)hid_in_report;
 
-	// TODO enable qwerty layout
+	uint8_t active_layout=0;
+	uint8_t fn_alternative_layout;
+	static uint8_t last_active_layout;
+	static uint8_t last_layout_changes_counter;
+
+	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
+		if(layers_state[layer_idx])
+			active_layout = layer_idx;
 
 	if(pressed) {
 		layers_state[LAYER_FN] = 1;
 		layers_state[LAYER_KEYPAD] = 1;
+
+		switch(active_layout){
+			case LAYER_QWERTY_QWERTY:
+			case LAYER_QWERTY_DVORAK:
+				fn_alternative_layout = LAYER_QWERTY_QWERTY;
+				break;
+			case LAYER_DVORAK_DVORAK:
+			case LAYER_DVORAK_QWERTY:
+				fn_alternative_layout = LAYER_DVORAK_QWERTY;
+				break;
+			default:
+				fn_alternative_layout = 0;
+				break;
+		}
+
+		if(fn_alternative_layout)
+			layout_set(fn_alternative_layout);
+
+		last_active_layout = active_layout;
+		last_layout_changes_counter = layout_changes_counter;
 	}
 	if(released) {
 		layers_state[LAYER_FN] = 0;
 		layers_state[LAYER_KEYPAD] = layer_keypad_state;
+
+		if(layout_changes_counter == last_layout_changes_counter)
+			layout_set(last_active_layout);
 	}
 };
 
