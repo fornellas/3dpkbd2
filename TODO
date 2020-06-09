@@ -1,28 +1,39 @@
 TODO
 - Layout
-	- Use sequence for some functions
-	- Implement functions
-	- Add interface to enable / disable layers.
+	- Implemented shifted numbers
 	- Implement save / load layer state.
 - Display
 	- Add hid_usbd_remote_wakeup_sent.
-	- Layout status
 	- Keypress counter
 	- Screensaver
 	- DMA transfer
-- Clean up clowny ln -s: this works https://github.com/libopencm3/libopencm3/issues/1117#issuecomment-570827827
-- cppcheck rule:  cppcheck --error-exitcode=1 $(CPPCHECK_ARGS) -I$(OPENCM3_INC) -I$(GCC_INCLUDES) -I$(NEWLIB_INCLUDES) $(CGLAGS) $<
-- Review all TODO comments
-- Add Travis CI
-- Add Wiki / GH pages
-- DFU: read firmware
-- Set descriptor bMaxPower with real mA power.
-- Fix suspend current
-  - USB requerires it to be very low.
-  - Possible that display off won't be enough.
-- Move HID logic outside of display.c.
-- Increase frequency to 96MHz.
+- Build
+	- Clean up clowny ln -s: this works https://github.com/libopencm3/libopencm3/issues/1117#issuecomment-570827827
+	- cppcheck rule:  cppcheck --error-exitcode=1 $(CPPCHECK_ARGS) -I$(OPENCM3_INC) -I$(GCC_INCLUDES) -I$(NEWLIB_INCLUDES) $(CGLAGS) $<
+- Misc
+	- Review all TODO / FIXME comments
+- Documentation
+	- Add Wiki / GH pages
+- DFU
+	- Support for firmware upload
+- USB Specification
+	- Respect suspended current limits
+	- Set descriptor bMaxPower with real mA power.
+- Performance
+	- Increase frequency to 96MHz.
+	- Use DMA for display data transfer.
 
 WAITING
+- libopencm3
+	- USB HID usage tables
+		https://github.com/libopencm3/libopencm3/pull/1225
+	- USB Device issue with NOVBUSSENS
+		https://github.com/libopencm3/libopencm3/issues/1119
+	- Add usbd_is_suspended
+		https://github.com/libopencm3/libopencm3/pull/1224
+	- Fix garbage returned with wrong index
+		https://github.com/libopencm3/libopencm3/pull/1155
+- ucglib
+	- Implement frame buffer
+		https://github.com/olikraus/ucglib/pull/124
 - USB PID https://github.com/pidcodes/pidcodes.github.com/pull/524
-- PR to configure OTG_GCCFG_NOVBUSSENS.
