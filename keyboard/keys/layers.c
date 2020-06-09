@@ -294,8 +294,45 @@ static struct sequence_step_data seq_00[] = {
 static struct sequence_step_data seq_b_tab[] = {
 	SEQ_STEP(1, KBD(LEFT_SHIFT)),
 	SEQ_STEP(1, KBD(LEFT_SHIFT), KBD(TAB)),
-	SEQ_END
+	SEQ_END,
 };
+
+static struct sequence_step_data seq_cut_qwerty[] = {
+	SEQ_STEP(1, KBD(LEFT_CONTROL)),
+	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(X)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_cut_dvorak[] = {
+	SEQ_STEP(1, KBD(LEFT_CONTROL)),
+	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(B)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_copy_qwerty[] = {
+	SEQ_STEP(1, KBD(LEFT_CONTROL)),
+	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(C)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_copy_dvorak[] = {
+	SEQ_STEP(1, KBD(LEFT_CONTROL)),
+	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(I)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_paste_qwerty[] = {
+	SEQ_STEP(1, KBD(LEFT_CONTROL)),
+	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(V)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_paste_dvorak[] = {
+	SEQ_STEP(1, KBD(LEFT_CONTROL)),
+	SEQ_STEP(1, KBD(LEFT_CONTROL), KBD(DOT_AND_GREATER_THAN_SIGN)),
+	SEQ_END,
+};
+
 
 const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_DESKTOP_QWERTY] = seq_desktop_qwerty,
@@ -303,6 +340,12 @@ const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_SHUFFLE] = seq_shuffle,
   [SEQ_00] = seq_00,
   [SEQ_B_TAB] = seq_b_tab,
+  [SEQ_CUT_QWERTY] = seq_cut_qwerty,
+  [SEQ_CUT_DVORAK] = seq_cut_dvorak,
+  [SEQ_COPY_QWERTY] = seq_copy_qwerty,
+  [SEQ_COPY_DVORAK] = seq_copy_dvorak,
+  [SEQ_PASTE_QWERTY] = seq_paste_qwerty,
+  [SEQ_PASTE_DVORAK] = seq_paste_dvorak,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
