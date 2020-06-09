@@ -1,0 +1,4 @@
+language: c
+install: make gcc-arm-none-eabi python3 binutils-arm-none-eabi
+script:
+  make -C bootloader/ && make -C keyboard/
