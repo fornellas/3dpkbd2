@@ -13,8 +13,11 @@
 
 #define TOGGLE_WIDTH 24
 #define TOGGLE_HEIGHT 20
+#define SCREENSAVER_SECS 300
 
 static ucg_t *ucg;
+
+static uint32_t screensaver_step = 0;
 
 void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, const char *, uint8_t);
 
@@ -47,6 +50,9 @@ struct display_state {
 
   // Right Side
   uint8_t keys_scan_right_side_disconnected;
+
+  // Screensaver
+  uint32_t screensaver_step;
 } __attribute__((packed));
 
 static struct display_state current_state;
@@ -76,8 +82,62 @@ void display_draw_toggle(
 
 }
 
+static void screensaver(void) {
+  uint16_t step;
+  uint16_t d, i;
+  uint16_t offset;
+
+  step = current_state.screensaver_step % 1024;
+
+  // Blue > Red > Green > White
+  if(step < 256) {
+    offset = step;
+    d = 255 - offset;
+    i = offset;
+    ucg_SetColor(ucg, 2, i, 0, d); // Blue > Red
+    ucg_SetColor(ucg, 0, d, i, 0);  // Red > Green
+    ucg_SetColor(ucg, 1, i, 255, i); // Green > White
+    ucg_SetColor(ucg, 3, d, d, 255);  // White > Blue
+  // Red > Green > White > Blue
+  } else if(step < 512) {
+    offset = step - 256;
+    d = 255 - offset;
+    i = offset;
+    ucg_SetColor(ucg, 2, d, i, 0); // Red > Green
+    ucg_SetColor(ucg, 0, i, 255, i);  // Green > White
+    ucg_SetColor(ucg, 1, d, d, 255); // White > Blue
+    ucg_SetColor(ucg, 3, i, 0, d);  // Blue > Red
+  // Green > White > Blue > Red
+  } else if(step < 768) {
+    offset = step - 512;
+    d = 255 - offset;
+    i = offset;
+    ucg_SetColor(ucg, 2, i, 255, i); // Green > White
+    ucg_SetColor(ucg, 0, d, d, 255);  // White > Blue
+    ucg_SetColor(ucg, 1, i, 0, d); // Blue > Red
+    ucg_SetColor(ucg, 3, d, i, 0);  // Red > Green
+  // White > Blue > Red > Green
+  } else if(step < 1024) {
+    offset = step - 768;
+    d = 255 - offset;
+    i = offset;
+    ucg_SetColor(ucg, 2, d, d, 255); // White > Blue
+    ucg_SetColor(ucg, 0, i, 0, d);  // Blue > Red
+    ucg_SetColor(ucg, 1, d, i, 0); // Red > Green
+    ucg_SetColor(ucg, 3, i, 255, i);  // Green > White
+  }
+  ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
+
+  ucg_SendBuffer(ucg);
+}
+
 static void display_draw(void) {
   char buff[30];
+
+  if(current_state.screensaver_step) {
+    screensaver();
+    return;
+  }
 
   // USB
   if(!(current_state.usbd_state == USBD_STATE_CONFIGURED && !current_state.usbd_suspended)) {
@@ -191,6 +251,13 @@ static void display_get_current_state(struct display_state *state) {
 
   // Right Side
   state->keys_scan_right_side_disconnected = keys_scan_right_side_disconnected;
+
+  // Screensaver
+  if((uptime_ms() - last_key_press_ms) >= (SCREENSAVER_SECS * 1000)) {
+    screensaver_step += 20;
+    state->screensaver_step = screensaver_step;
+  } else
+    state->screensaver_step = 0;
 }
 
 void display_setup(void) {

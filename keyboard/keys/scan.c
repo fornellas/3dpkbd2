@@ -12,7 +12,7 @@
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
 uint8_t keys_scan_right_side_disconnected;
-
+uint32_t last_key_press_ms = 0;
 
 //
 // setup
@@ -230,6 +230,7 @@ static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, 
 				pressed = !previous_key_state[row][column];
 				released = 0;
 				previous_key_state[row][column] = 1;
+				last_key_press_ms = uptime_ms();
 			}else{
 				state = 0;
 				pressed = 0;
@@ -334,6 +335,7 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 				pressed = !previous_key_state[row][column];
 				released = 0;
 				previous_key_state[row][column] = 1;
+				last_key_press_ms = uptime_ms();
 			}else{
 				state = 0;
 				pressed = 0;
