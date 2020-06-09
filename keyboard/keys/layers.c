@@ -58,7 +58,7 @@ void layout_set(uint16_t layout) {
 
 #define SEQ(value) { \
 	.page=USB_HID_USAGE_PAGE_SEQUENCE, \
-	.id=value \
+	.id=SEQ_ ## value \
 }
 
 #define SEQ_STEP(c, ...) { \
@@ -378,21 +378,21 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		// Right
 		____, ____,            ____,            ____,             ____,                  ____,                  ____,                   ____,       ____,
 		____, ____,            ____,            ____,             ____,                  ____,                  ____,                   ____,       ____,
-		      ____,            ____,            ____,             KBD(TAB),              KPD(SLASH),            KPD(ASTERISK),          KPD(MINUS), SEQ(SEQ_B_TAB),
+		      ____,            ____,            ____,             KBD(TAB),              KPD(SLASH),            KPD(ASTERISK),          KPD(MINUS), SEQ(B_TAB),
 		____, KBD(HOME),       KBD(UP_ARROW),   KBD(END),         KPD(7_AND_HOME),       KPD(8_AND_UP_ARROW),   KPD(9_AND_PAGE_UP),     KPD(PLUS),  KPD(CLEAR),
 		      KBD(LEFT_ARROW), KBD(DOWN_ARROW), KBD(RIGHT_ARROW), KPD(4_AND_LEFT_ARROW), KPD(5),                KPD(6_AND_RIGHT_ARROW), ____,       KPD(BACKSPACE),
 		____,                  ____,                              KPD(1_AND_END),        KPD(2_AND_DOWN_ARROW), KPD(3_AND_PAGE_DOWN),   KPD(ENTER), ____,
-		____,                  ____,                              KPD(0_AND_INSERT),     SEQ(SEQ_00),           KPD(DOT_AND_DELETE),    ____,       ____
+		____,                  ____,                              KPD(0_AND_INSERT),     SEQ(00),               KPD(DOT_AND_DELETE),    ____,       ____
 	),
 	[LAYER_QWERTY_QWERTY] = LAYER_KEYMAP(
 		// Left
-		____,                        ____,   ____,                    ____,   ____,   ____,   ____,
-		KBD(GRAVE_ACCENT_AND_TILDE), ____,   ____,                    ____,   ____,   ____,   ____,
-		____,                        KBD(Q), KBD(W),                  KBD(E), KBD(R), KBD(T),
-		____,                        KBD(A), KBD(S),                  KBD(D), KBD(F), KBD(G), ____,
-		____,                        KBD(Z), KBD(X),                  KBD(C), KBD(V), KBD(B),
-		____,                        ____,   SEQ(SEQ_DESKTOP_QWERTY),         ____,           ____,
-		____,                        ____,   ____,                            ____,           ____,
+		____,                        ____,   ____,                ____,   ____,   ____,   ____,
+		KBD(GRAVE_ACCENT_AND_TILDE), ____,   ____,                ____,   ____,   ____,   ____,
+		____,                        KBD(Q), KBD(W),              KBD(E), KBD(R), KBD(T),
+		____,                        KBD(A), KBD(S),              KBD(D), KBD(F), KBD(G), ____,
+		____,                        KBD(Z), KBD(X),              KBD(C), KBD(V), KBD(B),
+		____,                        ____,   SEQ(DESKTOP_QWERTY),         ____,           ____,
+		____,                        ____,   ____,                        ____,           ____,
 		// Right
 		____, ____,   ____,   ____,                          ____,                           ____,                         ____,                                   ____,                                   ____,
 		____, ____,   ____,   ____,                          ____,                           ____,                         KBD(MINUS_AND_UNDERSCORE),              KBD(EQUAL_AND_PLUS),                    ____,
@@ -409,7 +409,7 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,                        KBD(APOSTROPHE_AND_QUOTE), KBD(COMMA_AND_LESS_THAN_SIGN), KBD(DOT_AND_GREATER_THAN_SIGN), KBD(P), KBD(Y),
 		____,                        KBD(A),                    KBD(O),                        KBD(E),                         KBD(U), KBD(I), ____,
 		____,                        KBD(SEMICOLON_AND_COLON),  KBD(Q),                        KBD(J),                         KBD(K), KBD(X),
-		____,                        ____,                      SEQ(SEQ_DESKTOP_QWERTY),       ____,                                   ____,
+		____,                        ____,                      SEQ(DESKTOP_QWERTY),           ____,                                   ____,
 		____,                        ____,                      ____,                          ____,                                   ____,
 		// Right
 		____, ____,   ____,   ____,   ____,   ____,   ____,                                   ____,                                   ____,
@@ -422,13 +422,13 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	),
 	[LAYER_DVORAK_DVORAK] = LAYER_KEYMAP(
 		// Left
-		____,                        ____,   ____,                    ____,   ____,   ____,   ____,
-		KBD(GRAVE_ACCENT_AND_TILDE), ____,   ____,                    ____,   ____,   ____,   ____,
-		____,                        KBD(Q), KBD(W),                  KBD(E), KBD(R), KBD(T),
-		____,                        KBD(A), KBD(S),                  KBD(D), KBD(F), KBD(G), ____,
-		____,                        KBD(Z), KBD(X),                  KBD(C), KBD(V), KBD(B),
-		____,                        ____,   SEQ(SEQ_DESKTOP_DVORAK),         ____,           ____,
-		____,                        ____,   ____,                            ____,           ____,
+		____,                        ____,   ____,                ____,   ____,   ____,   ____,
+		KBD(GRAVE_ACCENT_AND_TILDE), ____,   ____,                ____,   ____,   ____,   ____,
+		____,                        KBD(Q), KBD(W),              KBD(E), KBD(R), KBD(T),
+		____,                        KBD(A), KBD(S),              KBD(D), KBD(F), KBD(G), ____,
+		____,                        KBD(Z), KBD(X),              KBD(C), KBD(V), KBD(B),
+		____,                        ____,   SEQ(DESKTOP_DVORAK),         ____,           ____,
+		____,                        ____,   ____,                        ____,           ____,
 		// Right
 		____, ____,   ____,   ____,                          ____,                           ____,                         ____,                                   ____,                                   ____,
 		____, ____,   ____,   ____,                          ____,                           ____,                         KBD(MINUS_AND_UNDERSCORE),              KBD(EQUAL_AND_PLUS),                    ____,
@@ -445,7 +445,7 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,                        KBD(X),                       KBD(COMMA_AND_LESS_THAN_SIGN), KBD(D), KBD(O),                         KBD(K),
 		____,                        KBD(A),                       KBD(SEMICOLON_AND_COLON),      KBD(H), KBD(Y),                         KBD(U), ____,
 		____,                        KBD(SLASH_AND_QUESTION_MARK), KBD(B),                        KBD(I), KBD(DOT_AND_GREATER_THAN_SIGN), KBD(N),
-		____,                        ____,                         SEQ(SEQ_DESKTOP_DVORAK),       ____,                                   ____,
+		____,                        ____,                         SEQ(DESKTOP_DVORAK),           ____,                                   ____,
 		____,                        ____,                         ____,                          ____,                                   ____,
 		// Right
 		____, ____,   ____,   ____,   ____,   ____,                                   ____,                      ____,                                   ____,
@@ -482,7 +482,7 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,          ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
 		____,          ____,                   ____,             ____,                ____,              ____,
 		____,          ____,                   ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
-		FUNC(FN),      KBD(LEFT_GUI),          SEQ(SEQ_SHUFFLE),                      KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
+		FUNC(FN),      KBD(LEFT_GUI),          SEQ(SHUFFLE),                          KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
 		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(KEYPAD),
 		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               KK(CALCULATOR),
