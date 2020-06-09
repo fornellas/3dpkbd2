@@ -36,13 +36,15 @@ struct usb_hid_function {
 
 extern const struct usb_hid_function hid_function;
 
-extern const uint8_t hid_report_descriptor[64];
+extern const uint8_t hid_report_descriptor[99];
 
 // Must match hid_report_descriptor
 struct hid_in_report_data {
 	uint8_t keyboard_keypad_modifiers;
 	uint8_t reserved;
 	uint8_t keyboard_keypad[6];
+	uint8_t generic_desktop[6];
+	uint16_t consumer_devices[6];
 } __attribute__((packed));
 
 // Must match hid_report_descriptor

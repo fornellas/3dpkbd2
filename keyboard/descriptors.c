@@ -135,23 +135,23 @@ const uint8_t hid_report_descriptor[] = {
 	// We are allowed to append additional data here, that will not be read
 	// by the BIOS.
 	// Generic Desktop
-	// 0x95, 0x06,       //   REPORT_COUNT (6)
-	// 0x75, 0x08,       //   REPORT_SIZE (8)
-	// 0x15, 0x00,       //   LOGICAL_MINIMUM (0)
-	// 0x26, 0xb7, 0x00, //   LOGICAL_MAXIMUM (183)
-	// 0x05, 0x01,       //   USAGE_PAGE (Generic Desktop)
-	// 0x19, 0x00,       //   USAGE_MINIMUM (Undefined)
-	// 0x29, 0xb7,       //   USAGE_MAXIMUM (System Display LCD Autoscale)
-	// 0x81, 0x00,       //   INPUT (Data,Ary,Abs)
+	0x95, 0x06,       //   REPORT_COUNT (6)
+	0x75, 0x08,       //   REPORT_SIZE (8)
+	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	0x26, 0xb7, 0x00, //   LOGICAL_MAXIMUM (183)
+	0x05, 0x01,       //   USAGE_PAGE (Generic Desktop)
+	0x19, 0x00,       //   USAGE_MINIMUM (Undefined)
+	0x29, 0xb7,       //   USAGE_MAXIMUM (System Display LCD Autoscale)
+	0x81, 0x00,       //   INPUT (Data,Ary,Abs)
 	// Consumer Devices
-	// 0x95, 0x06,       //   REPORT_COUNT (6)
-	// 0x75, 0x10,       //   REPORT_SIZE (16)
-	// 0x15, 0x00,       //   LOGICAL_MINIMUM (0)
-	// 0x26, 0x9c, 0x02, //   LOGICAL_MAXIMUM (668)
-	// 0x05, 0x0c,       //   USAGE_PAGE (Consumer Devices)
-	// 0x19, 0x00,       //   USAGE_MINIMUM (Unassigned)
-	// 0x2a, 0x9c, 0x02, //   USAGE_MAXIMUM (AC Distribute Vertically)
-	// 0x81, 0x00        //   INPUT (Data,Ary,Abs)
+	0x95, 0x06,       //   REPORT_COUNT (6)
+	0x75, 0x10,       //   REPORT_SIZE (16)
+	0x15, 0x00,       //   LOGICAL_MINIMUM (0)
+	0x26, 0x9c, 0x02, //   LOGICAL_MAXIMUM (668)
+	0x05, 0x0c,       //   USAGE_PAGE (Consumer Devices)
+	0x19, 0x00,       //   USAGE_MINIMUM (Unassigned)
+	0x2a, 0x9c, 0x02, //   USAGE_MAXIMUM (AC Distribute Vertically)
+	0x81, 0x00,        //   INPUT (Data,Ary,Abs)
 	0xc0,             // END_COLLECTION
 };
 
@@ -168,6 +168,7 @@ void hid_in_report_add(struct hid_in_report_data *hid_in_report, uint16_t hid_us
 				hid_in_report->keyboard_keypad_modifiers |= (1 << modifier_bit);
 			} else {
 				uint8_t error_roll_over;
+
 				error_roll_over = 1;
 				for(uint8_t i=0 ; i < 6 ; i++) {
 					if(hid_in_report->keyboard_keypad[i] != USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_RESERVED_NO_EVENT_INDICATED){
@@ -181,6 +182,22 @@ void hid_in_report_add(struct hid_in_report_data *hid_in_report, uint16_t hid_us
 				if(error_roll_over)
 					for(uint8_t i=0 ; i < 6 ; i++)
 						hid_in_report->keyboard_keypad[i] = USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ERROR_ROLLOVER;
+			}
+			break;
+		case USB_HID_USAGE_PAGE_GENERIC_DESKTOP:
+			for(uint8_t i=0 ; i < 6 ; i++) {
+				if(!hid_in_report->generic_desktop[i]) {
+					hid_in_report->generic_desktop[i] = hid_usage_id;
+					break;
+				}
+			}
+			break;
+		case USB_HID_USAGE_PAGE_CONSUMER:
+			for(uint8_t i=0 ; i < 6 ; i++) {
+				if(!hid_in_report->consumer_devices[i]) {
+					hid_in_report->consumer_devices[i] = hid_usage_id;
+					break;
+				}
 			}
 			break;
 	}
