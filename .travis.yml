@@ -5,6 +5,6 @@ addons:
     sources:
     - sourceline: 'deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe'
 install:
-  sudo apt install make gcc-arm-none-eabi python3 binutils-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+  sudo apt install make gcc-arm-none-eabi python3 binutils-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib dc
 script:
   make -C bootloader/ && make -C keyboard/
