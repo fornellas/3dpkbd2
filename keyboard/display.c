@@ -19,7 +19,7 @@ static ucg_t *ucg;
 
 static uint32_t screensaver_step = 0;
 
-void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, const char *, uint8_t);
+void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, uint8_t, uint8_t, uint8_t, const char *, uint8_t);
 
 struct display_state {
   // USB
@@ -63,11 +63,17 @@ void display_draw_toggle(
     ucg_int_t y,
     ucg_int_t width,
     ucg_int_t height,
+    uint8_t r,
+    uint8_t g,
+    uint8_t b,
     const char *str,
     uint8_t state
 ) {
   ucg_int_t str_x, str_y;
 
+  ucg_SetColor(ucg, 0, 255, 255, 255);
+  ucg_DrawBox(ucg, x, y, width, height);
+  ucg_SetColor(ucg, 0, r, g, b);
   ucg_DrawFrame(ucg, x, y, width, height);
 
   if(state) {
@@ -151,20 +157,20 @@ static void display_draw(void) {
   }
 
   // Background
-  ucg_SetColor(ucg, 0, 255, 255, 255);
-  ucg_DrawBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
+  ucg_SetColor(ucg, 0, 159, 161, 174); // top left
+  ucg_SetColor(ucg, 1, 120, 122, 137); // top right
+  ucg_SetColor(ucg, 2, 120, 122, 137); // bottom left
+  ucg_SetColor(ucg, 3, 83, 87, 96); // bottom right
+  ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
 
   // Logo
   ucg_DrawPixmap(ucg, 2, 2, print_head_width, print_head_height, print_head_data);
 
   // USB HID
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
-  ucg_SetColor(ucg, 0, 0, 0, 0);
-  display_draw_toggle(50, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "S", current_state.hid_led_scroll_lock);
-  ucg_SetColor(ucg, 0, 0, 0, 0);
-  display_draw_toggle(76, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "1", current_state.hid_led_num_lock);
-  ucg_SetColor(ucg, 0, 255, 0, 0);
-  display_draw_toggle(102, 43, TOGGLE_WIDTH, TOGGLE_HEIGHT, "A", current_state.hid_led_caps_lock);
+  display_draw_toggle(50, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "S", current_state.hid_led_scroll_lock);
+  display_draw_toggle(76, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "1", current_state.hid_led_num_lock);
+  display_draw_toggle(102, 43, TOGGLE_WIDTH, TOGGLE_HEIGHT, 255, 0, 0, "A", current_state.hid_led_caps_lock);
   ucg_SetFont(ucg, ucg_font_helvB08_hf);
   ucg_SetColor(ucg, 0, 0, 0, 0);
   if(current_state.hid_idle_rate_ms) {
@@ -183,19 +189,14 @@ static void display_draw(void) {
 
   // Layer Toggles
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
-  ucg_SetColor(ucg, 0, 0, 0, 0);
-  display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, "K", current_state.layer_keypad);
-  // ucg_SetColor(ucg, 0, 0, 0, 0);
-  // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, "!", current_state.layer_shift_lock);
-  ucg_SetColor(ucg, 0, 0, 0, 0);
-  display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, "Fn", current_state.layer_fn);
+  display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "K", current_state.layer_keypad);
+  // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "!", current_state.layer_shift_lock);
+  display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 50, 195, "Fn", current_state.layer_fn);
 
   // Layout Layers
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
-  ucg_SetColor(ucg, 0, 0, 0, 0);
-  display_draw_toggle(28, 43, 72, TOGGLE_HEIGHT, current_state.layer_keyboard, 0);
-  ucg_SetColor(ucg, 0, 128, 128, 128);
-  display_draw_toggle(28, 65, 72, TOGGLE_HEIGHT, current_state.layer_computer, 0);
+  display_draw_toggle(28, 43, 72, TOGGLE_HEIGHT, 0, 0, 0, current_state.layer_keyboard, 1);
+  display_draw_toggle(28, 65, 72, TOGGLE_HEIGHT, 128, 128, 128, current_state.layer_computer, 0);
 
   // Counter
   // TODO
