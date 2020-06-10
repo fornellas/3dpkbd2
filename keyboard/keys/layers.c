@@ -562,13 +562,13 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
-		KBD(ESCAPE),   KBD(F1),                KBD(F2),          KBD(F3),             KBD(F4),           KBD(F5),               KBD(DELETE_FORWARD),
-		____,          KBD(1_AND_EXCLAMATION), KBD(2_AND_AT),    KBD(3_AND_HASHMARK), KBD(4_AND_DOLLAR), KBD(5_AND_PERCENTAGE), KBD(DELETE_BACKSPACE),
-		KBD(TAB),      ____,                   ____,             ____,                ____,              ____,
-		____,          ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
-		____,          ____,                   ____,             ____,                ____,              ____,
-		____,          ____,                   ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
-		FUNC(FN),      KBD(LEFT_GUI),          SEQ(SHUFFLE),                          KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
+		KBD(ESCAPE),      KBD(F1),                KBD(F2),          KBD(F3),             KBD(F4),           KBD(F5),               KBD(DELETE_FORWARD),
+		____,             KBD(1_AND_EXCLAMATION), KBD(2_AND_AT),    KBD(3_AND_HASHMARK), KBD(4_AND_DOLLAR), KBD(5_AND_PERCENTAGE), KBD(DELETE_BACKSPACE),
+		KBD(TAB),         ____,                   ____,             ____,                ____,              ____,
+		____,             ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
+		____,             ____,                   ____,             ____,                ____,              ____,
+		CSMR(PLAY_PAUSE), KBD(APPLICATION),       ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
+		FUNC(FN),         KBD(LEFT_GUI),          SEQ(SHUFFLE),                          KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
 		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(KEYPAD),
 		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               CSMR(AL_CALCULATOR),
