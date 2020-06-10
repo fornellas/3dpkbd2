@@ -282,7 +282,6 @@ static void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_
 	uint16_t len;
 
 	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data));
-	hid_report_transmitting = 1;
 
 	// For Boot Protocol we can only send the first 8 bytes
 	if(!hid_protocol)
@@ -290,7 +289,8 @@ static void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_
 	else
 		len = sizeof(struct hid_in_report_data);
 
-	usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, len);
+	if(usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, len))
+		hid_report_transmitting = 1;
 }
 
 static void remote_wakeup_key_event_callback(
