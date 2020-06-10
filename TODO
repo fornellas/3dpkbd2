@@ -1,4 +1,8 @@
 TODO
+- HID
+	- Secondary interface
+		- review hid.c for required requests to be changed for each interface.
+		- refactor hid_poll() & others to be HID report neutral
 - Layout
 	- Implemented shifted numbers
 	- Implement save / load layer state.

@@ -18,15 +18,21 @@ extern const struct usb_config_descriptor conf_descr;
 extern const struct usb_interface interfaces[];
 
 #define HID_INTERFACE_NUMBER 0
+#define HID_INTERFACE_NUMBER_SECONDARY 1
 
 extern const struct usb_interface_descriptor hid_interface;
+extern const struct usb_interface_descriptor hid_interface_secondary;
 
 #define HID_ENDPOINT_NUMBER 1
 #define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER)
-// Must match hid_in_report_data, hid_report_descriptor
-#define HID_ENDPOINT_MAX_PACKET_SIZE 16
+#define HID_ENDPOINT_MAX_PACKET_SIZE 8
+
+#define HID_ENDPOINT_NUMBER_SECONDARY 2
+#define HID_ENDPOINT_IN_ADDR_SECONDARY USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER_SECONDARY)
+#define HID_ENDPOINT_SECONDARY_MAX_PACKET_SIZE 8
 
 extern const struct usb_endpoint_descriptor hid_endpoint;
+extern const struct usb_endpoint_descriptor hid_endpoint_secondary;
 
 struct usb_hid_function {
 	struct usb_hid_descriptor hid_descriptor;
@@ -37,8 +43,12 @@ struct usb_hid_function {
 } __attribute__((packed));
 
 extern const struct usb_hid_function hid_function;
+extern const struct usb_hid_function hid_function_secondary;
 
-extern const uint8_t hid_report_descriptor[99];
+extern const uint8_t hid_report_descriptor[64];
+extern const uint8_t hid_report_descriptor_secondary[42];
+
+#define KEYBOARD_PAGE_MAX 6
 
 #define HID_IN_REPORT_DATA_MAX_KEYBOARD_KEYPAD 6
 #define HID_IN_REPORT_DATA_MAX_GENERIC_DESKTOP 4
@@ -48,9 +58,16 @@ extern const uint8_t hid_report_descriptor[99];
 struct hid_in_report_data {
 	uint8_t keyboard_keypad_modifiers;
 	uint8_t reserved;
-	uint8_t keyboard_keypad[HID_IN_REPORT_DATA_MAX_KEYBOARD_KEYPAD];
-	uint8_t generic_desktop[HID_IN_REPORT_DATA_MAX_GENERIC_DESKTOP];
-	uint16_t consumer_devices[HID_IN_REPORT_DATA_MAX_CONSUMER_DEVICES];
+	uint8_t keyboard_keypad[KEYBOARD_PAGE_MAX];
+} __attribute__((packed));
+
+#define GENERIC_DESKTOP_PAGE_MAX 4
+#define CONSUMER_DEVICES_PAGE_MAX 2
+
+// Must match hid_report_descriptor_secondary
+struct hid_in_report_data_secondary {
+	uint8_t generic_desktop[GENERIC_DESKTOP_PAGE_MAX];
+	uint16_t consumer_devices[CONSUMER_DEVICES_PAGE_MAX];
 } __attribute__((packed));
 
 // Must match hid_report_descriptor

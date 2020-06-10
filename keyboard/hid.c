@@ -16,6 +16,7 @@ hid_out_report_data hid_led_report;
 
 static uint32_t idle_finish_ms = 0;
 static uint8_t hid_report_transmitting = 0;
+static uint8_t hid_report_transmitting_secondary = 0;
 static struct hid_in_report_data old_hid_in_report;
 static uint8_t hid_usbd_remote_wakeup_sent = 0;
 
@@ -49,7 +50,7 @@ static enum usbd_request_return_codes hid_standard_request(
 	// descriptor_index = req->wValue & 0xFF;
 	interface_number = req->wIndex;
 
-	if (interface_number != HID_INTERFACE_NUMBER)
+	if (interface_number != HID_INTERFACE_NUMBER && interface_number != HID_INTERFACE_NUMBER_SECONDARY)
 		return USBD_REQ_NOTSUPP;
 
 	// 7.1.1 Get_Descriptor Request
@@ -57,18 +58,34 @@ static enum usbd_request_return_codes hid_standard_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&& (req->bRequest == USB_REQ_GET_DESCRIPTOR)
 	) {
-		switch(descriptor_type) {
-			case USB_HID_DT_HID:
-				*buf = (uint8_t *)&hid_function;
-				*len = sizeof(hid_function);
-				return USBD_REQ_HANDLED;
-			case USB_HID_DT_REPORT:
-				*buf = (uint8_t *)&hid_report_descriptor;
-				*len = sizeof(hid_report_descriptor);
-				return USBD_REQ_HANDLED;
-			// case USB_HID_DT_PHYSICAL:
-			//  	break;
-		}
+		if(interface_number == HID_INTERFACE_NUMBER) {
+			switch(descriptor_type) {
+				case USB_HID_DT_HID:
+					*buf = (uint8_t *)&hid_function;
+					*len = sizeof(hid_function);
+					return USBD_REQ_HANDLED;
+				case USB_HID_DT_REPORT:
+					*buf = (uint8_t *)&hid_report_descriptor;
+					*len = sizeof(hid_report_descriptor);
+					return USBD_REQ_HANDLED;
+				// case USB_HID_DT_PHYSICAL:
+				//  	break;
+			}
+		} else if(interface_number == HID_INTERFACE_NUMBER_SECONDARY) {
+			switch(descriptor_type) {
+				case USB_HID_DT_HID:
+					*buf = (uint8_t *)&hid_function_secondary;
+					*len = sizeof(hid_function_secondary);
+					return USBD_REQ_HANDLED;
+				case USB_HID_DT_REPORT:
+					*buf = (uint8_t *)&hid_report_descriptor_secondary;
+					*len = sizeof(hid_report_descriptor_secondary);
+					return USBD_REQ_HANDLED;
+				// case USB_HID_DT_PHYSICAL:
+				//  	break;
+			}
+		} else
+			return USBD_REQ_NOTSUPP;
 	}
 
 	// 7.1.2 Set_Descriptor Request
@@ -241,6 +258,13 @@ static void hid_endpoint_interrupt_in_transfer_complete(usbd_device *usbd_dev, u
 	hid_report_transmitting = 0;
 }
 
+static void hid_endpoint_interrupt_in_transfer_complete_secondary(usbd_device *usbd_dev, uint8_t ep) {
+	(void)usbd_dev;
+	(void)ep;
+	
+	hid_report_transmitting_secondary = 0;
+}
+
 void hid_set_config_callback(usbd_device *dev) {
 	usbd_register_control_callback(
 		dev,
@@ -264,10 +288,19 @@ void hid_set_config_callback(usbd_device *dev) {
 		hid_endpoint_interrupt_in_transfer_complete
 	);
 
+   usbd_ep_setup(
+		dev,
+		HID_ENDPOINT_IN_ADDR_SECONDARY,
+		USB_ENDPOINT_ATTR_INTERRUPT,
+		HID_ENDPOINT_SECONDARY_MAX_PACKET_SIZE,
+		hid_endpoint_interrupt_in_transfer_complete_secondary
+	);
+
 	hid_protocol = USB_HID_PROTOCOL_REPORT;
 	hid_idle_rate_ms = 0;
 	idle_finish_ms = 0;
 	hid_report_transmitting = 0;
+	hid_report_transmitting_secondary = 0;
 	keys_reset();
 	get_hid_in_report(&old_hid_in_report);
 	hid_usbd_remote_wakeup_sent = 0;
