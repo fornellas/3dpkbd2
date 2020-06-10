@@ -432,20 +432,23 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	[LAYER_FN] = LAYER_KEYMAP(
 		// Left
 		____, LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),
-		____, ____,                  ____,                  ____,                  ____,                  ____, KBD(VOLUME_UP),
+		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_INCREMENT),
 		____, ____,                  ____,                  ____,                  ____,                  ____,
-		____, ____,                  ____,                  ____,                  ____,                  ____, KBD(VOLUME_DOWN),
+		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_DECREMENT),
 		____, ____,                  ____,                  ____,                  ____,                  ____,
-		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 KBD(MUTE),
+		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 CSMR(MUTE),
 		____, ____,                  ____,                                         ____,                        ____,
 		// Right
-		KBD(INSERT),      KK(MEDIA_EJECT), KBD(POWER),         KK(SLEEP), GD(SYSTEM_WAKE_UP), KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), ____, KPD(NUM_LOCK_AND_CLEAR),
-		KBD(VOLUME_UP),   ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
-		                  ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
-		KBD(VOLUME_DOWN), ____,            ____,               ____,      ____,               ____,              ____,             ____, FUNC(TOGGLE_SHIFTED_NUMBER_LAYER),
-		                  ____,            ____,               ____,      ____,               ____,              ____,             ____, ____,
-		KBD(MUTE),                         KK(MEDIA_PREVIOUS),            ____,               ____,              ____,             ____, KK(BACK),
-		____,                              KK(MEDIA_NEXT),                ____,               ____,              ____,             ____, KK(FORWARD)
+		// FIXME KBD(POWER): TypeMatrix sends Monitor page 0x01
+		// FIXME KBD(SLEEP): TypeMatrix sends Monitor page 0x02
+		// FIXME GD(SYSTEM_WAKE_UP): TypeMatrix sends Monitor page 0x03
+		KBD(INSERT),            CSMR(EJECT),               KBD(POWER),                KK(SLEEP), GD(SYSTEM_WAKE_UP), KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), KBD(PAUSE), KPD(NUM_LOCK_AND_CLEAR),
+		CSMR(VOLUME_INCREMENT), ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
+		                        ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
+		CSMR(VOLUME_DECREMENT), ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       FUNC(TOGGLE_SHIFTED_NUMBER_LAYER),
+		                        ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
+		CSMR(MUTE),                                        CSMR(SCAN_PREVIOUS_TRACK),            ____,               ____,              ____,             ____,       CSMR(AC_BACK),
+		____,                                              CSMR(SCAN_NEXT_TRACK),                ____,               ____,              ____,             ____,       CSMR(AC_FORWARD)
 	),
 	[LAYER_KEYPAD] = LAYER_KEYMAP(
 		// Left
@@ -460,8 +463,8 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____, ____,            ____,            ____,             ____,                  ____,                  ____,                   ____,       ____,
 		____, ____,            ____,            ____,             ____,                  ____,                  ____,                   ____,       ____,
 		      ____,            ____,            ____,             KBD(TAB),              KPD(SLASH),            KPD(ASTERISK),          KPD(MINUS), SEQ(B_TAB),
-		____, KBD(HOME),       KBD(UP_ARROW),   KBD(END),         KPD(7_AND_HOME),       KPD(8_AND_UP_ARROW),   KPD(9_AND_PAGE_UP),     KPD(PLUS),  KPD(CLEAR),
-		      KBD(LEFT_ARROW), KBD(DOWN_ARROW), KBD(RIGHT_ARROW), KPD(4_AND_LEFT_ARROW), KPD(5),                KPD(6_AND_RIGHT_ARROW), ____,       KPD(BACKSPACE),
+		____, KBD(HOME),       KBD(UP_ARROW),   KBD(END),         KPD(7_AND_HOME),       KPD(8_AND_UP_ARROW),   KPD(9_AND_PAGE_UP),     KPD(PLUS),  KBD(ESCAPE),
+		      KBD(LEFT_ARROW), KBD(DOWN_ARROW), KBD(RIGHT_ARROW), KPD(4_AND_LEFT_ARROW), KPD(5),                KPD(6_AND_RIGHT_ARROW), ____,       KBD(DELETE_BACKSPACE),
 		____,                  ____,                              KPD(1_AND_END),        KPD(2_AND_DOWN_ARROW), KPD(3_AND_PAGE_DOWN),   KPD(ENTER), ____,
 		____,                  ____,                              KPD(0_AND_INSERT),     SEQ(00),               KPD(DOT_AND_DELETE),    ____,       ____
 	),
@@ -566,10 +569,10 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		FUNC(FN),      KBD(LEFT_GUI),          SEQ(SHUFFLE),                          KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
 		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(KEYPAD),
-		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               KK(CALCULATOR),
+		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               CSMR(AL_CALCULATOR),
 		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AL_EMAIL_READER),
 		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KBD(CAPS_LOCK),
-		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AL_INTERNET_BROWSER),
+		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AC_HOME),
 		KBD(SPACEBAR),                           KBD(RIGHT_SHIFT),                          KBD(HOME),                      KBD(UP_ARROW),                  KBD(END),         ____,               KBD(PAGE_UP),
 		KBD(RIGHT_ALT),                          KBD(RIGHT_CONTROL),                        KBD(LEFT_ARROW),                KBD(DOWN_ARROW),                KBD(RIGHT_ARROW), ____,               KBD(PAGE_DOWN)
 	),
