@@ -90,7 +90,8 @@ const struct usb_hid_function hid_function = {
 	}
 };
 
-// Must match hid_in_report_data & hid_out_report_data
+// Must match hid_in_report_data, hid_out_report_data, Get_Report Request and
+// send_in_report
 const uint8_t hid_report_descriptor[] = {
 	// https://www.usb.org/document-library/device-class-definition-hid-111
 	// From "Device Class Definition for HID 1.11" Appendix B.
@@ -132,8 +133,8 @@ const uint8_t hid_report_descriptor[] = {
 	0x19, 0x00,       //   USAGE_MINIMUM (Reserved (no event indicated))
 	0x29, 0xff,       //   USAGE_MAXIMUM 0xFF
 	0x81, 0x00,       //   INPUT (Data,Ary)
-	// We are allowed to append additional data here, that will not be read
-	// by the BIOS.
+	// We append extra data after this point, which will only be sent by
+	// Get_Report Request when using the Report Protocol.
 	// Generic Desktop
 	0x95, 0x06,       //   REPORT_COUNT (6)
 	0x75, 0x08,       //   REPORT_SIZE (8)

@@ -115,7 +115,11 @@ static enum usbd_request_return_codes hid_class_specific_request(
 			case USB_HID_REPORT_TYPE_INPUT:
 				get_hid_in_report(&new_hid_in_report);
 				memcpy(*buf, &new_hid_in_report, sizeof(struct hid_in_report_data));
-				*len = sizeof(struct hid_in_report_data);
+				// For Boot Protocol we can only send the first 8 bytes
+				if(!hid_protocol)
+					*len = 8;
+				else
+					*len = sizeof(struct hid_in_report_data);
 				return USBD_REQ_HANDLED;
 			// case USB_HID_REPORT_TYPE_OUTPUT:
 			// 	break;
@@ -213,7 +217,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 
 		hid_protocol = req->wValue;
 
-		switch(req->wValue) {
+		switch(hid_protocol) {
 			// Boot Protocol
 			case 0:
 				// The HID Report matches boot protocol requirements, we can
@@ -275,9 +279,18 @@ static void get_hid_in_report(struct hid_in_report_data *hid_in_report) {
 }
 
 static void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_in_report) {
+	uint16_t len;
+
 	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data));
 	hid_report_transmitting = 1;
-	usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, sizeof(struct hid_in_report_data));
+
+	// For Boot Protocol we can only send the first 8 bytes
+	if(!hid_protocol)
+		len = 8;
+	else
+		len = sizeof(struct hid_in_report_data);
+
+	usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, len);
 }
 
 static void remote_wakeup_key_event_callback(
