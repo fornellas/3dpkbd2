@@ -442,6 +442,8 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		// FIXME KBD(POWER): TypeMatrix sends Monitor page 0x01
 		// FIXME KBD(SLEEP): TypeMatrix sends Monitor page 0x02
 		// FIXME GD(SYSTEM_WAKE_UP): TypeMatrix sends Monitor page 0x03
+		// TODO Fn+F10+Shift: SysReq
+		// TODO Fn+F12+Shift: Break
 		KBD(INSERT),            CSMR(EJECT),               KBD(POWER),                KK(SLEEP), GD(SYSTEM_WAKE_UP), KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), KBD(PAUSE), KPD(NUM_LOCK_AND_CLEAR),
 		CSMR(VOLUME_INCREMENT), ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
 		                        ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
