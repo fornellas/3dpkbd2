@@ -18,7 +18,6 @@ TODO
 	- Support for firmware upload
 - USB Specification
 	- Respect suspended current limits
-	- Set descriptor bMaxPower with real mA power.
 - Performance
 	- Increase frequency to 96MHz.
 	- Attempt 1MHz I2C.

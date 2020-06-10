@@ -38,8 +38,7 @@ const struct usb_config_descriptor conf_descr = {
 		USB_CONFIG_ATTR_SELF_POWERED |
 		USB_CONFIG_ATTR_REMOTE_WAKEUP
 	),
-	// TODO set accurate value
-	.bMaxPower = 250, // 500 mAh
+	.bMaxPower = 75, // 150 mAh
 
 	.interface = interfaces,
 };
