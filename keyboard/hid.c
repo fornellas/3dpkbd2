@@ -99,9 +99,9 @@ static enum usbd_request_return_codes hid_standard_request(
 }
 
 static enum usbd_request_return_codes hid_class_get_report(
-	uint8_t interface_number,
 	uint8_t report_type,
 	uint8_t report_id,
+	uint8_t interface_number,
 	uint8_t report_length,
 	uint8_t **buf,
 	uint16_t *len
@@ -132,9 +132,9 @@ static enum usbd_request_return_codes hid_class_get_report(
 }
 
 static enum usbd_request_return_codes hid_class_set_report(
-	uint8_t interface_number,
 	uint8_t report_type,
 	uint8_t report_id,
+	uint8_t interface_number,
 	uint8_t report_length,
 	uint8_t **buf,
 	uint16_t *len
@@ -183,9 +183,9 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		&& (req->bRequest == USB_HID_REQ_TYPE_GET_REPORT)
 	) {
 		return hid_class_get_report(
-			interface_number,
 			req->wValue >> 8,
 			req->wValue & 0xFF,
+			interface_number,
 			req->wLength,
 			buf,
 			len
@@ -198,9 +198,9 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		&& (req->bRequest == USB_HID_REQ_TYPE_SET_REPORT)
 	) {
 		return hid_class_set_report(
-			interface_number,
 			req->wValue >> 8,
 			req->wValue & 0xFF,
+			interface_number,
 			req->wLength,
 			buf,
 			len
