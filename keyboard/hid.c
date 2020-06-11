@@ -131,6 +131,35 @@ static enum usbd_request_return_codes hid_class_get_report(
 	return USBD_REQ_NOTSUPP;
 }
 
+static enum usbd_request_return_codes hid_class_set_report(
+	uint8_t interface_number,
+	uint8_t report_type,
+	uint8_t report_id,
+	uint8_t report_length,
+	uint8_t **buf,
+	uint16_t *len
+) {
+	(void)report_id;
+	(void)len;
+
+	if (interface_number != HID_INTERFACE_NUMBER_BOOT)
+		return USBD_REQ_NOTSUPP;
+
+	switch(report_type) {
+		// case USB_HID_REPORT_TYPE_INPUT:
+		// 	break;
+		case USB_HID_REPORT_TYPE_OUTPUT:
+			if (report_length != sizeof(hid_led_report))
+				return USBD_REQ_NOTSUPP;
+			// FIXME check len
+			hid_led_report = *buf[0];
+			return USBD_REQ_HANDLED;
+		// case USB_HID_REPORT_TYPE_FEATURE:
+		// 	break;
+	}
+	return USBD_REQ_NOTSUPP;
+}
+
 static enum usbd_request_return_codes hid_class_specific_request(
 	usbd_device *dev,
 	struct usb_setup_data *req,
@@ -168,26 +197,14 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
 		&& (req->bRequest == USB_HID_REQ_TYPE_SET_REPORT)
 	) {
-		report_type = req->wValue >> 8;
-		// report_id = req->wValue & 0xFF;
-		interface_number = req->wIndex;
-		report_length = req->wLength;
-
-		if (interface_number != HID_INTERFACE_NUMBER_BOOT)
-			return USBD_REQ_NOTSUPP;
-
-		switch(report_type) {
-			// case USB_HID_REPORT_TYPE_INPUT:
-			// 	break;
-			case USB_HID_REPORT_TYPE_OUTPUT:
-				if (report_length != sizeof(hid_led_report))
-					return USBD_REQ_NOTSUPP;
-
-				hid_led_report = *buf[0];
-				return USBD_REQ_HANDLED;
-			// case USB_HID_REPORT_TYPE_FEATURE:
-			// 	break;
-		}
+		return hid_class_set_report(
+			interface_number,
+			req->wValue >> 8,
+			req->wValue & 0xFF,
+			req->wLength,
+			buf,
+			len
+		);
 	}
 
 	// 7.2.3 Get_Idle Request
