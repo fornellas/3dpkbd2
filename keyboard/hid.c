@@ -174,6 +174,20 @@ static enum usbd_request_return_codes hid_class_get_idle(
 	return USBD_REQ_HANDLED;
 }
 
+static enum usbd_request_return_codes hid_class_set_idle(
+	uint16_t duration_ms,
+	uint8_t report_id,
+	uint8_t interface_number
+) {
+	if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER_BOOT)
+		return USBD_REQ_NOTSUPP;
+
+	hid_idle_rate_ms = duration_ms;
+	idle_finish_ms = uptime_ms() + hid_idle_rate_ms;
+
+	return USBD_REQ_HANDLED;
+}
+
 static enum usbd_request_return_codes hid_class_specific_request(
 	usbd_device *dev,
 	struct usb_setup_data *req,
@@ -239,18 +253,11 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
 		&& (req->bRequest == USB_HID_REQ_TYPE_SET_IDLE)
 	) {
-		uint16_t duration_ms;
-		duration_ms = (uint16_t)(req->wValue >> 8) * 4;
-		report_id = req->wValue & 0xFF;
-		interface_number = req->wIndex;
-
-		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER_BOOT)
-			return USBD_REQ_NOTSUPP;
-
-		hid_idle_rate_ms = duration_ms;
-		idle_finish_ms = uptime_ms() + hid_idle_rate_ms;
-
-		return USBD_REQ_HANDLED;
+		return hid_class_set_idle(
+			(uint16_t)(req->wValue >> 8) * 4,
+			req->wValue & 0xFF,
+			interface_number
+		);
 	}
 
 	// 7.2.5 Get_Protocol Request
