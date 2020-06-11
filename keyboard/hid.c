@@ -188,6 +188,19 @@ static enum usbd_request_return_codes hid_class_set_idle(
 	return USBD_REQ_HANDLED;
 }
 
+static enum usbd_request_return_codes hid_class_get_protocol(
+	uint8_t interface_number,
+	uint8_t **buf,
+	uint16_t *len
+) {
+	if (interface_number != HID_ENDPOINT_NUMBER_BOOT)
+		return USBD_REQ_NOTSUPP;
+
+	*buf = (uint8_t *)&hid_protocol;
+	*len = sizeof(hid_protocol);
+	return USBD_REQ_HANDLED;
+}
+
 static enum usbd_request_return_codes hid_class_specific_request(
 	usbd_device *dev,
 	struct usb_setup_data *req,
@@ -265,14 +278,11 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&& (req->bRequest == USB_HID_REQ_TYPE_GET_PROTOCOL)
 	) {
-		interface_number = req->wIndex;
-
-		if (interface_number != HID_ENDPOINT_NUMBER_BOOT)
-			return USBD_REQ_NOTSUPP;
-
-		*buf = (uint8_t *)&hid_protocol;
-		*len = sizeof(hid_protocol);
-		return USBD_REQ_HANDLED;
+		return hid_class_get_protocol(
+			interface_number,
+			buf,
+			len
+		);
 	}
 
 	// 7.2.6 Set_Protocol Request
