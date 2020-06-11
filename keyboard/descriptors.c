@@ -94,8 +94,8 @@ const struct usb_interface_descriptor hid_interface_extra = {
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_HID,
-	.bInterfaceSubClass = USB_HID_SUBCLASS_BOOT_INTERFACE,
-	.bInterfaceProtocol = USB_HID_INTERFACE_PROTOCOL_KEYBOARD,
+	.bInterfaceSubClass = USB_HID_SUBCLASS_NO,
+	.bInterfaceProtocol = USB_HID_INTERFACE_PROTOCOL_NONE,
 	.iInterface = 0,
 
 	.endpoint = &hid_endpoint_extra,
