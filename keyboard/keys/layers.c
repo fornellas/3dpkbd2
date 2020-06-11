@@ -477,8 +477,8 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,                        KBD(Q), KBD(W),              KBD(E), KBD(R), KBD(T),
 		____,                        KBD(A), KBD(S),              KBD(D), KBD(F), KBD(G), ____,
 		____,                        KBD(Z), KBD(X),              KBD(C), KBD(V), KBD(B),
-		____,                        ____,   SEQ(DESKTOP_QWERTY),         ____,           ____,
 		____,                        ____,   ____,                        ____,           ____,
+		____,                        ____,   SEQ(DESKTOP_QWERTY),         ____,           ____,
 		// Right
 		____, ____,   ____,   ____,                          ____,                           ____,                         ____,                                   ____,                                   ____,
 		____, ____,   ____,   ____,                          ____,                           ____,                         KBD(MINUS_AND_UNDERSCORE),              KBD(EQUAL_AND_PLUS),                    ____,
@@ -495,8 +495,8 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,                        KBD(APOSTROPHE_AND_QUOTE), KBD(COMMA_AND_LESS_THAN_SIGN), KBD(DOT_AND_GREATER_THAN_SIGN), KBD(P), KBD(Y),
 		____,                        KBD(A),                    KBD(O),                        KBD(E),                         KBD(U), KBD(I), ____,
 		____,                        KBD(SEMICOLON_AND_COLON),  KBD(Q),                        KBD(J),                         KBD(K), KBD(X),
-		____,                        ____,                      SEQ(DESKTOP_QWERTY),           ____,                                   ____,
 		____,                        ____,                      ____,                          ____,                                   ____,
+		____,                        ____,                      SEQ(DESKTOP_QWERTY),           ____,                                   ____,
 		// Right
 		____, ____,   ____,   ____,   ____,   ____,   ____,                                   ____,                                   ____,
 		____, ____,   ____,   ____,   ____,   ____,   KBD(OPENING_BRACKET_AND_OPENING_BRACE), KBD(CLOSING_BRACKET_AND_CLOSING_BRACE), ____,
@@ -513,8 +513,8 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,                        KBD(Q), KBD(W),              KBD(E), KBD(R), KBD(T),
 		____,                        KBD(A), KBD(S),              KBD(D), KBD(F), KBD(G), ____,
 		____,                        KBD(Z), KBD(X),              KBD(C), KBD(V), KBD(B),
-		____,                        ____,   SEQ(DESKTOP_DVORAK),         ____,           ____,
 		____,                        ____,   ____,                        ____,           ____,
+		____,                        ____,   SEQ(DESKTOP_DVORAK),         ____,           ____,
 		// Right
 		____, ____,   ____,   ____,                          ____,                           ____,                         ____,                                   ____,                                   ____,
 		____, ____,   ____,   ____,                          ____,                           ____,                         KBD(MINUS_AND_UNDERSCORE),              KBD(EQUAL_AND_PLUS),                    ____,
@@ -531,8 +531,8 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____,                        KBD(X),                       KBD(COMMA_AND_LESS_THAN_SIGN), KBD(D), KBD(O),                         KBD(K),
 		____,                        KBD(A),                       KBD(SEMICOLON_AND_COLON),      KBD(H), KBD(Y),                         KBD(U), ____,
 		____,                        KBD(SLASH_AND_QUESTION_MARK), KBD(B),                        KBD(I), KBD(DOT_AND_GREATER_THAN_SIGN), KBD(N),
-		____,                        ____,                         SEQ(DESKTOP_DVORAK),           ____,                                   ____,
 		____,                        ____,                         ____,                          ____,                                   ____,
+		____,                        ____,                         SEQ(DESKTOP_DVORAK),           ____,                                   ____,
 		// Right
 		____, ____,   ____,   ____,   ____,   ____,                                   ____,                      ____,                                   ____,
 		____, ____,   ____,   ____,   ____,   ____,                                   KBD(APOSTROPHE_AND_QUOTE), KBD(CLOSING_BRACKET_AND_CLOSING_BRACE), ____,
@@ -567,8 +567,8 @@ const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		KBD(TAB),         ____,                   ____,             ____,                ____,              ____,
 		____,             ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
 		____,             ____,                   ____,             ____,                ____,              ____,
-		CSMR(PLAY_PAUSE), KBD(APPLICATION),       ____,                                  KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
-		FUNC(FN),         KBD(LEFT_GUI),          SEQ(SHUFFLE),                          KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
+		CSMR(PLAY_PAUSE), KBD(APPLICATION),       SEQ(SHUFFLE),                          KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
+		FUNC(FN),         KBD(LEFT_GUI),          ____,                                  KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
 		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(KEYPAD),
 		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               CSMR(AL_CALCULATOR),
