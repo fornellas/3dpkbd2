@@ -160,6 +160,20 @@ static enum usbd_request_return_codes hid_class_set_report(
 	return USBD_REQ_NOTSUPP;
 }
 
+static enum usbd_request_return_codes hid_class_get_idle(
+	uint8_t report_id,
+	uint8_t interface_number,
+	uint8_t **buf,
+	uint16_t *len
+) {
+	if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER_BOOT)
+		return USBD_REQ_NOTSUPP;
+
+	*buf[0] = hid_idle_rate_ms / 4;
+	*len = sizeof(uint8_t);
+	return USBD_REQ_HANDLED;
+}
+
 static enum usbd_request_return_codes hid_class_specific_request(
 	usbd_device *dev,
 	struct usb_setup_data *req,
@@ -212,15 +226,12 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&& (req->bRequest == USB_HID_REQ_TYPE_GET_IDLE)
 	) {
-		report_id = req->wValue & 0xFF;
-		interface_number = req->wIndex;
-
-		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER_BOOT)
-			return USBD_REQ_NOTSUPP;
-
-		*buf[0] = hid_idle_rate_ms / 4;
-		*len = sizeof(uint8_t);
-		return USBD_REQ_HANDLED;
+		return hid_class_get_idle(
+			req->wValue & 0xFF,
+			interface_number,
+			buf,
+			len
+		);
 	}
 
 	// 7.2.4 Set_Idle Request
