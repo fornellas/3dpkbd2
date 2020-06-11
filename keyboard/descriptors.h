@@ -75,6 +75,7 @@ extern const struct usb_hid_function hid_function_extra;
 
 extern const uint8_t hid_report_descriptor_boot[64];
 #define KEYBOARD_PAGE_MAX 6
+#define KEYBOARD_MODIFIERS_MAX 8
 // Must match hid_report_descriptor_boot, HID_ENDPOINT_BOOT_MAX_PACKET_SIZEs
 struct hid_in_report_data_boot {
 	uint8_t keyboard_keypad_modifiers;
@@ -92,6 +93,8 @@ struct hid_in_report_data_extra {
 	uint8_t generic_desktop[GENERIC_DESKTOP_PAGE_MAX];
 	uint16_t consumer_devices[CONSUMER_DEVICES_PAGE_MAX];
 } __attribute__((packed));
+
+#define MAX_HID_USAGE_KEYS (KEYBOARD_MODIFIERS_MAX + KEYBOARD_PAGE_MAX + GENERIC_DESKTOP_PAGE_MAX + CONSUMER_DEVICES_PAGE_MAX)
 
 //
 // Functions
