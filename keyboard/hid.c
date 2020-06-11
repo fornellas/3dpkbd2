@@ -12,21 +12,21 @@
 
 uint8_t hid_protocol = USB_HID_PROTOCOL_REPORT;
 uint16_t hid_idle_rate_ms = 0;
-hid_out_report_data hid_led_report;
+hid_out_report_data_boot hid_led_report;
 
 static uint32_t idle_finish_ms = 0;
-static uint8_t hid_report_transmitting = 0;
-static uint8_t hid_report_transmitting_secondary = 0;
-static struct hid_in_report_data old_hid_in_report;
+static uint8_t hid_report_transmitting_boot = 0;
+static uint8_t hid_report_transmitting_extra = 0;
+static struct hid_in_report_data_boot old_hid_in_report;
 static uint8_t hid_usbd_remote_wakeup_sent = 0;
 
 //
 // Prototypes
 //
 
-static void get_hid_in_report(struct hid_in_report_data *);
+static void get_hid_in_report(struct hid_in_report_data_boot *);
 
-static void send_in_report(usbd_device *dev, struct hid_in_report_data *);
+static void send_in_report(usbd_device *dev, struct hid_in_report_data_boot *);
 
 //
 // Functions
@@ -50,7 +50,7 @@ static enum usbd_request_return_codes hid_standard_request(
 	// descriptor_index = req->wValue & 0xFF;
 	interface_number = req->wIndex;
 
-	if (interface_number != HID_INTERFACE_NUMBER && interface_number != HID_INTERFACE_NUMBER_SECONDARY)
+	if (interface_number != HID_INTERFACE_NUMBER_BOOT && interface_number != HID_INTERFACE_NUMBER_EXTRA)
 		return USBD_REQ_NOTSUPP;
 
 	// 7.1.1 Get_Descriptor Request
@@ -58,28 +58,28 @@ static enum usbd_request_return_codes hid_standard_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&& (req->bRequest == USB_REQ_GET_DESCRIPTOR)
 	) {
-		if(interface_number == HID_INTERFACE_NUMBER) {
+		if(interface_number == HID_INTERFACE_NUMBER_BOOT) {
 			switch(descriptor_type) {
 				case USB_HID_DT_HID:
-					*buf = (uint8_t *)&hid_function;
-					*len = sizeof(hid_function);
+					*buf = (uint8_t *)&hid_function_boot;
+					*len = sizeof(hid_function_boot);
 					return USBD_REQ_HANDLED;
 				case USB_HID_DT_REPORT:
-					*buf = (uint8_t *)&hid_report_descriptor;
-					*len = sizeof(hid_report_descriptor);
+					*buf = (uint8_t *)&hid_report_descriptor_boot;
+					*len = sizeof(hid_report_descriptor_boot);
 					return USBD_REQ_HANDLED;
 				// case USB_HID_DT_PHYSICAL:
 				//  	break;
 			}
-		} else if(interface_number == HID_INTERFACE_NUMBER_SECONDARY) {
+		} else if(interface_number == HID_INTERFACE_NUMBER_EXTRA) {
 			switch(descriptor_type) {
 				case USB_HID_DT_HID:
-					*buf = (uint8_t *)&hid_function_secondary;
-					*len = sizeof(hid_function_secondary);
+					*buf = (uint8_t *)&hid_function_extra;
+					*len = sizeof(hid_function_extra);
 					return USBD_REQ_HANDLED;
 				case USB_HID_DT_REPORT:
-					*buf = (uint8_t *)&hid_report_descriptor_secondary;
-					*len = sizeof(hid_report_descriptor_secondary);
+					*buf = (uint8_t *)&hid_report_descriptor_extra;
+					*len = sizeof(hid_report_descriptor_extra);
 					return USBD_REQ_HANDLED;
 				// case USB_HID_DT_PHYSICAL:
 				//  	break;
@@ -118,25 +118,25 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&& (req->bRequest == USB_HID_REQ_TYPE_GET_REPORT)
 	) {
-		static struct hid_in_report_data new_hid_in_report;
+		static struct hid_in_report_data_boot new_hid_in_report;
 
 		report_type = req->wValue >> 8;
 		// report_id = req->wValue & 0xFF;
 		interface_number = req->wIndex;
 		report_length = req->wLength;
 
-		if (interface_number != HID_INTERFACE_NUMBER)
+		if (interface_number != HID_INTERFACE_NUMBER_BOOT)
 			return USBD_REQ_NOTSUPP;
 
 		switch(report_type) {
 			case USB_HID_REPORT_TYPE_INPUT:
 				get_hid_in_report(&new_hid_in_report);
-				memcpy(*buf, &new_hid_in_report, sizeof(struct hid_in_report_data));
+				memcpy(*buf, &new_hid_in_report, sizeof(struct hid_in_report_data_boot));
 				// For Boot Protocol we can only send the first 8 bytes
 				if(!hid_protocol)
 					*len = 8;
 				else
-					*len = sizeof(struct hid_in_report_data);
+					*len = sizeof(struct hid_in_report_data_boot);
 				return USBD_REQ_HANDLED;
 			// case USB_HID_REPORT_TYPE_OUTPUT:
 			// 	break;
@@ -155,7 +155,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		interface_number = req->wIndex;
 		report_length = req->wLength;
 
-		if (interface_number != HID_INTERFACE_NUMBER)
+		if (interface_number != HID_INTERFACE_NUMBER_BOOT)
 			return USBD_REQ_NOTSUPP;
 
 		switch(report_type) {
@@ -180,7 +180,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		report_id = req->wValue & 0xFF;
 		interface_number = req->wIndex;
 
-		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER)
+		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER_BOOT)
 			return USBD_REQ_NOTSUPP;
 
 		*buf[0] = hid_idle_rate_ms / 4;
@@ -198,7 +198,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		report_id = req->wValue & 0xFF;
 		interface_number = req->wIndex;
 
-		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER)
+		if(report_id != 0 || interface_number != HID_INTERFACE_NUMBER_BOOT)
 			return USBD_REQ_NOTSUPP;
 
 		hid_idle_rate_ms = duration_ms;
@@ -214,7 +214,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	) {
 		interface_number = req->wIndex;
 
-		if (interface_number != HID_INTERFACE_NUMBER)
+		if (interface_number != HID_ENDPOINT_NUMBER_BOOT)
 			return USBD_REQ_NOTSUPP;
 
 		*buf = (uint8_t *)&hid_protocol;
@@ -229,7 +229,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	) {
 		interface_number = req->wIndex;
 
-		if (interface_number != HID_INTERFACE_NUMBER)
+		if (interface_number != HID_ENDPOINT_NUMBER_BOOT)
 			return USBD_REQ_NOTSUPP;
 
 		hid_protocol = req->wValue;
@@ -251,18 +251,18 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	return USBD_REQ_NEXT_CALLBACK;
 }
 
-static void hid_endpoint_interrupt_in_transfer_complete(usbd_device *usbd_dev, uint8_t ep) {
+static void hid_endpoint_interrupt_in_transfer_complete_boot(usbd_device *usbd_dev, uint8_t ep) {
 	(void)usbd_dev;
 	(void)ep;
 	
-	hid_report_transmitting = 0;
+	hid_report_transmitting_boot = 0;
 }
 
-static void hid_endpoint_interrupt_in_transfer_complete_secondary(usbd_device *usbd_dev, uint8_t ep) {
+static void hid_endpoint_interrupt_in_transfer_complete_extra(usbd_device *usbd_dev, uint8_t ep) {
 	(void)usbd_dev;
 	(void)ep;
 	
-	hid_report_transmitting_secondary = 0;
+	hid_report_transmitting_extra = 0;
 }
 
 void hid_set_config_callback(usbd_device *dev) {
@@ -282,48 +282,48 @@ void hid_set_config_callback(usbd_device *dev) {
 
    usbd_ep_setup(
 		dev,
-		HID_ENDPOINT_IN_ADDR,
+		HID_ENDPOINT_IN_ADDR_BOOT,
 		USB_ENDPOINT_ATTR_INTERRUPT,
-		HID_ENDPOINT_MAX_PACKET_SIZE,
-		hid_endpoint_interrupt_in_transfer_complete
+		HID_ENDPOINT_MAX_PACKET_SIZE_BOOT,
+		hid_endpoint_interrupt_in_transfer_complete_boot
 	);
 
    usbd_ep_setup(
 		dev,
-		HID_ENDPOINT_IN_ADDR_SECONDARY,
+		HID_ENDPOINT_IN_ADDR_EXTRA,
 		USB_ENDPOINT_ATTR_INTERRUPT,
-		HID_ENDPOINT_SECONDARY_MAX_PACKET_SIZE,
-		hid_endpoint_interrupt_in_transfer_complete_secondary
+		HID_ENDPOINT_MAX_PACKET_SIZE_EXTRA,
+		hid_endpoint_interrupt_in_transfer_complete_extra
 	);
 
 	hid_protocol = USB_HID_PROTOCOL_REPORT;
 	hid_idle_rate_ms = 0;
 	idle_finish_ms = 0;
-	hid_report_transmitting = 0;
-	hid_report_transmitting_secondary = 0;
+	hid_report_transmitting_boot = 0;
+	hid_report_transmitting_extra = 0;
 	keys_reset();
 	get_hid_in_report(&old_hid_in_report);
 	hid_usbd_remote_wakeup_sent = 0;
 }
 
-static void get_hid_in_report(struct hid_in_report_data *hid_in_report) {
-	memset(hid_in_report, 0, sizeof(struct hid_in_report_data));
+static void get_hid_in_report(struct hid_in_report_data_boot *hid_in_report) {
+	memset(hid_in_report, 0, sizeof(struct hid_in_report_data_boot));
 	keys_populate_hid_in_report(hid_in_report);
 }
 
-static void send_in_report(usbd_device *dev, struct hid_in_report_data *new_hid_in_report) {
+static void send_in_report(usbd_device *dev, struct hid_in_report_data_boot *new_hid_in_report) {
 	uint16_t len;
 
-	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data));
+	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data_boot));
 
 	// For Boot Protocol we can only send the first 8 bytes
 	if(!hid_protocol)
 		len = 8;
 	else
-		len = sizeof(struct hid_in_report_data);
+		len = sizeof(struct hid_in_report_data_boot);
 
-	if(usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR, (void *)new_hid_in_report, len))
-		hid_report_transmitting = 1;
+	if(usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR_BOOT, (void *)new_hid_in_report, len))
+		hid_report_transmitting_boot = 1;
 }
 
 static void remote_wakeup_key_event_callback(
@@ -348,7 +348,7 @@ static void remote_wakeup_key_event_callback(
 }
 
 void hid_poll(usbd_device *dev) {
-	struct hid_in_report_data new_hid_in_report;
+	struct hid_in_report_data_boot new_hid_in_report;
 	uint32_t now;
 
 	if(!usbd_is_suspended())
@@ -369,13 +369,13 @@ void hid_poll(usbd_device *dev) {
 	if(!(usbd_state == USBD_STATE_CONFIGURED && !usbd_is_suspended()))
 		return;
 
-	if(hid_report_transmitting)
+	if(hid_report_transmitting_boot)
 		return;
 
 	// Only send if there are changes
 	if(hid_idle_rate_ms == 0) {
 		get_hid_in_report(&new_hid_in_report);
-		if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
+		if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data_boot)))
 			send_in_report(dev, &new_hid_in_report);
 	// Only send if there are changes or at idle rate
 	} else {
@@ -385,7 +385,7 @@ void hid_poll(usbd_device *dev) {
 			send_in_report(dev, &new_hid_in_report);
 			idle_finish_ms = now + hid_idle_rate_ms;
 		} else {
-			if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data)))
+			if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data_boot)))
 				send_in_report(dev, &new_hid_in_report);
 		}
 	}

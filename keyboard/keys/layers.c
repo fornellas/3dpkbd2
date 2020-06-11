@@ -86,7 +86,7 @@ static uint8_t layout_get(void) {
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
 
-static void func_cut(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_cut(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 static void func_cut(
 	uint8_t row,
@@ -94,7 +94,7 @@ static void func_cut(
 	uint8_t state,
 	uint8_t pressed,
 	uint8_t released,
-	struct hid_in_report_data *hid_in_report
+	struct hid_in_report_data_boot *hid_in_report
 ) {
 	(void)row;
 	(void)column;
@@ -116,7 +116,7 @@ static void func_cut(
 	}
 };
 
-static void func_copy(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_copy(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 static void func_copy(
 	uint8_t row,
@@ -124,7 +124,7 @@ static void func_copy(
 	uint8_t state,
 	uint8_t pressed,
 	uint8_t released,
-	struct hid_in_report_data *hid_in_report
+	struct hid_in_report_data_boot *hid_in_report
 ) {
 	(void)row;
 	(void)column;
@@ -146,7 +146,7 @@ static void func_copy(
 	}
 };
 
-static void func_paste(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_paste(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 static void func_paste(
 	uint8_t row,
@@ -154,7 +154,7 @@ static void func_paste(
 	uint8_t state,
 	uint8_t pressed,
 	uint8_t released,
-	struct hid_in_report_data *hid_in_report
+	struct hid_in_report_data_boot *hid_in_report
 ) {
 	(void)row;
 	(void)column;
@@ -176,7 +176,7 @@ static void func_paste(
 	}
 };
 
-static void func_fn(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_fn(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 static void func_fn(
 	uint8_t row,
@@ -184,7 +184,7 @@ static void func_fn(
 	uint8_t state,
 	uint8_t pressed,
 	uint8_t released,
-	struct hid_in_report_data *hid_in_report
+	struct hid_in_report_data_boot *hid_in_report
 ) {
 	(void)row;
 	(void)column;
@@ -231,7 +231,7 @@ static void func_fn(
 	}
 };
 
-static void func_keypad(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_keypad(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 static void func_keypad(
 	uint8_t row,
@@ -239,7 +239,7 @@ static void func_keypad(
 	uint8_t state,
 	uint8_t pressed,
 	uint8_t released,
-	struct hid_in_report_data *hid_in_report
+	struct hid_in_report_data_boot *hid_in_report
 ) {
 	(void)row;
 	(void)column;
@@ -253,7 +253,7 @@ static void func_keypad(
 	}
 };
 
-static void func_shifted_number(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_shifted_number(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 static void func_shifted_number(
 	uint8_t row,
@@ -261,7 +261,7 @@ static void func_shifted_number(
 	uint8_t state,
 	uint8_t pressed,
 	uint8_t released,
-	struct hid_in_report_data *hid_in_report
+	struct hid_in_report_data_boot *hid_in_report
 ) {
 	(void)row;
 	(void)column;
@@ -272,7 +272,7 @@ static void func_shifted_number(
 	// TODO
 };
 
-static void func_toggle_shifted_number_layer(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+static void func_toggle_shifted_number_layer(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 static void func_toggle_shifted_number_layer(
 	uint8_t row,
@@ -280,7 +280,7 @@ static void func_toggle_shifted_number_layer(
 	uint8_t state,
 	uint8_t pressed,
 	uint8_t released,
-	struct hid_in_report_data *hid_in_report
+	struct hid_in_report_data_boot *hid_in_report
 ) {
 	(void)row;
 	(void)column;
@@ -291,7 +291,7 @@ static void func_toggle_shifted_number_layer(
 	// TODO
 };
 
-void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *) = {
+void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *) = {
   [FUNC_CUT] = &func_cut,
   [FUNC_COPY] = &func_copy,
   [FUNC_PASTE] = &func_paste,

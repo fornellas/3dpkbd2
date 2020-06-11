@@ -14,7 +14,7 @@ enum function_defs {
   FUNC_COUNT,
 };
 
-extern void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data *);
+extern void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
 
 enum sequence_defs {
   SEQ_DESKTOP_QWERTY,

@@ -37,11 +37,11 @@ void keys_reset() {
 }
 
 static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8_t pressed, uint8_t released, void *data) {
-	struct hid_in_report_data *hid_in_report;
+	struct hid_in_report_data_boot *hid_in_report;
 	uint16_t hid_usage_page, hid_usage_id;
 	uint8_t layer_idx;
 
-	hid_in_report = (struct hid_in_report_data *)data;
+	hid_in_report = (struct hid_in_report_data_boot *)data;
 
 	layer_idx=0;
 	retry:
@@ -84,7 +84,7 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 	}
 }
 
-void keys_populate_hid_in_report(struct hid_in_report_data *hid_in_report) {
+void keys_populate_hid_in_report(struct hid_in_report_data_boot *hid_in_report) {
 	sequence_play(hid_in_report);
 	keys_scan(key_event_callback, (void *)hid_in_report);
 }

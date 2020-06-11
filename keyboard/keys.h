@@ -25,7 +25,7 @@ void keys_setup(void);
 
 void keys_reset(void);
 
-void keys_populate_hid_in_report(struct hid_in_report_data *);
+void keys_populate_hid_in_report(struct hid_in_report_data_boot *);
 
 void keys_scan(void (*)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *);
 

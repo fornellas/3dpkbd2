@@ -4,35 +4,59 @@
 #include <libopencm3/usb/hid.h>
 #include <libopencm3/usb/usbstd.h>
 
+//
+// Strings
+//
+
 extern char usb_serial_number[25];
 
 #define USB_STRINGS_NUM 3
 extern const char *usb_strings[USB_STRINGS_NUM];
 
+//
+// Device
+//
+
 extern const struct usb_device_descriptor dev_descr;
+
+//
+// Configuration
+//
 
 #define CONFIGURATION_VALUE 1
 
 extern const struct usb_config_descriptor conf_descr;
 
+//
+// Interfaces
+//
+
 extern const struct usb_interface interfaces[];
 
-#define HID_INTERFACE_NUMBER 0
-#define HID_INTERFACE_NUMBER_SECONDARY 1
+#define HID_INTERFACE_NUMBER_BOOT 0
+extern const struct usb_interface_descriptor hid_interface_boot;
 
-extern const struct usb_interface_descriptor hid_interface;
-extern const struct usb_interface_descriptor hid_interface_secondary;
+#define HID_INTERFACE_NUMBER_EXTRA 1
+extern const struct usb_interface_descriptor hid_interface_extra;
 
-#define HID_ENDPOINT_NUMBER 1
-#define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER)
-#define HID_ENDPOINT_MAX_PACKET_SIZE 8
 
-#define HID_ENDPOINT_NUMBER_SECONDARY 2
-#define HID_ENDPOINT_IN_ADDR_SECONDARY USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER_SECONDARY)
-#define HID_ENDPOINT_SECONDARY_MAX_PACKET_SIZE 8
+//
+// Endpoint
+//
 
-extern const struct usb_endpoint_descriptor hid_endpoint;
-extern const struct usb_endpoint_descriptor hid_endpoint_secondary;
+#define HID_ENDPOINT_NUMBER_BOOT 1
+#define HID_ENDPOINT_IN_ADDR_BOOT USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER_BOOT)
+#define HID_ENDPOINT_MAX_PACKET_SIZE_BOOT 8
+extern const struct usb_endpoint_descriptor hid_endpoint_boot;
+
+#define HID_ENDPOINT_NUMBER_EXTRA 2
+#define HID_ENDPOINT_IN_ADDR_EXTRA USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER_EXTRA)
+#define HID_ENDPOINT_MAX_PACKET_SIZE_EXTRA 8
+extern const struct usb_endpoint_descriptor hid_endpoint_extra;
+
+//
+// HID Function
+//
 
 struct usb_hid_function {
 	struct usb_hid_descriptor hid_descriptor;
@@ -42,38 +66,38 @@ struct usb_hid_function {
 	} __attribute__((packed)) hid_report;
 } __attribute__((packed));
 
-extern const struct usb_hid_function hid_function;
-extern const struct usb_hid_function hid_function_secondary;
+extern const struct usb_hid_function hid_function_boot;
+extern const struct usb_hid_function hid_function_extra;
 
-extern const uint8_t hid_report_descriptor[64];
-extern const uint8_t hid_report_descriptor_secondary[42];
+//
+// HID Report Descriptor
+//
 
+extern const uint8_t hid_report_descriptor_boot[64];
 #define KEYBOARD_PAGE_MAX 6
-
-#define HID_IN_REPORT_DATA_MAX_KEYBOARD_KEYPAD 6
-#define HID_IN_REPORT_DATA_MAX_GENERIC_DESKTOP 4
-#define HID_IN_REPORT_DATA_MAX_CONSUMER_DEVICES 2
-
-// Must match hid_report_descriptor, HID_ENDPOINT_MAX_PACKET_SIZE
-struct hid_in_report_data {
+// Must match hid_report_descriptor_boot, HID_ENDPOINT_BOOT_MAX_PACKET_SIZEs
+struct hid_in_report_data_boot {
 	uint8_t keyboard_keypad_modifiers;
 	uint8_t reserved;
 	uint8_t keyboard_keypad[KEYBOARD_PAGE_MAX];
 } __attribute__((packed));
+// Must match hid_report_descriptor_boot
+typedef uint8_t hid_out_report_data_boot;
 
+extern const uint8_t hid_report_descriptor_extra[42];
 #define GENERIC_DESKTOP_PAGE_MAX 4
 #define CONSUMER_DEVICES_PAGE_MAX 2
-
-// Must match hid_report_descriptor_secondary
-struct hid_in_report_data_secondary {
+// Must match hid_report_descriptor_extra
+struct hid_in_report_data_extra {
 	uint8_t generic_desktop[GENERIC_DESKTOP_PAGE_MAX];
 	uint16_t consumer_devices[CONSUMER_DEVICES_PAGE_MAX];
 } __attribute__((packed));
 
-// Must match hid_report_descriptor
-void hid_in_report_add(struct hid_in_report_data *, uint16_t, uint16_t);
+//
+// Functions
+//
 
-// Must match hid_report_descriptor
-typedef uint8_t hid_out_report_data;
+// Must match hid_report_descriptor_boot FIXME
+void hid_in_report_add(struct hid_in_report_data_boot *, uint16_t, uint16_t);
 
 #endif

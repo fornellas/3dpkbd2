@@ -62,20 +62,18 @@ const struct usb_config_descriptor conf_descr = {
 const struct usb_interface interfaces[] = {
 	{
 		.num_altsetting = 1,
-		.altsetting = &hid_interface,
+		.altsetting = &hid_interface_boot,
 	},
 	{
 		.num_altsetting = 1,
-		.altsetting = &hid_interface_secondary,
+		.altsetting = &hid_interface_extra,
 	}
 };
 
-// hid_interface
-
-const struct usb_interface_descriptor hid_interface = {
+const struct usb_interface_descriptor hid_interface_boot = {
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = HID_INTERFACE_NUMBER,
+	.bInterfaceNumber = HID_INTERFACE_NUMBER_BOOT,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_HID,
@@ -83,24 +81,58 @@ const struct usb_interface_descriptor hid_interface = {
 	.bInterfaceProtocol = USB_HID_INTERFACE_PROTOCOL_KEYBOARD,
 	.iInterface = 0,
 
-	.endpoint = &hid_endpoint,
+	.endpoint = &hid_endpoint_boot,
 
-	.extra = &hid_function,
-	.extralen = sizeof(hid_function),
+	.extra = &hid_function_boot,
+	.extralen = sizeof(hid_function_boot),
 };
 
-const struct usb_endpoint_descriptor hid_endpoint = {
+const struct usb_interface_descriptor hid_interface_extra = {
+	.bLength = USB_DT_INTERFACE_SIZE,
+	.bDescriptorType = USB_DT_INTERFACE,
+	.bInterfaceNumber = HID_INTERFACE_NUMBER_EXTRA,
+	.bAlternateSetting = 0,
+	.bNumEndpoints = 1,
+	.bInterfaceClass = USB_CLASS_HID,
+	.bInterfaceSubClass = USB_HID_SUBCLASS_BOOT_INTERFACE,
+	.bInterfaceProtocol = USB_HID_INTERFACE_PROTOCOL_KEYBOARD,
+	.iInterface = 0,
+
+	.endpoint = &hid_endpoint_extra,
+
+	.extra = &hid_function_extra,
+	.extralen = sizeof(hid_function_extra),
+};
+
+//
+// Endpoint
+//
+
+const struct usb_endpoint_descriptor hid_endpoint_boot = {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = HID_ENDPOINT_IN_ADDR,
+	.bEndpointAddress = HID_ENDPOINT_IN_ADDR_BOOT,
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
-	.wMaxPacketSize = HID_ENDPOINT_MAX_PACKET_SIZE,
+	.wMaxPacketSize = HID_ENDPOINT_MAX_PACKET_SIZE_BOOT,
 	.bInterval = 0x01,
 };
 
-const struct usb_hid_function hid_function = {
+const struct usb_endpoint_descriptor hid_endpoint_extra = {
+	.bLength = USB_DT_ENDPOINT_SIZE,
+	.bDescriptorType = USB_DT_ENDPOINT,
+	.bEndpointAddress = HID_ENDPOINT_IN_ADDR_EXTRA,
+	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
+	.wMaxPacketSize = HID_ENDPOINT_MAX_PACKET_SIZE_EXTRA,
+	.bInterval = 0x01,
+};
+
+//
+// HID Function
+//
+
+const struct usb_hid_function hid_function_boot = {
 	.hid_descriptor = {
-		.bLength = sizeof(hid_function),
+		.bLength = sizeof(hid_function_boot),
 		.bDescriptorType = USB_HID_DT_HID,
 		.bcdHID = 0x0111,
 		.bCountryCode = 0,
@@ -108,13 +140,31 @@ const struct usb_hid_function hid_function = {
 	},
 	.hid_report = {
 		.bReportDescriptorType = USB_HID_DT_REPORT,
-		.wDescriptorLength = sizeof(hid_report_descriptor),
+		.wDescriptorLength = sizeof(hid_report_descriptor_boot),
 	}
 };
 
-// Must match hid_in_report_data, hid_out_report_data, Get_Report Request,
+const struct usb_hid_function hid_function_extra = {
+	.hid_descriptor = {
+		.bLength = sizeof(hid_function_extra),
+		.bDescriptorType = USB_HID_DT_HID,
+		.bcdHID = 0x0111,
+		.bCountryCode = 0,
+		.bNumDescriptors = 1,
+	},
+	.hid_report = {
+		.bReportDescriptorType = USB_HID_DT_REPORT,
+		.wDescriptorLength = sizeof(hid_report_descriptor_extra),
+	}
+};
+
+//
+// HID Report Descriptor
+//
+
+// Must match hid_in_report_data, hid_out_report_data_boot Get_Report Request,
 // send_in_report and HID_ENDPOINT_MAX_PACKET_SIZE
-const uint8_t hid_report_descriptor[] = {
+const uint8_t hid_report_descriptor_boot[] = {
 	// https://www.usb.org/document-library/device-class-definition-hid-111
 	// From "Device Class Definition for HID 1.11" Appendix B.
 	// This a Boot Interface Descriptor, Protocol 1 (Keyboard) required by
@@ -158,54 +208,9 @@ const uint8_t hid_report_descriptor[] = {
 	0xc0,                     // END_COLLECTION
 };
 
-// hid_interface_secondary
-
-const struct usb_interface_descriptor hid_interface_secondary = {
-	.bLength = USB_DT_INTERFACE_SIZE,
-	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = HID_INTERFACE_NUMBER_SECONDARY,
-	.bAlternateSetting = 0,
-	.bNumEndpoints = 1,
-	.bInterfaceClass = USB_CLASS_HID,
-	.bInterfaceSubClass = USB_HID_SUBCLASS_BOOT_INTERFACE,
-	.bInterfaceProtocol = USB_HID_INTERFACE_PROTOCOL_KEYBOARD,
-	.iInterface = 0,
-
-	.endpoint = &hid_endpoint_secondary,
-
-	.extra = &hid_function_secondary,
-	.extralen = sizeof(hid_function_secondary),
-};
-
-const struct usb_endpoint_descriptor hid_endpoint_secondary = {
-	.bLength = USB_DT_ENDPOINT_SIZE,
-	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = HID_ENDPOINT_IN_ADDR_SECONDARY,
-	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
-	.wMaxPacketSize = HID_ENDPOINT_MAX_PACKET_SIZE,
-	.bInterval = 0x01,
-};
-
-const struct usb_hid_function hid_function_secondary = {
-	.hid_descriptor = {
-		.bLength = sizeof(hid_function),
-		.bDescriptorType = USB_HID_DT_HID,
-		.bcdHID = 0x0111,
-		.bCountryCode = 0,
-		.bNumDescriptors = 1,
-	},
-	.hid_report = {
-		.bReportDescriptorType = USB_HID_DT_REPORT,
-		.wDescriptorLength = sizeof(hid_report_descriptor_secondary),
-	}
-};
-
-#define GENERIC_DESKTOP_PAGE_MAX 4
-#define CONSUMER_DEVICES_PAGE_MAX 2
-
-// Must match hid_in_report_data, hid_out_report_data, Get_Report Request and
+// Must match hid_in_report_data, hid_out_report_data_boot Get_Report Request and
 // send_in_report
-const uint8_t hid_report_descriptor_secondary[] = {
+const uint8_t hid_report_descriptor_extra[] = {
 	0x05, 0x01,                       // USAGE_PAGE (Generic Desktop)
 	0x09, 0x06,                       // USAGE (Keyboard)
 	0xa1, 0x01,                       // COLLECTION (Application)
@@ -235,7 +240,7 @@ const uint8_t hid_report_descriptor_secondary[] = {
 //
 
 // Must match hid_report_descriptor
-void hid_in_report_add(struct hid_in_report_data *hid_in_report, uint16_t hid_usage_page, uint16_t hid_usage_id) {
+void hid_in_report_add(struct hid_in_report_data_boot *hid_in_report, uint16_t hid_usage_page, uint16_t hid_usage_id) {
 	switch(hid_usage_page) {
 		case USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD:
 			if(

@@ -35,7 +35,7 @@ void sequence_register(const struct sequence_step_data new_sequence[]) {
 	active_sequence_step = 0;
 }
 
-void sequence_play(struct hid_in_report_data *hid_in_report) {
+void sequence_play(struct hid_in_report_data_boot *hid_in_report) {
 	struct sequence_step_data *sequence_step;
 
 	if(active_sequence == NULL)
