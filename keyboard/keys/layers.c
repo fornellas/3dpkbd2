@@ -70,7 +70,7 @@ static uint8_t layout_get(void) {
 
 #define SEQ_STEP(c, ...) { \
 	.count = c, \
-	.hid_usage = &(struct keys_hid_usage_data[]) { \
+	.hid_usage = &(struct hid_usage_data[]) { \
 		__VA_ARGS__ \
 	}, \
 }
@@ -428,7 +428,7 @@ const uint8_t layers_default_state[] = {
 	{k6x0, k6x1, k6x2, NONE, k6x4, NONE, k6x6,   k6x7, NONE, k6x9, NONE,  k6x11, k6x12, k6x13, k6x14, k6x15}, \
 }
 
-const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
+const struct hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	[LAYER_FN] = LAYER_KEYMAP(
 		// Left
 		____, LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),

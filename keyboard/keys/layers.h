@@ -50,6 +50,6 @@ enum layers {
 
 extern uint8_t layers_state[LAYER_COUNT];
 extern const uint8_t layers_default_state[LAYER_COUNT];
-extern const struct keys_hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS];
+extern const struct hid_usage_data layers_keymap[LAYER_COUNT][ROWS][COLUMNS];
 
 void layout_set(uint16_t layout);

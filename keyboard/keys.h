@@ -16,11 +16,6 @@ enum keys_layer_states {
   KEYS_LAYER_STATE_LOAD,
 };
 
-struct keys_hid_usage_data {
-	uint16_t page;
-	uint16_t id;
-} __attribute__((packed));
-
 void keys_setup(void);
 
 void keys_reset(void);
