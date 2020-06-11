@@ -201,6 +201,22 @@ static enum usbd_request_return_codes hid_class_get_protocol(
 	return USBD_REQ_HANDLED;
 }
 
+static enum usbd_request_return_codes hid_class_set_protocol(
+	uint8_t protocol,
+	uint8_t interface_number
+) {
+	if (interface_number != HID_ENDPOINT_NUMBER_BOOT)
+		return USBD_REQ_NOTSUPP;
+
+	switch(hid_protocol) {
+		case 0:  // Boot Protocol
+		case 1:  // Report Protocol
+			hid_protocol = protocol;
+			return USBD_REQ_HANDLED;
+	}
+	return USBD_REQ_NOTSUPP;
+}
+
 static enum usbd_request_return_codes hid_class_specific_request(
 	usbd_device *dev,
 	struct usb_setup_data *req,
@@ -290,25 +306,10 @@ static enum usbd_request_return_codes hid_class_specific_request(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_OUT)
 		&& (req->bRequest == USB_HID_REQ_TYPE_SET_PROTOCOL)
 	) {
-		interface_number = req->wIndex;
-
-		if (interface_number != HID_ENDPOINT_NUMBER_BOOT)
-			return USBD_REQ_NOTSUPP;
-
-		hid_protocol = req->wValue;
-
-		switch(hid_protocol) {
-			// Boot Protocol
-			case 0:
-				// The HID Report matches boot protocol requirements, we can
-				// use it for boot protocol as well.
-				return USBD_REQ_HANDLED;
-			// Report Protocol
-			case 1:
-				return USBD_REQ_HANDLED;
-			default:
-				return USBD_REQ_NOTSUPP;
-		}
+		return hid_class_set_protocol(
+			req->wValue,
+			interface_number
+		);
 	}
 
 	return USBD_REQ_NEXT_CALLBACK;
