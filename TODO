@@ -1,8 +1,19 @@
 TODO
 - HID
 	- Secondary interface
-		- review hid.c for required requests to be changed for each interface.
-		- refactor hid_poll() & others to be HID report neutral
+		- swap struct hid_usage_tfor struct hid_usage_list
+			- get_hid_in_report > get_hid_usage_list
+			- keys_populate_hid_in_report > keys_populate_hid_usage_list
+			- send_in_report > send_hid_usage_list
+			- hid_class_get_report
+			- hid_class_set_report
+			- hid_class_get_idle
+			- hid_class_set_idle
+			- sequence_play
+			- keys_scan
+			- key_event_callback
+			- hid_in_report_add > hid_usage_page_add
+			- functions (layers.h)
 - Layout
 	- Implemented shifted numbers
 	- Implement save / load layer state.
@@ -10,6 +21,7 @@ TODO
 	- Add hid_usbd_remote_wakeup_sent.
 	- Keypress counter
 	- DMA transfer
+	- key presses graph over time
 - Build
 	- Clean up clowny ln -s: this works https://github.com/libopencm3/libopencm3/issues/1117#issuecomment-570827827
 	- cppcheck rule:  cppcheck --error-exitcode=1 $(CPPCHECK_ARGS) -I$(OPENCM3_INC) -I$(GCC_INCLUDES) -I$(NEWLIB_INCLUDES) $(CGLAGS) $<
