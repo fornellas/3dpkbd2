@@ -230,6 +230,6 @@ Control Request
 			0 = Boot Protocol
 			1 = Report Protocol
 		wIndex
-			0
+			Interface
 		wLength
-			Not Applicable
+			0
