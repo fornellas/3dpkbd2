@@ -23,6 +23,8 @@ extern const struct usb_interface_descriptor hid_interface;
 
 #define HID_ENDPOINT_NUMBER 1
 #define HID_ENDPOINT_IN_ADDR USB_ENDPOINT_ADDR_IN(HID_ENDPOINT_NUMBER)
+// Must match hid_in_report_data, hid_report_descriptor
+#define HID_ENDPOINT_MAX_PACKET_SIZE 16
 
 extern const struct usb_endpoint_descriptor hid_endpoint;
 
@@ -38,13 +40,17 @@ extern const struct usb_hid_function hid_function;
 
 extern const uint8_t hid_report_descriptor[99];
 
-// Must match hid_report_descriptor
+#define HID_IN_REPORT_DATA_MAX_KEYBOARD_KEYPAD 6
+#define HID_IN_REPORT_DATA_MAX_GENERIC_DESKTOP 4
+#define HID_IN_REPORT_DATA_MAX_CONSUMER_DEVICES 2
+
+// Must match hid_report_descriptor, HID_ENDPOINT_MAX_PACKET_SIZE
 struct hid_in_report_data {
 	uint8_t keyboard_keypad_modifiers;
 	uint8_t reserved;
-	uint8_t keyboard_keypad[6];
-	uint8_t generic_desktop[6];
-	uint16_t consumer_devices[6];
+	uint8_t keyboard_keypad[HID_IN_REPORT_DATA_MAX_KEYBOARD_KEYPAD];
+	uint8_t generic_desktop[HID_IN_REPORT_DATA_MAX_GENERIC_DESKTOP];
+	uint16_t consumer_devices[HID_IN_REPORT_DATA_MAX_CONSUMER_DEVICES];
 } __attribute__((packed));
 
 // Must match hid_report_descriptor

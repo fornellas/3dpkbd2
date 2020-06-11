@@ -260,7 +260,7 @@ void hid_set_config_callback(usbd_device *dev) {
 		dev,
 		HID_ENDPOINT_IN_ADDR,
 		USB_ENDPOINT_ATTR_INTERRUPT,
-		sizeof(struct hid_in_report_data),
+		HID_ENDPOINT_MAX_PACKET_SIZE,
 		hid_endpoint_interrupt_in_transfer_complete
 	);
 
