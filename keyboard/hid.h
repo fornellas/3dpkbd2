@@ -9,13 +9,13 @@ extern uint8_t hid_protocol;
 extern uint16_t hid_idle_rate_ms;
 extern hid_out_report_data_boot hid_led_report;
 
-struct hid_usage {
+struct hid_usage_t {
 	uint16_t page;
 	uint16_t id;
 } __attribute__((packed));
 
 struct hid_usage_list {
-	struct hid_usage values[MAX_HID_USAGE_KEYS];
+	struct hid_usage_t values[MAX_HID_USAGE_KEYS];
 };
 
 void hid_poll(usbd_device *dev);
