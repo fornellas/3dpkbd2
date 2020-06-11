@@ -5,7 +5,7 @@
 
 struct sequence_step_data {
 	uint8_t count;
-	struct hid_usage_data (*hid_usage)[];
+	struct hid_usage (*hid_usage)[];
 };
 
 void sequence_init(void);

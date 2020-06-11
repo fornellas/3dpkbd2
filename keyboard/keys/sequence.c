@@ -45,10 +45,10 @@ void sequence_play(struct hid_in_report_data_boot *hid_in_report) {
 
 	if(sequence_step->count) {
 		for(uint8_t i=0 ; i < sequence_step->count ; i++) {
-			struct hid_usage_data *hid_usage_data;
+			struct hid_usage *hid_usage;
 
-			hid_usage_data = &((*sequence_step->hid_usage)[i]);
-			hid_in_report_add(hid_in_report, hid_usage_data->page, hid_usage_data->id);
+			hid_usage = &((*sequence_step->hid_usage)[i]);
+			hid_in_report_add(hid_in_report, hid_usage->page, hid_usage->id);
 		}
 		active_sequence_step++;
 	} else {

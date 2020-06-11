@@ -9,7 +9,7 @@ extern uint8_t hid_protocol;
 extern uint16_t hid_idle_rate_ms;
 extern hid_out_report_data_boot hid_led_report;
 
-struct hid_usage_data {
+struct hid_usage {
 	uint16_t page;
 	uint16_t id;
 } __attribute__((packed));
