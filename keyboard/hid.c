@@ -98,6 +98,39 @@ static enum usbd_request_return_codes hid_standard_request(
 	return USBD_REQ_NEXT_CALLBACK;
 }
 
+static enum usbd_request_return_codes hid_class_get_report(
+	uint8_t interface_number,
+	uint8_t report_type,
+	uint8_t report_id,
+	uint8_t report_length,
+	uint8_t **buf,
+	uint16_t *len
+) {
+	static struct hid_in_report_data_boot new_hid_in_report;
+	(void)report_id;
+	(void)report_length;
+
+	if (interface_number != HID_INTERFACE_NUMBER_BOOT)
+		return USBD_REQ_NOTSUPP;
+
+	switch(report_type) {
+		case USB_HID_REPORT_TYPE_INPUT:
+			get_hid_in_report(&new_hid_in_report);
+			memcpy(*buf, &new_hid_in_report, sizeof(struct hid_in_report_data_boot));
+			// For Boot Protocol we can only send the first 8 bytes
+			if(!hid_protocol)
+				*len = 8;
+			else
+				*len = sizeof(struct hid_in_report_data_boot);
+			return USBD_REQ_HANDLED;
+		// case USB_HID_REPORT_TYPE_OUTPUT:
+		// 	break;
+		// case USB_HID_REPORT_TYPE_FEATURE:
+		// 	break;
+	}
+	return USBD_REQ_NOTSUPP;
+}
+
 static enum usbd_request_return_codes hid_class_specific_request(
 	usbd_device *dev,
 	struct usb_setup_data *req,
@@ -113,36 +146,21 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	(void)dev;
 	(void)complete;
 
+	interface_number = req->wIndex;
+
 	// 7.2.1 Get_Report Request
 	if(
 		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
 		&& (req->bRequest == USB_HID_REQ_TYPE_GET_REPORT)
 	) {
-		static struct hid_in_report_data_boot new_hid_in_report;
-
-		report_type = req->wValue >> 8;
-		// report_id = req->wValue & 0xFF;
-		interface_number = req->wIndex;
-		report_length = req->wLength;
-
-		if (interface_number != HID_INTERFACE_NUMBER_BOOT)
-			return USBD_REQ_NOTSUPP;
-
-		switch(report_type) {
-			case USB_HID_REPORT_TYPE_INPUT:
-				get_hid_in_report(&new_hid_in_report);
-				memcpy(*buf, &new_hid_in_report, sizeof(struct hid_in_report_data_boot));
-				// For Boot Protocol we can only send the first 8 bytes
-				if(!hid_protocol)
-					*len = 8;
-				else
-					*len = sizeof(struct hid_in_report_data_boot);
-				return USBD_REQ_HANDLED;
-			// case USB_HID_REPORT_TYPE_OUTPUT:
-			// 	break;
-			// case USB_HID_REPORT_TYPE_FEATURE:
-			// 	break;
-		}
+		return hid_class_get_report(
+			interface_number,
+			req->wValue >> 8,
+			req->wValue & 0xFF,
+			req->wLength,
+			buf,
+			len
+		);
 	}
 
 	// 7.2.2 Set_Report Request
