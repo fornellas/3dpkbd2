@@ -5,7 +5,6 @@ TODO
 - Display
 	- Add hid_usbd_remote_wakeup_sent.
 	- Keypress counter
-	- Screensaver
 	- DMA transfer
 - Build
 	- Clean up clowny ln -s: this works https://github.com/libopencm3/libopencm3/issues/1117#issuecomment-570827827
@@ -20,7 +19,6 @@ TODO
 	- Respect suspended current limits
 - Performance
 	- Increase frequency to 96MHz.
-	- Attempt 1MHz I2C.
 	- Use DMA for display data transfer.
 
 WAITING
