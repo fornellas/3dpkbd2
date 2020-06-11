@@ -1,7 +1,7 @@
 TODO
 - HID
 	- Secondary interface
-		- swap struct hid_usage_tfor struct hid_usage_list
+		- swap struct hid_usage_t for struct hid_usage_list
 			- get_hid_in_report > get_hid_usage_list
 			- keys_populate_hid_in_report > keys_populate_hid_usage_list
 			- send_in_report > send_hid_usage_list
