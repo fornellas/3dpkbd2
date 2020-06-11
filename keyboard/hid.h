@@ -14,6 +14,10 @@ struct hid_usage {
 	uint16_t id;
 } __attribute__((packed));
 
+struct hid_usage_list {
+	struct hid_usage values[MAX_HID_USAGE_KEYS];
+};
+
 void hid_poll(usbd_device *dev);
 void hid_set_config_callback(usbd_device *dev);
 
