@@ -537,7 +537,7 @@ static void send_hid_in_report_data_extra(
 	);
 	if(
 		usbd_ep_write_packet(
-			dev, HID_ENDPOINT_IN_ADDR_BOOT,
+			dev, HID_ENDPOINT_IN_ADDR_EXTRA,
 			(void *)&old_hid_in_report_data_extra,
 			sizeof(struct hid_in_report_data_extra_t)
 		)
@@ -598,29 +598,14 @@ void hid_poll(usbd_device *dev) {
 	// Reports
 	//
 
-	if(hid_report_transmitting_boot || hid_report_transmitting_extra)
-		return;
+	if(!hid_report_transmitting_boot || !hid_report_transmitting_extra)
+		keys_populate_hid_usage_list(&hid_usage_list);
 
-	keys_populate_hid_usage_list(&hid_usage_list);
-	populate_hid_in_report_data_boot(&hid_usage_list, &hid_in_report_data_boot);
-	populate_hid_in_report_data_extra(&hid_usage_list, &hid_in_report_data_extra);
-
-	// Only send if there are changes
-	if(hid_idle_rate_ms_boot == 0) {
-		if(
-			memcmp(
-				&hid_in_report_data_boot, &old_hid_in_report_data_boot,
-				sizeof(struct hid_in_report_data_boot_t)
-			)
-		)
-			send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
-	// Only send if there are changes or at idle rate
-	} else {
-		now = uptime_ms();
-		if(now >= idle_finish_ms_boot) {
-			send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
-			idle_finish_ms_boot = now + hid_idle_rate_ms_boot;
-		} else {
+	// Boot
+	if(!hid_report_transmitting_boot) {
+		populate_hid_in_report_data_boot(&hid_usage_list, &hid_in_report_data_boot);
+		// Only send if there are changes
+		if(hid_idle_rate_ms_boot == 0) {
 			if(
 				memcmp(
 					&hid_in_report_data_boot, &old_hid_in_report_data_boot,
@@ -628,6 +613,51 @@ void hid_poll(usbd_device *dev) {
 				)
 			)
 				send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
+		// Only send if there are changes or at idle rate
+		} else {
+			now = uptime_ms();
+			if(now >= idle_finish_ms_boot) {
+				send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
+				idle_finish_ms_boot = now + hid_idle_rate_ms_boot;
+			} else {
+				if(
+					memcmp(
+						&hid_in_report_data_boot, &old_hid_in_report_data_boot,
+						sizeof(struct hid_in_report_data_boot_t)
+					)
+				)
+					send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
+			}
+		}
+	}
+
+	// Extra
+	if(!hid_report_transmitting_extra) {
+		populate_hid_in_report_data_extra(&hid_usage_list, &hid_in_report_data_extra);
+		// Only send if there are changes
+		if(hid_idle_rate_ms_extra == 0) {
+			if(
+				memcmp(
+					&hid_in_report_data_extra, &old_hid_in_report_data_extra,
+					sizeof(struct hid_in_report_data_extra_t)
+				)
+			)
+				send_hid_in_report_data_extra(dev, &hid_in_report_data_extra);
+		// Only send if there are changes or at idle rate
+		} else {
+			now = uptime_ms();
+			if(now >= idle_finish_ms_extra) {
+				send_hid_in_report_data_extra(dev, &hid_in_report_data_extra);
+				idle_finish_ms_extra = now + hid_idle_rate_ms_extra;
+			} else {
+				if(
+					memcmp(
+						&hid_in_report_data_extra, &old_hid_in_report_data_extra,
+						sizeof(struct hid_in_report_data_extra_t)
+					)
+				)
+					send_hid_in_report_data_extra(dev, &hid_in_report_data_extra);
+			}
 		}
 	}
 }
