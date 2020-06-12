@@ -29,7 +29,8 @@ struct display_state {
 
   // USB HID
   uint8_t hid_protocol;
-  uint16_t hid_idle_rate_ms;
+  uint16_t hid_idle_rate_ms_boot;
+  // uint16_t hid_idle_rate_ms_extra;
   uint8_t hid_led_num_lock;
   uint8_t hid_led_caps_lock;
   uint8_t hid_led_scroll_lock;
@@ -173,8 +174,8 @@ static void display_draw(void) {
   display_draw_toggle(102, 43, TOGGLE_WIDTH, TOGGLE_HEIGHT, 255, 0, 0, "A", current_state.hid_led_caps_lock);
   ucg_SetFont(ucg, ucg_font_helvB08_hf);
   ucg_SetColor(ucg, 0, 0, 0, 0);
-  if(current_state.hid_idle_rate_ms) {
-    sprintf(buff, "Idle rate: %dms", current_state.hid_idle_rate_ms);
+  if(current_state.hid_idle_rate_ms_boot) {
+    sprintf(buff, "Idle rate: %dms", current_state.hid_idle_rate_ms_boot);
     ucg_DrawStringCentered(ucg, buff, 126);
   } else
     ucg_DrawStringCentered(ucg, "Idle rate: Inf", 126);
@@ -216,7 +217,7 @@ static void display_get_current_state(struct display_state *state) {
 
   // USB HID
   state->hid_protocol = hid_protocol;
-  state->hid_idle_rate_ms = hid_idle_rate_ms;
+  state->hid_idle_rate_ms_boot = hid_idle_rate_ms_boot;
   // TODO move bit logic to hid.c
   state->hid_led_num_lock = hid_led_report & (1<<0);
   state->hid_led_caps_lock = hid_led_report & (1<<1);
