@@ -246,7 +246,7 @@ static enum usbd_request_return_codes hid_class_set_report(
 		// case USB_HID_REPORT_TYPE_INPUT:
 		// 	break;
 		case USB_HID_REPORT_TYPE_OUTPUT:
-			if (interface_number != HID_INTERFACE_NUMBER_BOOT) {
+			if (interface_number == HID_INTERFACE_NUMBER_BOOT) {
 				if (report_length != sizeof(hid_led_report))
 					return USBD_REQ_NOTSUPP;
 				// FIXME check len
@@ -416,7 +416,7 @@ static enum usbd_request_return_codes hid_class_specific_request(
 }
 
 //
-//  
+//
 //
 
 static void hid_endpoint_interrupt_in_transfer_complete_boot(usbd_device *usbd_dev, uint8_t ep) {
