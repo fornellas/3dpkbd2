@@ -20,11 +20,12 @@ static uint32_t idle_finish_ms_boot = 0;
 static uint32_t idle_finish_ms_extra = 0;
 static uint8_t hid_report_transmitting_boot = 0;
 static uint8_t hid_report_transmitting_extra = 0;
-static struct hid_usage_list_t old_hid_usage_list;
+static struct hid_in_report_data_boot_t old_hid_in_report_data_boot;
+static struct hid_in_report_data_extra_t old_hid_in_report_data_extra;
 static uint8_t hid_usbd_remote_wakeup_sent = 0;
 
-static void send_hid_usage_list_boot(usbd_device *dev, struct hid_usage_list_t *);
-static void send_hid_usage_list_extra(usbd_device *dev, struct hid_usage_list_t *);
+static void send_hid_in_report_data_boot(usbd_device *dev, struct hid_in_report_data_boot_t *);
+static void send_hid_in_report_data_extra(usbd_device *dev, struct hid_in_report_data_extra_t *);
 
 //
 // Standard HID Requests
@@ -460,6 +461,8 @@ static void hid_endpoint_interrupt_in_transfer_complete_extra(usbd_device *usbd_
 }
 
 void hid_set_config_callback(usbd_device *dev) {
+	struct hid_usage_list_t hid_usage_list;
+
 	usbd_register_control_callback(
 		dev,
 		USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
@@ -498,37 +501,44 @@ void hid_set_config_callback(usbd_device *dev) {
 	hid_report_transmitting_boot = 0;
 	hid_report_transmitting_extra = 0;
 	keys_reset();
-	keys_populate_hid_usage_list(&old_hid_usage_list);
+	keys_populate_hid_usage_list(&hid_usage_list);
+	populate_hid_in_report_data_boot(&hid_usage_list, &old_hid_in_report_data_boot);
+	populate_hid_in_report_data_extra(&hid_usage_list, &old_hid_in_report_data_extra);
 	hid_usbd_remote_wakeup_sent = 0;
 }
 
-static void send_hid_usage_list_boot(usbd_device *dev, struct hid_usage_list_t *new_hid_usage_list) {
-	static struct hid_in_report_data_boot_t new_hid_in_report_data_boot;
-
-	memcpy(&old_hid_usage_list, new_hid_usage_list, sizeof(struct hid_usage_list_t));
-
-	populate_hid_in_report_data_boot(new_hid_usage_list, &new_hid_in_report_data_boot);
+static void send_hid_in_report_data_boot(
+	usbd_device *dev,
+	struct hid_in_report_data_boot_t *hid_in_report_data_boot
+) {
+	memcpy(
+		&old_hid_in_report_data_boot,
+		hid_in_report_data_boot,
+		sizeof(struct hid_in_report_data_boot_t)
+	);
 	if(
 		usbd_ep_write_packet(
 			dev, HID_ENDPOINT_IN_ADDR_BOOT,
-			(void *)&new_hid_in_report_data_boot,
+			(void *)&old_hid_in_report_data_boot,
 			sizeof(struct hid_in_report_data_boot_t)
 		)
 	)
 		hid_report_transmitting_boot = 1;
 }
 
-
-static void send_hid_usage_list_extra(usbd_device *dev, struct hid_usage_list_t *new_hid_usage_list) {
-	static struct hid_in_report_data_extra_t new_hid_in_report_data_extra;
-
-	memcpy(&old_hid_usage_list, new_hid_usage_list, sizeof(struct hid_usage_list_t));
-
-	populate_hid_in_report_data_extra(new_hid_usage_list, &new_hid_in_report_data_extra);
+static void send_hid_in_report_data_extra(
+	usbd_device *dev,
+	struct hid_in_report_data_extra_t *hid_in_report_data_extra
+) {
+	memcpy(
+		&old_hid_in_report_data_extra,
+		hid_in_report_data_extra,
+		sizeof(struct hid_in_report_data_extra_t)
+	);
 	if(
 		usbd_ep_write_packet(
-			dev, HID_ENDPOINT_IN_ADDR_EXTRA,
-			(void *)&new_hid_in_report_data_extra,
+			dev, HID_ENDPOINT_IN_ADDR_BOOT,
+			(void *)&old_hid_in_report_data_extra,
 			sizeof(struct hid_in_report_data_extra_t)
 		)
 	)
@@ -557,8 +567,14 @@ static void remote_wakeup_key_event_callback(
 }
 
 void hid_poll(usbd_device *dev) {
-	struct hid_usage_list_t new_hid_usage_list;
+	struct hid_usage_list_t hid_usage_list;
+	struct hid_in_report_data_boot_t hid_in_report_data_boot;
+	struct hid_in_report_data_extra_t hid_in_report_data_extra;
 	uint32_t now;
+
+	//
+	// Suspended
+	//
 
 	if(!usbd_is_suspended())
 		hid_usbd_remote_wakeup_sent = 0;
@@ -578,24 +594,40 @@ void hid_poll(usbd_device *dev) {
 	if(!(usbd_state == USBD_STATE_CONFIGURED && !usbd_is_suspended()))
 		return;
 
+	//
+	// Reports
+	//
+
 	if(hid_report_transmitting_boot || hid_report_transmitting_extra)
 		return;
 
+	keys_populate_hid_usage_list(&hid_usage_list);
+	populate_hid_in_report_data_boot(&hid_usage_list, &hid_in_report_data_boot);
+	populate_hid_in_report_data_extra(&hid_usage_list, &hid_in_report_data_extra);
+
 	// Only send if there are changes
 	if(hid_idle_rate_ms_boot == 0) {
-		keys_populate_hid_usage_list(&new_hid_usage_list);
-		if(memcmp(&new_hid_usage_list, &old_hid_usage_list, sizeof(struct hid_usage_list_t)))
-			send_hid_usage_list_boot(dev, &new_hid_usage_list);
+		if(
+			memcmp(
+				&hid_in_report_data_boot, &old_hid_in_report_data_boot,
+				sizeof(struct hid_in_report_data_boot_t)
+			)
+		)
+			send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
 	// Only send if there are changes or at idle rate
 	} else {
-		keys_populate_hid_usage_list(&new_hid_usage_list);
 		now = uptime_ms();
 		if(now >= idle_finish_ms_boot) {
-			send_hid_usage_list_boot(dev, &new_hid_usage_list);
+			send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
 			idle_finish_ms_boot = now + hid_idle_rate_ms_boot;
 		} else {
-			if(memcmp(&new_hid_usage_list, &old_hid_usage_list, sizeof(struct hid_usage_list_t)))
-				send_hid_usage_list_boot(dev, &new_hid_usage_list);
+			if(
+				memcmp(
+					&hid_in_report_data_boot, &old_hid_in_report_data_boot,
+					sizeof(struct hid_in_report_data_boot_t)
+				)
+			)
+				send_hid_in_report_data_boot(dev, &hid_in_report_data_boot);
 		}
 	}
 }
