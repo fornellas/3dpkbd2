@@ -32,33 +32,17 @@ static void send_in_report(usbd_device *dev, struct hid_in_report_data_boot *);
 // Functions
 //
 
-static enum usbd_request_return_codes hid_standard_request(
-	usbd_device *dev,
-	struct usb_setup_data *req,
+static enum usbd_request_return_codes hid_standard_get_descriptor(
+	uint8_t descriptor_type,
+	uint8_t descriptor_index,
+	uint8_t interface_number,
 	uint8_t **buf,
-	uint16_t *len,
-	void (**complete)(usbd_device *, struct usb_setup_data * )
+	uint16_t *len
 ) {
-	uint8_t descriptor_type;
-	// uint8_t descriptor_index;
-	uint8_t interface_number;
+	(void)descriptor_index;
 
-	(void)dev;
-	(void)complete;
-
-	descriptor_type = req->wValue >> 8;
-	// descriptor_index = req->wValue & 0xFF;
-	interface_number = req->wIndex;
-
-	if (interface_number != HID_INTERFACE_NUMBER_BOOT && interface_number != HID_INTERFACE_NUMBER_EXTRA)
-		return USBD_REQ_NOTSUPP;
-
-	// 7.1.1 Get_Descriptor Request
-	if(
-		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
-		&& (req->bRequest == USB_REQ_GET_DESCRIPTOR)
-	) {
-		if(interface_number == HID_INTERFACE_NUMBER_BOOT) {
+	switch(interface_number) {
+		case HID_INTERFACE_NUMBER_BOOT:
 			switch(descriptor_type) {
 				case USB_HID_DT_HID:
 					*buf = (uint8_t *)&hid_function_boot;
@@ -71,7 +55,8 @@ static enum usbd_request_return_codes hid_standard_request(
 				// case USB_HID_DT_PHYSICAL:
 				//  	break;
 			}
-		} else if(interface_number == HID_INTERFACE_NUMBER_EXTRA) {
+			break;
+		case HID_INTERFACE_NUMBER_EXTRA:
 			switch(descriptor_type) {
 				case USB_HID_DT_HID:
 					*buf = (uint8_t *)&hid_function_extra;
@@ -84,8 +69,42 @@ static enum usbd_request_return_codes hid_standard_request(
 				// case USB_HID_DT_PHYSICAL:
 				//  	break;
 			}
-		} else
-			return USBD_REQ_NOTSUPP;
+			break;
+	}
+
+	return USBD_REQ_NOTSUPP;
+}
+
+static enum usbd_request_return_codes hid_standard_request(
+	usbd_device *dev,
+	struct usb_setup_data *req,
+	uint8_t **buf,
+	uint16_t *len,
+	void (**complete)(usbd_device *, struct usb_setup_data *)
+) {
+	uint8_t descriptor_type;
+	uint8_t descriptor_index;
+	uint8_t interface_number;
+
+	(void)dev;
+	(void)complete;
+
+	descriptor_type = req->wValue >> 8;
+	descriptor_index = req->wValue & 0xFF;
+	interface_number = req->wIndex;
+
+	// 7.1.1 Get_Descriptor Request
+	if(
+		((req->bmRequestType & USB_REQ_TYPE_DIRECTION) == USB_REQ_TYPE_IN)
+		&& (req->bRequest == USB_REQ_GET_DESCRIPTOR)
+	) {
+		return hid_standard_get_descriptor(
+			descriptor_type,
+			descriptor_index,
+			interface_number,
+			buf,
+			len
+		);
 	}
 
 	// 7.1.2 Set_Descriptor Request
