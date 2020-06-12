@@ -1,11 +1,9 @@
 TODO
-- HID
-	- Secondary interface
-	- Fix idle rate per interface
 - Layout
 	- Implemented shifted numbers
 	- Implement save / load layer state.
 - Display
+	- Leave screensaver on display update
 	- Add hid_usbd_remote_wakeup_sent.
 	- Keypress counter
 	- DMA transfer
