@@ -77,19 +77,19 @@ extern const uint8_t hid_report_descriptor_boot[64];
 #define KEYBOARD_PAGE_MAX 6
 #define KEYBOARD_MODIFIERS_MAX 8
 // Must match hid_report_descriptor_boot, HID_ENDPOINT_BOOT_MAX_PACKET_SIZEs
-struct hid_in_report_data_boot {
+struct hid_in_report_data_boot_t {
 	uint8_t keyboard_keypad_modifiers;
 	uint8_t reserved;
 	uint8_t keyboard_keypad[KEYBOARD_PAGE_MAX];
 } __attribute__((packed));
 // Must match hid_report_descriptor_boot
-typedef uint8_t hid_out_report_data_boot;
+typedef uint8_t hid_out_report_data_boot_t;
 
 extern const uint8_t hid_report_descriptor_extra[42];
 #define GENERIC_DESKTOP_PAGE_MAX 4
 #define CONSUMER_DEVICES_PAGE_MAX 2
 // Must match hid_report_descriptor_extra
-struct hid_in_report_data_extra {
+struct hid_in_report_data_extra_t {
 	uint8_t generic_desktop[GENERIC_DESKTOP_PAGE_MAX];
 	uint16_t consumer_devices[CONSUMER_DEVICES_PAGE_MAX];
 } __attribute__((packed));

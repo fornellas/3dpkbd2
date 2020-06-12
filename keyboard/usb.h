@@ -25,13 +25,13 @@ extern uint8_t usbd_control_buffer[
  						),
  						sizeof(hid_report_descriptor_boot)
  					),
- 					sizeof(struct hid_in_report_data_boot)
+ 					sizeof(struct hid_in_report_data_boot_t)
  				),
- 				sizeof(hid_out_report_data_boot)
+ 				sizeof(hid_out_report_data_boot_t)
  			),
  			sizeof(hid_report_descriptor_extra)
  		),
- 		sizeof(struct hid_in_report_data_extra)
+ 		sizeof(struct hid_in_report_data_extra_t)
  	)
 ];
 

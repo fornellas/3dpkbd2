@@ -162,7 +162,7 @@ const struct usb_hid_function hid_function_extra = {
 // HID Report Descriptor
 //
 
-// Must match hid_in_report_data, hid_out_report_data_boot Get_Report Request,
+// Must match hid_in_report_data, hid_out_report_data_boot_t Get_Report Request,
 // send_in_report and HID_ENDPOINT_MAX_PACKET_SIZE
 const uint8_t hid_report_descriptor_boot[] = {
 	// https://www.usb.org/document-library/device-class-definition-hid-111
@@ -208,7 +208,7 @@ const uint8_t hid_report_descriptor_boot[] = {
 	0xc0,                     // END_COLLECTION
 };
 
-// Must match hid_in_report_data, hid_out_report_data_boot Get_Report Request and
+// Must match hid_in_report_data, hid_out_report_data_boot_t Get_Report Request and
 // send_in_report
 const uint8_t hid_report_descriptor_extra[] = {
 	0x05, 0x01,                       // USAGE_PAGE (Generic Desktop)

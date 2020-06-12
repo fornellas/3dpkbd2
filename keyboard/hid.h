@@ -7,7 +7,7 @@
 
 extern uint8_t hid_protocol;
 extern uint16_t hid_idle_rate_ms;
-extern hid_out_report_data_boot hid_led_report;
+extern hid_out_report_data_boot_t hid_led_report;
 
 struct hid_usage_t {
 	uint16_t page;

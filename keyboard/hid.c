@@ -13,7 +13,7 @@
 
 uint8_t hid_protocol = USB_HID_PROTOCOL_REPORT;
 uint16_t hid_idle_rate_ms = 0;
-hid_out_report_data_boot hid_led_report;
+hid_out_report_data_boot_t hid_led_report;
 
 static uint32_t idle_finish_ms = 0;
 static uint8_t hid_report_transmitting_boot = 0;
@@ -118,9 +118,9 @@ static enum usbd_request_return_codes hid_standard_request(
 
 static void populate_hid_in_report_data_boot(
 	struct hid_usage_list_t *hid_usage_list,
-	struct hid_in_report_data_boot *new_hid_in_report_data_boot
+	struct hid_in_report_data_boot_t *new_hid_in_report_data_boot
 ) {
-	memset(new_hid_in_report_data_boot, 0, sizeof(struct hid_in_report_data_boot));
+	memset(new_hid_in_report_data_boot, 0, sizeof(struct hid_in_report_data_boot_t));
 	for(uint8_t hid_usage_list_idx=0 ; hid_usage_list_idx < MAX_HID_USAGE_KEYS ; hid_usage_list_idx++) {
 		uint16_t hid_usage_page;
 		uint16_t hid_usage_id;
@@ -161,9 +161,9 @@ static void populate_hid_in_report_data_boot(
 
 static void populate_hid_in_report_data_extra(
 	struct hid_usage_list_t *hid_usage_list,
-	struct hid_in_report_data_extra *new_hid_in_report_data_extra
+	struct hid_in_report_data_extra_t *new_hid_in_report_data_extra
 ) {
-	memset(new_hid_in_report_data_extra, 0, sizeof(struct hid_in_report_data_extra));
+	memset(new_hid_in_report_data_extra, 0, sizeof(struct hid_in_report_data_extra_t));
 	for(uint8_t hid_usage_list_idx=0 ; hid_usage_list_idx < MAX_HID_USAGE_KEYS ; hid_usage_list_idx++) {
 		uint16_t hid_usage_page;
 		uint16_t hid_usage_id;
@@ -202,8 +202,8 @@ static enum usbd_request_return_codes hid_class_get_report(
 	uint16_t *len
 ) {
 	struct hid_usage_list_t hid_usage_list;
-	static struct hid_in_report_data_boot new_hid_in_report_data_boot;
-	static struct hid_in_report_data_extra new_hid_in_report_data_extra;
+	static struct hid_in_report_data_boot_t new_hid_in_report_data_boot;
+	static struct hid_in_report_data_extra_t new_hid_in_report_data_extra;
 
 	(void)report_id;
 	(void)report_length;
@@ -214,13 +214,13 @@ static enum usbd_request_return_codes hid_class_get_report(
 			switch(interface_number) {
 				case HID_INTERFACE_NUMBER_BOOT:
 					populate_hid_in_report_data_boot(&hid_usage_list, &new_hid_in_report_data_boot);
-					memcpy(*buf, &new_hid_in_report_data_boot, sizeof(struct hid_in_report_data_boot));;
-					*len = sizeof(struct hid_in_report_data_boot);
+					memcpy(*buf, &new_hid_in_report_data_boot, sizeof(struct hid_in_report_data_boot_t));;
+					*len = sizeof(struct hid_in_report_data_boot_t);
 					return USBD_REQ_HANDLED;
 				case HID_INTERFACE_NUMBER_EXTRA:
 					populate_hid_in_report_data_extra(&hid_usage_list, &new_hid_in_report_data_extra);
-					memcpy(*buf, &new_hid_in_report_data_extra, sizeof(struct hid_in_report_data_extra));;
-					*len = sizeof(struct hid_in_report_data_extra);
+					memcpy(*buf, &new_hid_in_report_data_extra, sizeof(struct hid_in_report_data_extra_t));;
+					*len = sizeof(struct hid_in_report_data_extra_t);
 					return USBD_REQ_HANDLED;
 			}
 		// case USB_HID_REPORT_TYPE_OUTPUT:
@@ -475,8 +475,8 @@ void hid_set_config_callback(usbd_device *dev) {
 }
 
 static void send_hid_usage_list(usbd_device *dev, struct hid_usage_list_t *new_hid_usage_list) {
-	static struct hid_in_report_data_boot new_hid_in_report_data_boot;
-	static struct hid_in_report_data_extra new_hid_in_report_data_extra;
+	static struct hid_in_report_data_boot_t new_hid_in_report_data_boot;
+	static struct hid_in_report_data_extra_t new_hid_in_report_data_extra;
 
 	memcpy(&old_hid_usage_list, new_hid_usage_list, sizeof(struct hid_usage_list_t));
 
@@ -485,7 +485,7 @@ static void send_hid_usage_list(usbd_device *dev, struct hid_usage_list_t *new_h
 		usbd_ep_write_packet(
 			dev, HID_ENDPOINT_IN_ADDR_BOOT,
 			(void *)&new_hid_in_report_data_boot,
-			sizeof(struct hid_in_report_data_boot)
+			sizeof(struct hid_in_report_data_boot_t)
 		)
 	)
 		hid_report_transmitting_boot = 1;
@@ -495,7 +495,7 @@ static void send_hid_usage_list(usbd_device *dev, struct hid_usage_list_t *new_h
 		usbd_ep_write_packet(
 			dev, HID_ENDPOINT_IN_ADDR_EXTRA,
 			(void *)&new_hid_in_report_data_extra,
-			sizeof(struct hid_in_report_data_extra)
+			sizeof(struct hid_in_report_data_extra_t)
 		)
 	)
 		hid_report_transmitting_extra = 1;
