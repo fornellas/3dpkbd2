@@ -96,11 +96,4 @@ struct hid_in_report_data_extra {
 
 #define MAX_HID_USAGE_KEYS (KEYBOARD_MODIFIERS_MAX + KEYBOARD_PAGE_MAX + GENERIC_DESKTOP_PAGE_MAX + CONSUMER_DEVICES_PAGE_MAX)
 
-//
-// Functions
-//
-
-// Must match hid_report_descriptor_boot FIXME
-void hid_in_report_add(struct hid_in_report_data_boot *, uint16_t, uint16_t);
-
 #endif

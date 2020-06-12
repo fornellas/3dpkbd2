@@ -1,6 +1,7 @@
 #include "scan.h"
 #include "sequence.h"
 #include "../keys.h"
+#include "../hid.h"
 #include "../descriptors.h"
 
 enum function_defs {
@@ -14,7 +15,14 @@ enum function_defs {
   FUNC_COUNT,
 };
 
-extern void (* const functions[FUNC_COUNT])(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, struct hid_in_report_data_boot *);
+extern void (* const functions[FUNC_COUNT])(
+  uint8_t,
+  uint8_t,
+  uint8_t,
+  uint8_t,
+  uint8_t,
+  struct hid_usage_list_t *
+);
 
 enum sequence_defs {
   SEQ_DESKTOP_QWERTY,

@@ -2,6 +2,7 @@
 #define KEYS_H
 
 #include "descriptors.h"
+#include "hid.h"
 #include <stdint.h>
 
 #define USB_HID_USAGE_PAGE_NONE 0xFF00
@@ -20,7 +21,7 @@ void keys_setup(void);
 
 void keys_reset(void);
 
-void keys_populate_hid_in_report(struct hid_in_report_data_boot *);
+void keys_populate_hid_usage_list(struct hid_usage_list_t *);
 
 void keys_scan(void (*)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *);
 

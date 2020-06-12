@@ -4,6 +4,7 @@
 #include "keys/sequence.h"
 #include <descriptors.h>
 #include <libopencm3/usb/hid_usage_tables.h>
+#include <string.h>
 
 uint32_t layout_changes_counter = 0;
 
@@ -36,12 +37,19 @@ void keys_reset() {
 	sequence_reset();
 }
 
-static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8_t pressed, uint8_t released, void *data) {
-	struct hid_in_report_data_boot *hid_in_report;
+static void key_event_callback(
+	uint8_t row,
+	uint8_t column,
+	uint8_t state,
+	uint8_t pressed,
+	uint8_t released,
+	void *data
+) {
+	struct hid_usage_list_t *hid_usage_list;
 	uint16_t hid_usage_page, hid_usage_id;
 	uint8_t layer_idx;
 
-	hid_in_report = (struct hid_in_report_data_boot *)data;
+	hid_usage_list = (struct hid_usage_list_t *)data;
 
 	layer_idx=0;
 	retry:
@@ -60,7 +68,7 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 	// Regular HID Usage Tables
 	if(hid_usage_page < 0xFF00) {
 		if(state)
-			hid_in_report_add(hid_in_report, hid_usage_page, hid_usage_id);
+			hid_usage_list_add(hid_usage_list, hid_usage_page, hid_usage_id);
 	// Vendor Defined HID Usage Tables
 	} else {
 		(void)released;
@@ -71,7 +79,7 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 				layer_idx++;
 				goto retry;
 			case USB_HID_USAGE_PAGE_FUNCTION:
-				functions[hid_usage_id](row, column, state, pressed, released, hid_in_report);
+				functions[hid_usage_id](row, column, state, pressed, released, hid_usage_list);
 				break;
 			case USB_HID_USAGE_PAGE_SEQUENCE:
 				if(pressed)
@@ -84,7 +92,8 @@ static void key_event_callback(uint8_t row, uint8_t column, uint8_t state, uint8
 	}
 }
 
-void keys_populate_hid_in_report(struct hid_in_report_data_boot *hid_in_report) {
-	sequence_play(hid_in_report);
-	keys_scan(key_event_callback, (void *)hid_in_report);
+void keys_populate_hid_usage_list(struct hid_usage_list_t *hid_usage_list) {
+	memset(hid_usage_list, 0, sizeof(struct hid_usage_list_t));
+	sequence_play(hid_usage_list);
+	keys_scan(key_event_callback, (void *)hid_usage_list);
 }

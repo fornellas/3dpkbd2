@@ -35,7 +35,7 @@ void sequence_register(const struct sequence_step_data new_sequence[]) {
 	active_sequence_step = 0;
 }
 
-void sequence_play(struct hid_in_report_data_boot *hid_in_report) {
+void sequence_play(struct hid_usage_list_t *hid_usage_list) {
 	struct sequence_step_data *sequence_step;
 
 	if(active_sequence == NULL)
@@ -48,7 +48,7 @@ void sequence_play(struct hid_in_report_data_boot *hid_in_report) {
 			struct hid_usage_t *hid_usage;
 
 			hid_usage = &((*sequence_step->hid_usage)[i]);
-			hid_in_report_add(hid_in_report, hid_usage->page, hid_usage->id);
+			hid_usage_list_add(hid_usage_list, hid_usage->page, hid_usage->id);
 		}
 		active_sequence_step++;
 	} else {

@@ -1,19 +1,7 @@
 TODO
 - HID
 	- Secondary interface
-		- swap struct hid_usage_t for struct hid_usage_list
-			- get_hid_in_report > get_hid_usage_list
-			- keys_populate_hid_in_report > keys_populate_hid_usage_list
-			- send_in_report > send_hid_usage_list
-			- hid_class_get_report
-			- hid_class_set_report
-			- hid_class_get_idle
-			- hid_class_set_idle
-			- sequence_play
-			- keys_scan
-			- key_event_callback
-			- hid_in_report_add > hid_usage_page_add
-			- functions (layers.h)
+	- Fix idle rate per interface
 - Layout
 	- Implemented shifted numbers
 	- Implement save / load layer state.

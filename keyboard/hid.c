@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "keys.h"
+#include <libopencm3/usb/hid_usage_tables.h>
 
 //
 // Variables
@@ -17,19 +18,13 @@ hid_out_report_data_boot hid_led_report;
 static uint32_t idle_finish_ms = 0;
 static uint8_t hid_report_transmitting_boot = 0;
 static uint8_t hid_report_transmitting_extra = 0;
-static struct hid_in_report_data_boot old_hid_in_report;
+static struct hid_usage_list_t old_hid_usage_list;
 static uint8_t hid_usbd_remote_wakeup_sent = 0;
 
-//
-// Prototypes
-//
-
-static void get_hid_in_report(struct hid_in_report_data_boot *);
-
-static void send_in_report(usbd_device *dev, struct hid_in_report_data_boot *);
+static void send_hid_usage_list(usbd_device *dev, struct hid_usage_list_t *);
 
 //
-// Functions
+// Standard HID Requests
 //
 
 static enum usbd_request_return_codes hid_standard_get_descriptor(
@@ -117,6 +112,87 @@ static enum usbd_request_return_codes hid_standard_request(
 	return USBD_REQ_NEXT_CALLBACK;
 }
 
+//
+// HID Class Requests
+//
+
+static void populate_hid_in_report_data_boot(
+	struct hid_usage_list_t *hid_usage_list,
+	struct hid_in_report_data_boot *new_hid_in_report_data_boot
+) {
+	memset(new_hid_in_report_data_boot, 0, sizeof(struct hid_in_report_data_boot));
+	for(uint8_t hid_usage_list_idx=0 ; hid_usage_list_idx < MAX_HID_USAGE_KEYS ; hid_usage_list_idx++) {
+		uint16_t hid_usage_page;
+		uint16_t hid_usage_id;
+
+		hid_usage_page = hid_usage_list->values[hid_usage_list_idx].page;
+		hid_usage_id = hid_usage_list->values[hid_usage_list_idx].id;
+
+		if(hid_usage_page != USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD)
+			continue;
+
+		if(
+			hid_usage_id >= USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_CONTROL
+			&& hid_usage_id <= USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_GUI
+		) {
+			uint8_t modifier_bit;
+
+			modifier_bit = hid_usage_id - USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_CONTROL;
+			new_hid_in_report_data_boot->keyboard_keypad_modifiers |= (1 << modifier_bit);
+		} else {
+			uint8_t error_roll_over;
+
+			error_roll_over = 1;
+			for(uint8_t i=0 ; i < KEYBOARD_PAGE_MAX ; i++) {
+				if(new_hid_in_report_data_boot->keyboard_keypad[i] != USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_RESERVED_NO_EVENT_INDICATED){
+					continue;
+				} else {
+					new_hid_in_report_data_boot->keyboard_keypad[i] = hid_usage_id;
+					error_roll_over = 0;
+					break;
+				}
+			}
+			if(error_roll_over)
+				for(uint8_t i=0 ; i < KEYBOARD_PAGE_MAX ; i++)
+					new_hid_in_report_data_boot->keyboard_keypad[i] = USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ERROR_ROLLOVER;
+		}
+	}
+}
+
+static void populate_hid_in_report_data_extra(
+	struct hid_usage_list_t *hid_usage_list,
+	struct hid_in_report_data_extra *new_hid_in_report_data_extra
+) {
+	memset(new_hid_in_report_data_extra, 0, sizeof(struct hid_in_report_data_extra));
+	for(uint8_t hid_usage_list_idx=0 ; hid_usage_list_idx < MAX_HID_USAGE_KEYS ; hid_usage_list_idx++) {
+		uint16_t hid_usage_page;
+		uint16_t hid_usage_id;
+
+		hid_usage_page = hid_usage_list->values[hid_usage_list_idx].page;
+		hid_usage_id = hid_usage_list->values[hid_usage_list_idx].id;
+
+		switch(hid_usage_page) {
+			case USB_HID_USAGE_PAGE_GENERIC_DESKTOP:
+				for(uint8_t i=0 ; i < 6 ; i++) {
+					if(!new_hid_in_report_data_extra->generic_desktop[i]) {
+						new_hid_in_report_data_extra->generic_desktop[i] = hid_usage_id;
+						break;
+					}
+				}
+				break;
+			case USB_HID_USAGE_PAGE_CONSUMER:
+				for(uint8_t i=0 ; i < 6 ; i++) {
+					if(!new_hid_in_report_data_extra->consumer_devices[i]) {
+						new_hid_in_report_data_extra->consumer_devices[i] = hid_usage_id;
+						break;
+					}
+				}
+				break;
+		}
+	}
+
+}
+
 static enum usbd_request_return_codes hid_class_get_report(
 	uint8_t report_type,
 	uint8_t report_id,
@@ -125,23 +201,28 @@ static enum usbd_request_return_codes hid_class_get_report(
 	uint8_t **buf,
 	uint16_t *len
 ) {
-	static struct hid_in_report_data_boot new_hid_in_report;
+	struct hid_usage_list_t hid_usage_list;
+	static struct hid_in_report_data_boot new_hid_in_report_data_boot;
+	static struct hid_in_report_data_extra new_hid_in_report_data_extra;
+
 	(void)report_id;
 	(void)report_length;
 
-	if (interface_number != HID_INTERFACE_NUMBER_BOOT)
-		return USBD_REQ_NOTSUPP;
-
 	switch(report_type) {
 		case USB_HID_REPORT_TYPE_INPUT:
-			get_hid_in_report(&new_hid_in_report);
-			memcpy(*buf, &new_hid_in_report, sizeof(struct hid_in_report_data_boot));
-			// For Boot Protocol we can only send the first 8 bytes
-			if(!hid_protocol)
-				*len = 8;
-			else
-				*len = sizeof(struct hid_in_report_data_boot);
-			return USBD_REQ_HANDLED;
+			keys_populate_hid_usage_list(&hid_usage_list);
+			switch(interface_number) {
+				case HID_INTERFACE_NUMBER_BOOT:
+					populate_hid_in_report_data_boot(&hid_usage_list, &new_hid_in_report_data_boot);
+					memcpy(*buf, &new_hid_in_report_data_boot, sizeof(struct hid_in_report_data_boot));;
+					*len = sizeof(struct hid_in_report_data_boot);
+					return USBD_REQ_HANDLED;
+				case HID_INTERFACE_NUMBER_EXTRA:
+					populate_hid_in_report_data_extra(&hid_usage_list, &new_hid_in_report_data_extra);
+					memcpy(*buf, &new_hid_in_report_data_extra, sizeof(struct hid_in_report_data_extra));;
+					*len = sizeof(struct hid_in_report_data_extra);
+					return USBD_REQ_HANDLED;
+			}
 		// case USB_HID_REPORT_TYPE_OUTPUT:
 		// 	break;
 		// case USB_HID_REPORT_TYPE_FEATURE:
@@ -161,18 +242,18 @@ static enum usbd_request_return_codes hid_class_set_report(
 	(void)report_id;
 	(void)len;
 
-	if (interface_number != HID_INTERFACE_NUMBER_BOOT)
-		return USBD_REQ_NOTSUPP;
-
 	switch(report_type) {
 		// case USB_HID_REPORT_TYPE_INPUT:
 		// 	break;
 		case USB_HID_REPORT_TYPE_OUTPUT:
-			if (report_length != sizeof(hid_led_report))
-				return USBD_REQ_NOTSUPP;
-			// FIXME check len
-			hid_led_report = *buf[0];
-			return USBD_REQ_HANDLED;
+			if (interface_number != HID_INTERFACE_NUMBER_BOOT) {
+				if (report_length != sizeof(hid_led_report))
+					return USBD_REQ_NOTSUPP;
+				// FIXME check len
+				hid_led_report = *buf[0];
+				return USBD_REQ_HANDLED;
+			}
+			break;
 		// case USB_HID_REPORT_TYPE_FEATURE:
 		// 	break;
 	}
@@ -334,6 +415,10 @@ static enum usbd_request_return_codes hid_class_specific_request(
 	return USBD_REQ_NEXT_CALLBACK;
 }
 
+//
+//  
+//
+
 static void hid_endpoint_interrupt_in_transfer_complete_boot(usbd_device *usbd_dev, uint8_t ep) {
 	(void)usbd_dev;
 	(void)ep;
@@ -385,28 +470,35 @@ void hid_set_config_callback(usbd_device *dev) {
 	hid_report_transmitting_boot = 0;
 	hid_report_transmitting_extra = 0;
 	keys_reset();
-	get_hid_in_report(&old_hid_in_report);
+	keys_populate_hid_usage_list(&old_hid_usage_list);
 	hid_usbd_remote_wakeup_sent = 0;
 }
 
-static void get_hid_in_report(struct hid_in_report_data_boot *hid_in_report) {
-	memset(hid_in_report, 0, sizeof(struct hid_in_report_data_boot));
-	keys_populate_hid_in_report(hid_in_report);
-}
+static void send_hid_usage_list(usbd_device *dev, struct hid_usage_list_t *new_hid_usage_list) {
+	static struct hid_in_report_data_boot new_hid_in_report_data_boot;
+	static struct hid_in_report_data_extra new_hid_in_report_data_extra;
 
-static void send_in_report(usbd_device *dev, struct hid_in_report_data_boot *new_hid_in_report) {
-	uint16_t len;
+	memcpy(&old_hid_usage_list, new_hid_usage_list, sizeof(struct hid_usage_list_t));
 
-	memcpy(&old_hid_in_report, new_hid_in_report, sizeof(struct hid_in_report_data_boot));
-
-	// For Boot Protocol we can only send the first 8 bytes
-	if(!hid_protocol)
-		len = 8;
-	else
-		len = sizeof(struct hid_in_report_data_boot);
-
-	if(usbd_ep_write_packet(dev, HID_ENDPOINT_IN_ADDR_BOOT, (void *)new_hid_in_report, len))
+	populate_hid_in_report_data_boot(new_hid_usage_list, &new_hid_in_report_data_boot);
+	if(
+		usbd_ep_write_packet(
+			dev, HID_ENDPOINT_IN_ADDR_BOOT,
+			(void *)&new_hid_in_report_data_boot,
+			sizeof(struct hid_in_report_data_boot)
+		)
+	)
 		hid_report_transmitting_boot = 1;
+
+	populate_hid_in_report_data_extra(new_hid_usage_list, &new_hid_in_report_data_extra);
+	if(
+		usbd_ep_write_packet(
+			dev, HID_ENDPOINT_IN_ADDR_EXTRA,
+			(void *)&new_hid_in_report_data_extra,
+			sizeof(struct hid_in_report_data_extra)
+		)
+	)
+		hid_report_transmitting_extra = 1;
 }
 
 static void remote_wakeup_key_event_callback(
@@ -431,7 +523,7 @@ static void remote_wakeup_key_event_callback(
 }
 
 void hid_poll(usbd_device *dev) {
-	struct hid_in_report_data_boot new_hid_in_report;
+	struct hid_usage_list_t new_hid_usage_list;
 	uint32_t now;
 
 	if(!usbd_is_suspended())
@@ -452,24 +544,41 @@ void hid_poll(usbd_device *dev) {
 	if(!(usbd_state == USBD_STATE_CONFIGURED && !usbd_is_suspended()))
 		return;
 
-	if(hid_report_transmitting_boot)
+	if(hid_report_transmitting_boot || hid_report_transmitting_extra)
 		return;
 
 	// Only send if there are changes
 	if(hid_idle_rate_ms == 0) {
-		get_hid_in_report(&new_hid_in_report);
-		if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data_boot)))
-			send_in_report(dev, &new_hid_in_report);
+		keys_populate_hid_usage_list(&new_hid_usage_list);
+		if(memcmp(&new_hid_usage_list, &old_hid_usage_list, sizeof(struct hid_usage_list_t)))
+			send_hid_usage_list(dev, &new_hid_usage_list);
 	// Only send if there are changes or at idle rate
 	} else {
-		get_hid_in_report(&new_hid_in_report);
+		keys_populate_hid_usage_list(&new_hid_usage_list);
 		now = uptime_ms();
 		if(now >= idle_finish_ms) {
-			send_in_report(dev, &new_hid_in_report);
+			send_hid_usage_list(dev, &new_hid_usage_list);
 			idle_finish_ms = now + hid_idle_rate_ms;
 		} else {
-			if(memcmp(&new_hid_in_report, &old_hid_in_report, sizeof(struct hid_in_report_data_boot)))
-				send_in_report(dev, &new_hid_in_report);
+			if(memcmp(&new_hid_usage_list, &old_hid_usage_list, sizeof(struct hid_usage_list_t)))
+				send_hid_usage_list(dev, &new_hid_usage_list);
 		}
 	}
+}
+
+uint8_t hid_usage_list_add(
+	struct hid_usage_list_t *hid_usage_list,
+	uint16_t page, uint16_t id
+) {
+	for(uint8_t i=0 ; i < MAX_HID_USAGE_KEYS ; i++) {
+		if(
+			!(hid_usage_list->values[i].page)
+			&& !(hid_usage_list->values[i].id)
+		) {
+			hid_usage_list->values[i].page = page;
+			hid_usage_list->values[i].id = id;
+			return 0;
+		}
+	}
+	return 1;
 }
