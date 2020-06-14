@@ -38,11 +38,6 @@ static uint8_t layout_get(void) {
 	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYPAD_ ## value \
 }
 
-#define GD(value) { \
-	.page=USB_HID_USAGE_PAGE_GENERIC_DESKTOP, \
-	.id=USB_HID_USAGE_PAGE_GENERIC_DESKTOP_ ## value \
-}
-
 #define CSMR(value) { \
 	.page=USB_HID_USAGE_PAGE_CONSUMER, \
 	.id=USB_HID_USAGE_PAGE_CONSUMER_ ## value \
@@ -495,18 +490,18 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 CSMR(MUTE),
 		____, ____,                  ____,                                         ____,                        ____,
 		// Right
-		// FIXME KBD(POWER): TypeMatrix sends Monitor page 0x01
-		// FIXME KBD(SLEEP): TypeMatrix sends Monitor page 0x02
-		// FIXME GD(SYSTEM_WAKE_UP): TypeMatrix sends Monitor page 0x03
+		// FIXME Fn+F7 (power): TypeMatrix sends Monitor page 0x01
+		// FIXME Fn+F8: (sleep): TypeMatrix sends Monitor page 0x02
+		// FIXME Fn+F9 (wake): TypeMatrix sends Monitor page 0x03
 		// TODO Fn+F10+Shift: SysReq
 		// TODO Fn+F12+Shift: Break
-		KBD(INSERT),            CSMR(EJECT),               KBD(POWER),                KK(SLEEP), GD(SYSTEM_WAKE_UP), KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), KBD(PAUSE), KPD(NUM_LOCK_AND_CLEAR),
-		CSMR(VOLUME_INCREMENT), ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
-		                        ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
-		CSMR(VOLUME_DECREMENT), ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       FUNC(TOGGLE_SHIFTED_NUMBER_LAYER),
-		                        ____,                      ____,                      ____,      ____,               ____,              ____,             ____,       ____,
-		CSMR(MUTE),                                        CSMR(SCAN_PREVIOUS_TRACK),            ____,               ____,              ____,             ____,       CSMR(AC_BACK),
-		____,                                              CSMR(SCAN_NEXT_TRACK),                ____,               ____,              ____,             ____,       CSMR(AC_FORWARD)
+		KBD(INSERT),            CSMR(EJECT),               KBD(POWER),                KK(SLEEP), ____, KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), KBD(PAUSE), KPD(NUM_LOCK_AND_CLEAR),
+		CSMR(VOLUME_INCREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
+		                        ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
+		CSMR(VOLUME_DECREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             ____,       FUNC(TOGGLE_SHIFTED_NUMBER_LAYER),
+		                        ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
+		CSMR(MUTE),                                        CSMR(SCAN_PREVIOUS_TRACK),            ____, ____,              ____,             ____,       CSMR(AC_BACK),
+		____,                                              CSMR(SCAN_NEXT_TRACK),                ____, ____,              ____,             ____,       CSMR(AC_FORWARD)
 	),
 	[LAYER_KEYPAD] = LAYER_KEYMAP(
 		// Left

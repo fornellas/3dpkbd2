@@ -83,14 +83,12 @@ struct hid_in_report_boot_t {
 } __attribute__((packed));
 typedef uint8_t hid_out_report_boot_t;
 
-extern const uint8_t hid_report_descriptor_extra[42];
-#define GENERIC_DESKTOP_PAGE_MAX 4
+extern const uint8_t hid_report_descriptor_extra[23];
 #define CONSUMER_DEVICES_PAGE_MAX 2
 struct hid_in_report_extra_t {
-	uint8_t generic_desktop[GENERIC_DESKTOP_PAGE_MAX];
 	uint16_t consumer_devices[CONSUMER_DEVICES_PAGE_MAX];
 } __attribute__((packed));
 
-#define MAX_HID_USAGE_KEYS (KEYBOARD_MODIFIERS_MAX + KEYBOARD_PAGE_MAX + GENERIC_DESKTOP_PAGE_MAX + CONSUMER_DEVICES_PAGE_MAX)
+#define MAX_HID_USAGE_KEYS (KEYBOARD_MODIFIERS_MAX + KEYBOARD_PAGE_MAX + CONSUMER_DEVICES_PAGE_MAX)
 
 #endif

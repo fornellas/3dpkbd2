@@ -207,26 +207,15 @@ const uint8_t hid_report_descriptor_boot[] = {
 };
 
 const uint8_t hid_report_descriptor_extra[] = {
-	0x05, 0x01,                       // USAGE_PAGE (Generic Desktop)
-	0x09, 0x06,                       // USAGE (Keyboard)
+	0x05, 0x0c,                       // USAGE_PAGE (Consumer Devices)
+	0x09, 0x01,                       // USAGE (Consumer Control)
 	0xa1, 0x01,                       // COLLECTION (Application)
-	// Generic Desktop
-	0x95, GENERIC_DESKTOP_PAGE_MAX,   //   REPORT_COUNT (4)
-	0x75, 0x08,                       //   REPORT_SIZE (8)
-	0x15, 0x00,                       //   LOGICAL_MINIMUM (0)
-	0x26, 0xb7, 0x00,                 //   LOGICAL_MAXIMUM (183)
-	0x05, 0x01,                       //   USAGE_PAGE (Generic Desktop)
-	0x19, 0x00,                       //   USAGE_MINIMUM (Undefined)
-	0x29, 0xb7,                       //   USAGE_MAXIMUM (System Display LCD Autoscale)
-	0x81, 0x00,                       //   INPUT (Data,Ary,Abs)
-	// Consumer Devices
-	0x95, CONSUMER_DEVICES_PAGE_MAX,  //   REPORT_COUNT (2)
+	0x95, CONSUMER_DEVICES_PAGE_MAX,  //   REPORT_COUNT (CONSUMER_DEVICES_PAGE_MAX)
 	0x75, 0x10,                       //   REPORT_SIZE (16)
 	0x15, 0x00,                       //   LOGICAL_MINIMUM (0)
-	0x26, 0x9c, 0x02,                 //   LOGICAL_MAXIMUM (668)
-	0x05, 0x0c,                       //   USAGE_PAGE (Consumer Devices)
+	0x26, 0x9c, 0x02,                 //   LOGICAL_MAXIMUM (AC Distribute Vertically)
 	0x19, 0x00,                       //   USAGE_MINIMUM (Unassigned)
-	0x2a, 0x9c, 0x02,                 //   USAGE_MAXIMUM (AC Distribute Vertically)
+	0x2a, 0x9c, 0x02,                 //   USAGE_MAXIMUM (668)
 	0x81, 0x00,                       //   INPUT (Data,Ary,Abs)
-	0xc0,                             // END_COLLECTION
+	0xc0                              // END_COLLECTION
 };

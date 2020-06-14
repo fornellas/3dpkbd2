@@ -184,14 +184,6 @@ static void populate_hid_in_report_extra(
 		hid_usage_id = hid_usage_list->values[hid_usage_list_idx].id;
 
 		switch(hid_usage_page) {
-			case USB_HID_USAGE_PAGE_GENERIC_DESKTOP:
-				for(uint8_t i=0 ; i < 6 ; i++) {
-					if(!new_hid_in_report_extra->generic_desktop[i]) {
-						new_hid_in_report_extra->generic_desktop[i] = hid_usage_id;
-						break;
-					}
-				}
-				break;
 			case USB_HID_USAGE_PAGE_CONSUMER:
 				for(uint8_t i=0 ; i < 6 ; i++) {
 					if(!new_hid_in_report_extra->consumer_devices[i]) {
