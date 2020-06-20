@@ -214,14 +214,16 @@ static void func_fn(
 	(void)state;
 	(void)hid_usage_list;
 
-	uint8_t active_layout;
 	uint8_t fn_alternative_layout;
-	static uint8_t last_active_layout;
-	static uint8_t last_layout_changes_counter;
+	static uint8_t last_active_layout = 0;
+	static uint8_t last_layout_changes_counter = 0;
 
-	active_layout = layout_get();
 
 	if(pressed) {
+		uint8_t active_layout;
+
+		active_layout = layout_get();
+
 		layers_state[LAYER_FN] = 1;
 		layers_state[LAYER_KEYPAD] = 1;
 
@@ -250,7 +252,8 @@ static void func_fn(
 		layers_state[LAYER_KEYPAD] = layer_keypad_state;
 
 		if(layout_changes_counter == last_layout_changes_counter)
-			layout_set(last_active_layout);
+			if(last_active_layout)
+				layout_set(last_active_layout);
 	}
 };
 
