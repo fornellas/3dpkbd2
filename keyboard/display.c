@@ -18,6 +18,8 @@
 static ucg_t *ucg;
 
 static uint32_t screensaver_step = 0;
+static uint32_t last_state_change_ms = 0;
+static bool screensaver_enabled = false;
 
 void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, uint8_t, uint8_t, uint8_t, const char *, uint8_t);
 
@@ -51,9 +53,6 @@ struct display_state {
 
   // Right Side
   uint8_t keys_scan_right_side_disconnected;
-
-  // Screensaver
-  uint32_t screensaver_step;
 } __attribute__((packed));
 
 static struct display_state current_state;
@@ -89,12 +88,12 @@ void display_draw_toggle(
 
 }
 
-static void screensaver(void) {
+static void draw_screensaver(void) {
   uint16_t step;
   uint16_t d, i;
   uint16_t offset;
 
-  step = current_state.screensaver_step % 1024;
+  step = screensaver_step % 1024;
 
   // Blue > Red > Green > White
   if(step < 256) {
@@ -136,13 +135,15 @@ static void screensaver(void) {
   ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
 
   ucg_SendBuffer(ucg);
+
+  screensaver_step += 20;
 }
 
 static void display_draw(void) {
   char buff[30];
 
-  if(current_state.screensaver_step) {
-    screensaver();
+  if(screensaver_enabled) {
+    draw_screensaver();
     return;
   }
 
@@ -253,13 +254,6 @@ static void display_get_current_state(struct display_state *state) {
 
   // Right Side
   state->keys_scan_right_side_disconnected = keys_scan_right_side_disconnected;
-
-  // Screensaver
-  if((uptime_ms() - last_key_press_ms) >= (SCREENSAVER_SECS * 1000)) {
-    screensaver_step += 20;
-    state->screensaver_step = screensaver_step;
-  } else
-    state->screensaver_step = 0;
 }
 
 void display_setup(void) {
@@ -279,12 +273,40 @@ void display_setup(void) {
 
 void display_update(void) {
   struct display_state new_state;
+  uint32_t latest_event_ms;
+  bool state_changed;
 
+  // State changes
   display_get_current_state(&new_state);
-
   if(memcmp(&current_state, &new_state, sizeof(struct display_state))) {
     memcpy(&last_state, &current_state, sizeof(struct display_state));
     memcpy(&current_state, &new_state, sizeof(struct display_state));
-    display_draw();
+    last_state_change_ms = uptime_ms();
+    state_changed = true;
+  } else {
+    state_changed = false;
   }
+
+  // Screensaver trigger
+  if((uptime_ms() - last_key_press_ms) >= (SCREENSAVER_SECS * 1000)){
+    screensaver_enabled = true;
+  } else {
+    if(screensaver_enabled){
+      screensaver_enabled = false;
+      state_changed = true;
+    }
+  }
+
+  // Disable srceensaver on state change
+  if(screensaver_enabled) {
+    if((uptime_ms() - last_state_change_ms) < (SCREENSAVER_SECS * 1000))
+      if(screensaver_enabled){
+        screensaver_enabled = false;
+        state_changed = true;
+      }
+  }
+
+  if(state_changed || screensaver_enabled)
+    display_draw();
+
 }
