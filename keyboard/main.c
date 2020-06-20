@@ -9,11 +9,6 @@
 int main(void) {
 	usbd_device *usbd_dev;
 
-	// TODO 96MHz
-	// PLLM 25
-	// PLLN 192
-	// PLLP 2
-	// PLLQ 4
 	rcc_clock_setup_pll(&rcc_hse_25mhz_3v3[RCC_CLOCK_3V3_84MHZ]);
 
 	systick_setup();

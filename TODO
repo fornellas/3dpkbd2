@@ -3,10 +3,9 @@ TODO
 	- Implemented shifted numbers
 	- Implement save / load layer state.
 - Display
-	- Leave screensaver on display update
+	- DMA transfer
 	- Add hid_usbd_remote_wakeup_sent.
 	- Keypress counter
-	- DMA transfer
 	- key presses graph over time
 - Build
 	- Clean up clowny ln -s: this works https://github.com/libopencm3/libopencm3/issues/1117#issuecomment-570827827
@@ -20,8 +19,7 @@ TODO
 - USB Specification
 	- Respect suspended current limits
 - Performance
-	- Increase frequency to 96MHz.
-	- Use DMA for display data transfer.
+	- Increase frequency to 96MHz: PLLM 25, PLLN 192, PLLP 2, PLLQ 4.
 
 WAITING
 - libopencm3
