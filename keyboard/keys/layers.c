@@ -216,8 +216,7 @@ static void func_fn(
 	(void)hid_usage_list;
 
 	static uint8_t last_active_layout = 0;
-	static uint8_t last_layout_changes_counter = 0;
-
+	static uint32_t last_layout_changes_counter = 0;
 
 	if(pressed) {
 		uint8_t active_layout;
