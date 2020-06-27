@@ -215,13 +215,13 @@ static void func_fn(
 	(void)state;
 	(void)hid_usage_list;
 
-	uint8_t fn_alternative_layout;
 	static uint8_t last_active_layout = 0;
 	static uint8_t last_layout_changes_counter = 0;
 
 
 	if(pressed) {
 		uint8_t active_layout;
+		uint8_t fn_alternative_layout;
 
 		active_layout = layout_get();
 
