@@ -25,6 +25,4 @@ void keys_populate_hid_usage_list(struct hid_usage_list_t *);
 
 void keys_scan(void (*)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *);
 
-extern uint32_t layout_changes_counter;
-
 #endif

@@ -4,6 +4,7 @@
 
 uint8_t layers_state[LAYER_COUNT];
 static uint8_t layer_keypad_state = 0;
+static uint32_t layout_changes_counter = 0;
 
 void layout_set(uint16_t layout) {
 	layout_changes_counter += 1;

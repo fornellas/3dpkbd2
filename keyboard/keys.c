@@ -6,8 +6,6 @@
 #include <libopencm3/usb/hid_usage_tables.h>
 #include <string.h>
 
-uint32_t layout_changes_counter = 0;
-
 static void load_layer_state(void) {
 	for(uint8_t layer_idx=0 ; layer_idx < LAYER_COUNT ; layer_idx++) {
 		switch(layers_default_state[layer_idx]) {
