@@ -55,6 +55,11 @@ openocd:
 
 .PHONY: openocd
 
+openocd_program: ${PROJECT}.bin $(LDSCRIPT) max_program_size
+	$(Q)openocd --file interface/$(OOCD_INTERFACE).cfg --file target/$(OOCD_TARGET).cfg --command "program ${PROJECT}.bin verify reset exit $(MAIN_MEMORY_BASE)"
+
+.PHONY: openocd_program
+
 gdb: $(PROJECT).elf
 	$(Q)$(GDB) --init-command=lib/gdb.init $(PROJECT).elf
 
