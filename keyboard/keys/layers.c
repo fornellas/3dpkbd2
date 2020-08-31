@@ -425,6 +425,30 @@ static struct sequence_step_data seq_paste_dvorak[] = {
 	SEQ_END,
 };
 
+static struct sequence_step_data seq_alt_1[] = {
+	SEQ_STEP(1, KBD(LEFT_ALT)),
+	SEQ_STEP(2, KBD(LEFT_ALT), KBD(1_AND_EXCLAMATION)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_alt_2[] = {
+	SEQ_STEP(1, KBD(LEFT_ALT)),
+	SEQ_STEP(2, KBD(LEFT_ALT), KBD(2_AND_AT)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_alt_3[] = {
+	SEQ_STEP(1, KBD(LEFT_ALT)),
+	SEQ_STEP(2, KBD(LEFT_ALT), KBD(3_AND_HASHMARK)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_alt_4[] = {
+	SEQ_STEP(1, KBD(LEFT_ALT)),
+	SEQ_STEP(2, KBD(LEFT_ALT), KBD(4_AND_DOLLAR)),
+	SEQ_END,
+};
+
 
 const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_DESKTOP_QWERTY] = seq_desktop_qwerty,
@@ -438,6 +462,10 @@ const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_COPY_DVORAK] = seq_copy_dvorak,
   [SEQ_PASTE_QWERTY] = seq_paste_qwerty,
   [SEQ_PASTE_DVORAK] = seq_paste_dvorak,
+  [SEQ_ALT_1] = seq_alt_1,
+  [SEQ_ALT_2] = seq_alt_2,
+  [SEQ_ALT_3] = seq_alt_3,
+  [SEQ_ALT_4] = seq_alt_4,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -619,16 +647,16 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		KBD(ESCAPE),      KBD(F1),                KBD(F2),          KBD(F3),             KBD(F4),           KBD(F5),               KBD(DELETE_FORWARD),
 		____,             KBD(1_AND_EXCLAMATION), KBD(2_AND_AT),    KBD(3_AND_HASHMARK), KBD(4_AND_DOLLAR), KBD(5_AND_PERCENTAGE), KBD(DELETE_BACKSPACE),
 		KBD(TAB),         ____,                   ____,             ____,                ____,              ____,
-		____,             ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
-		____,             ____,                   ____,             ____,                ____,              ____,
+		SEQ(ALT_1),       ____,                   ____,             ____,                ____,              ____,                  KBD(RETURN_ENTER),
+		SEQ(ALT_2),       ____,                   ____,             ____,                ____,              ____,
 		CSMR(PLAY_PAUSE), KBD(APPLICATION),       SEQ(SHUFFLE),                          KBD(LEFT_SHIFT),                          KBD(SPACEBAR),
 		FUNC(FN),         KBD(LEFT_GUI),          ____,                                  KBD(LEFT_CONTROL),                        KBD(LEFT_ALT),
 		// Right
 		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(KEYPAD),
 		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               CSMR(AL_CALCULATOR),
 		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AL_EMAIL_READER),
-		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               KBD(CAPS_LOCK),
-		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AC_HOME),
+		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             SEQ(ALT_3),         KBD(CAPS_LOCK),
+		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             SEQ(ALT_4),         CSMR(AC_HOME),
 		KBD(SPACEBAR),                           KBD(RIGHT_SHIFT),                          KBD(HOME),                      KBD(UP_ARROW),                  KBD(END),         ____,               KBD(PAGE_UP),
 		KBD(RIGHT_ALT),                          KBD(RIGHT_CONTROL),                        KBD(LEFT_ARROW),                KBD(DOWN_ARROW),                KBD(RIGHT_ARROW), ____,               KBD(PAGE_DOWN)
 	),
