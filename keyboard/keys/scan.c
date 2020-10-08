@@ -253,8 +253,8 @@ static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, 
 		}
 		// Debouncing
 		if(any_triggered){
-			// ~1ms
-			for(uint16_t i=0 ; i < 20000 ; i++)
+			// ~2ms
+			for(uint16_t i=0 ; i < 40000 ; i++)
 				__asm__("nop");
 		}
 	}
