@@ -29,6 +29,19 @@ OOCD_TARGET= stm32f4x
 
 GDB = arm-none-eabi-gdb
 
+OPT += \
+	-O3 \
+	-Wall \
+	-Wextra \
+	-Wimplicit-function-declaration \
+	-Wredundant-decls \
+	-Wmissing-prototypes \
+	-Wstrict-prototypes \
+	-Wundef \
+	-Wshadow \
+	-Wstrict-prototypes \
+	-Werror
+
 include $(OPENCM3_DIR)/mk/genlink-config.mk
 
 # genlink-config.mk does not populate these at first run,

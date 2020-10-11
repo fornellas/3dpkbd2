@@ -185,7 +185,7 @@ static void populate_hid_in_report_extra(
 
 		switch(hid_usage_page) {
 			case USB_HID_USAGE_PAGE_CONSUMER:
-				for(uint8_t i=0 ; i < 6 ; i++) {
+				for(uint8_t i=0 ; i < CONSUMER_DEVICES_PAGE_MAX ; i++) {
 					if(!new_hid_in_report_extra->consumer_devices[i]) {
 						new_hid_in_report_extra->consumer_devices[i] = hid_usage_id;
 						break;
