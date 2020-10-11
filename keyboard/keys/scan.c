@@ -8,6 +8,9 @@
 #include "lib/systick.h"
 #include "lib/i2c.h"
 #include "lib/mcp23017.h"
+#include "lib/systick.h"
+
+#define DEBOUNCE_MS 1
 
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
@@ -246,16 +249,14 @@ static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, 
 		// Due to line capacitances we have to wait for the previous row high
 		// signal to be drained by the pull down resistor so the column input
 		// signal is back to logic low.
-		if(any_pressed){
+		if(any_pressed) {
 			// ~10us
 			for(uint16_t i=0 ; i < 200 ; i++)
 				__asm__("nop");
 		}
-		// Debouncing
+
 		if(any_triggered){
-			// ~2ms
-			for(uint16_t i=0 ; i < 40000 ; i++)
-				__asm__("nop");
+			delay_ms(DEBOUNCE_MS);
 		}
 	}
 }
@@ -317,7 +318,7 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 	}
 
 	for (uint8_t column = LEFT_COLUMNS; column < COLUMNS ; column++) {
-		uint8_t any_pressed;
+		uint8_t any_triggered;
 		uint8_t state;
 		uint8_t pressed;
 		uint8_t released;
@@ -344,9 +345,15 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 			}
 			if(state || pressed || released)
 				(*callback)(row, column, state, pressed, released, data);
+			if(pressed || released)
+				any_triggered = 1;
 		}
 		if(set_right_column(column))
             return;
+
+		if(any_triggered){
+			delay_ms(DEBOUNCE_MS);
+		}
 	}
 }
 
