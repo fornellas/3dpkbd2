@@ -10,7 +10,8 @@
 #include "lib/mcp23017.h"
 #include "lib/systick.h"
 
-#define DEBOUNCE_MS 1
+#define DEBOUNCE_LEFT_MS 2
+#define DEBOUNCE_RIGHT_MS 1
 
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
@@ -256,7 +257,7 @@ static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, 
 		}
 
 		if(any_triggered){
-			delay_ms(DEBOUNCE_MS);
+			delay_ms(DEBOUNCE_LEFT_MS);
 		}
 	}
 }
@@ -352,7 +353,7 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
             return;
 
 		if(any_triggered){
-			delay_ms(DEBOUNCE_MS);
+			delay_ms(DEBOUNCE_RIGHT_MS);
 		}
 	}
 }
