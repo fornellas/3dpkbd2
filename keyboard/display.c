@@ -13,7 +13,7 @@
 
 #define TOGGLE_WIDTH 24
 #define TOGGLE_HEIGHT 20
-#define SCREENSAVER_SECS 300
+#define SCREENSAVER_SECS 60
 
 static ucg_t *ucg;
 
