@@ -13,17 +13,20 @@
 #define DEBOUNCE_MS 5
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
+static uint8_t last_trigger_ms[ROWS][COLUMNS] = {};
 uint8_t keys_scan_right_side_disconnected;
-uint32_t last_key_press_ms = 0;
+uint32_t last_key_trigger_ms = 0;
 
 //
 // setup
 //
 
-void keys_scan_reset() {
+void keys_scan_state_reset() {
 	for(uint8_t row=0 ; row < ROWS ; row++)
-		for(uint8_t column=0; column < COLUMNS ; column++)
+		for(uint8_t column=0; column < COLUMNS ; column++) {
 			previous_key_state[row][column] = 0;
+			last_trigger_ms[row][column] = 0;
+		}
 }
 
 static void setup_left_side(void) {
@@ -134,7 +137,7 @@ static void setup_right_side(void) {
 }
 
 void keys_scan_setup(void) {
-	keys_scan_reset();
+	keys_scan_state_reset();
 	setup_left_side();
 	i2c_setup();
 	keys_scan_right_side_disconnected = 1;
@@ -216,46 +219,56 @@ static uint16_t get_left_column(uint8_t column) {
 
 static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
 	for (uint8_t row = 0; row < ROWS ; row++) {
-		uint8_t any_pressed;
-		uint8_t any_triggered;
+		uint8_t any_state_active;
 		uint8_t state;
 		uint8_t pressed;
 		uint8_t released;
 
-		any_pressed = 0;
-		any_triggered = 0;
+		any_state_active = 0;
 		set_left_row_level(row, 1);
 		for (uint8_t column = 0 ; column < LEFT_COLUMNS ; column++) {
+			uint32_t now;
+
+			now = uptime_ms();
 			if (get_left_column(column)){
-				any_pressed = 1;
+				any_state_active = 1;
+				if(previous_key_state[row][column]) {
+					pressed = 0;
+				} else {
+					if(now - last_trigger_ms[row][column] < DEBOUNCE_MS)
+						continue;
+					pressed = 1;
+					last_key_trigger_ms = now;
+					last_trigger_ms[row][column] = now;
+					previous_key_state[row][column] = 1;
+				}
 				state = 1;
-				pressed = !previous_key_state[row][column];
 				released = 0;
-				previous_key_state[row][column] = 1;
-				last_key_press_ms = uptime_ms();
 			}else{
+				if(!previous_key_state[row][column]) {
+					released = 0;
+				} else {
+					if(now - last_trigger_ms[row][column] < DEBOUNCE_MS)
+						continue;
+					released = 1;
+					last_key_trigger_ms = now;
+					last_trigger_ms[row][column] = now;
+					previous_key_state[row][column] = 0;
+				}
 				state = 0;
 				pressed = 0;
-				released = previous_key_state[row][column];
-				previous_key_state[row][column] = 0;
 			}
 			if(state || pressed || released)
 				(*callback)(row, column, state, pressed, released, data);
-			if(pressed || released)
-				any_triggered = 1;
 		}
 		set_left_row_level(row, 0);
 		// Due to line capacitances we have to wait for the previous row high
 		// signal to be drained by the pull down resistor so the column input
 		// signal is back to logic low.
-		if(any_pressed) {
+		if(any_state_active) {
 			// ~10us
 			for(uint16_t i=0 ; i < 200 ; i++)
 				__asm__("nop");
-		}
-
-		if(any_triggered){
-			delay_ms(DEBOUNCE_MS);
 		}
 	}
 }
@@ -317,11 +330,13 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 	}
 
 	for (uint8_t column = LEFT_COLUMNS; column < COLUMNS ; column++) {
-		uint8_t any_triggered;
 		uint8_t state;
 		uint8_t pressed;
 		uint8_t released;
+		uint32_t now;
         uint8_t rows_state;
+
+		now = uptime_ms();
 
 		if(clear_right_column(column))
             return;
@@ -331,28 +346,37 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 
 		for (uint8_t row = 0 ; row < ROWS ; row++) {
 			if (!(rows_state & (1 << row))){
+				if(previous_key_state[row][column]) {
+					pressed = 0;
+				} else {
+					if(now - last_trigger_ms[row][column] < DEBOUNCE_MS)
+						continue;
+					pressed = 1;
+					last_key_trigger_ms = now;
+					last_trigger_ms[row][column] = now;
+					previous_key_state[row][column] = 1;
+				}
 				state = 1;
-				pressed = !previous_key_state[row][column];
 				released = 0;
-				previous_key_state[row][column] = 1;
-				last_key_press_ms = uptime_ms();
 			}else{
+				if(!previous_key_state[row][column]) {
+					released = 0;
+				} else {
+					if(now - last_trigger_ms[row][column] < DEBOUNCE_MS)
+						continue;
+					released = 1;
+					last_key_trigger_ms = now;
+					last_trigger_ms[row][column] = now;
+					previous_key_state[row][column] = 0;
+				}
 				state = 0;
 				pressed = 0;
-				released = previous_key_state[row][column];
-				previous_key_state[row][column] = 0;
 			}
 			if(state || pressed || released)
 				(*callback)(row, column, state, pressed, released, data);
-			if(pressed || released)
-				any_triggered = 1;
 		}
 		if(set_right_column(column))
             return;
-
-		if(any_triggered){
-			delay_ms(DEBOUNCE_MS);
-		}
 	}
 }
 

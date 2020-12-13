@@ -241,7 +241,7 @@ void display_update(void) {
   }
 
   // Screensaver trigger
-  if((uptime_ms() - last_key_press_ms) >= (SCREENSAVER_SECS * 1000)){
+  if((uptime_ms() - last_key_trigger_ms) >= (SCREENSAVER_SECS * 1000)){
     screensaver_enabled = true;
   } else {
     if(screensaver_enabled){

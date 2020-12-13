@@ -30,7 +30,7 @@ void keys_setup() {
 }
 
 void keys_reset() {
-	keys_scan_reset();
+	keys_scan_state_reset();
 	load_layer_state();
 	sequence_reset();
 }
