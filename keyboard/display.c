@@ -17,7 +17,6 @@
 
 static ucg_t *ucg;
 
-static uint32_t screensaver_step = 0;
 static uint32_t last_state_change_ms = 0;
 static bool screensaver_enabled = false;
 
@@ -89,54 +88,8 @@ void display_draw_toggle(
 }
 
 static void draw_screensaver(void) {
-  uint16_t step;
-  uint16_t d, i;
-  uint16_t offset;
-
-  step = screensaver_step % 1024;
-
-  // Blue > Red > Green > White
-  if(step < 256) {
-    offset = step;
-    d = 255 - offset;
-    i = offset;
-    ucg_SetColor(ucg, 2, i, 0, d); // Blue > Red
-    ucg_SetColor(ucg, 0, d, i, 0);  // Red > Green
-    ucg_SetColor(ucg, 1, i, 255, i); // Green > White
-    ucg_SetColor(ucg, 3, d, d, 255);  // White > Blue
-  // Red > Green > White > Blue
-  } else if(step < 512) {
-    offset = step - 256;
-    d = 255 - offset;
-    i = offset;
-    ucg_SetColor(ucg, 2, d, i, 0); // Red > Green
-    ucg_SetColor(ucg, 0, i, 255, i);  // Green > White
-    ucg_SetColor(ucg, 1, d, d, 255); // White > Blue
-    ucg_SetColor(ucg, 3, i, 0, d);  // Blue > Red
-  // Green > White > Blue > Red
-  } else if(step < 768) {
-    offset = step - 512;
-    d = 255 - offset;
-    i = offset;
-    ucg_SetColor(ucg, 2, i, 255, i); // Green > White
-    ucg_SetColor(ucg, 0, d, d, 255);  // White > Blue
-    ucg_SetColor(ucg, 1, i, 0, d); // Blue > Red
-    ucg_SetColor(ucg, 3, d, i, 0);  // Red > Green
-  // White > Blue > Red > Green
-  } else if(step < 1024) {
-    offset = step - 768;
-    d = 255 - offset;
-    i = offset;
-    ucg_SetColor(ucg, 2, d, d, 255); // White > Blue
-    ucg_SetColor(ucg, 0, i, 0, d);  // Blue > Red
-    ucg_SetColor(ucg, 1, d, i, 0); // Red > Green
-    ucg_SetColor(ucg, 3, i, 255, i);  // Green > White
-  }
-  ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
-
+  ucg_ClearScreen(ucg);
   ucg_SendBuffer(ucg);
-
-  screensaver_step += 20;
 }
 
 static void display_draw(void) {
@@ -297,7 +250,7 @@ void display_update(void) {
     }
   }
 
-  // Disable srceensaver on state change
+  // Disable screensaver on state change
   if(screensaver_enabled) {
     if((uptime_ms() - last_state_change_ms) < (SCREENSAVER_SECS * 1000))
       if(screensaver_enabled){
@@ -308,5 +261,4 @@ void display_update(void) {
 
   if(state_changed || screensaver_enabled)
     display_draw();
-
 }
