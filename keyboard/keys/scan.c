@@ -82,6 +82,9 @@ static void setup_left_side(void) {
 }
 
 static void setup_right_side(void) {
+	if(keys_scan_right_side_disconnected)
+		i2c_setup();
+
 	// Rows Input, Pull up
 	// 0 PB0
 	// 1 PB1
@@ -140,7 +143,6 @@ static void setup_right_side(void) {
 void keys_scan_setup(void) {
 	keys_scan_state_reset();
 	setup_left_side();
-	i2c_setup();
 	keys_scan_right_side_disconnected = 1;
 	setup_right_side();
 }

@@ -43,16 +43,9 @@ void i2c_setup(void) {
 	setup_peripheral();
 }
 
-static void reset_and_setup_if_busy(void) {
-	// Deal with stuck BUSY
-	if ((I2C_SR2(I2C) & I2C_SR2_BUSY))
-		setup_peripheral();
-}
-
-static uint8_t abort_if_error_condition(uint32_t start_ms) {
+static uint8_t has_error_condition(uint32_t start_ms) {
 	if(
-		(uptime_ms() - start_ms >= TIMEOUT_MS)
-		|| (
+		(uptime_ms() - start_ms >= TIMEOUT_MS) || (
 			I2C_SR1(I2C) & (
 				I2C_SR1_BERR
 				| I2C_SR1_ARLO
@@ -60,10 +53,8 @@ static uint8_t abort_if_error_condition(uint32_t start_ms) {
 				| I2C_SR1_TIMEOUT
 			)
 		)
-	) {
-		setup_peripheral();
+	)
 		return 1;
-	}
 
 	return 0;
 }
@@ -74,13 +65,13 @@ static uint8_t send_start_condition(void) {
 	start_ms = uptime_ms();
 	i2c_send_start(I2C);
 	while (!(I2C_SR2(I2C) & I2C_SR2_BUSY))
-		if(abort_if_error_condition(start_ms))
+		if(has_error_condition(start_ms))
 			return 1;
 	while(!(I2C_SR2(I2C) & I2C_SR2_MSL))
-		if(abort_if_error_condition(start_ms))
+		if(has_error_condition(start_ms))
 			return 1;
 	while(!(I2C_SR1(I2C) & I2C_SR1_SB))
-		if(abort_if_error_condition(start_ms))
+		if(has_error_condition(start_ms))
 			return 1;
 
 	return 0;
@@ -92,7 +83,7 @@ static uint8_t send_slave_address(uint8_t addr, uint8_t readwrite) {
 	start_ms = uptime_ms();
 	i2c_send_7bit_address(I2C, addr, readwrite);
 	while (!(I2C_SR1(I2C) & I2C_SR1_ADDR))
-		if(abort_if_error_condition(start_ms))
+		if(has_error_condition(start_ms))
 			return 1;;
 	(void)I2C_SR2(I2C);
 
@@ -100,8 +91,6 @@ static uint8_t send_slave_address(uint8_t addr, uint8_t readwrite) {
 }
 
 uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
-	reset_and_setup_if_busy();
-
 	if(send_start_condition())
 		return 1;
 
@@ -114,7 +103,7 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 		start_ms = uptime_ms();
 		i2c_send_data(I2C, data[i]);
 		while (!(I2C_SR1(I2C) & (I2C_SR1_BTF)))
-			if(abort_if_error_condition(start_ms))
+			if(has_error_condition(start_ms))
 				return 1;
 	}
 
@@ -124,8 +113,6 @@ uint8_t i2c_write(uint8_t addr, uint8_t *data, size_t len) {
 }
 
 uint8_t i2c_read(uint8_t addr, uint8_t *data, size_t len) {
-	reset_and_setup_if_busy();
-
 	if(send_start_condition())
 		return 1;
 
@@ -140,7 +127,7 @@ uint8_t i2c_read(uint8_t addr, uint8_t *data, size_t len) {
 
 		start_ms = uptime_ms();
 		while (!(I2C_SR1(I2C) & I2C_SR1_RxNE))
-			if(abort_if_error_condition(start_ms))
+			if(has_error_condition(start_ms))
 				return 1;
 		data[i] = i2c_get_data(I2C);
 	}
