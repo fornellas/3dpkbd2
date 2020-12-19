@@ -397,8 +397,10 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 				}
 			}
 
-			if(state || pressed || released)
+			if(state || pressed || released) {
+				last_key_trigger_ms = now;
 				(*callback)(row, column, state, pressed, released, data);
+			}
 		}
 		if(set_right_column(column))
             return;
