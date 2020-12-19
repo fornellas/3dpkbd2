@@ -5,6 +5,9 @@
 #include <descriptors.h>
 #include <libopencm3/usb/hid_usage_tables.h>
 #include <string.h>
+#include <stdbool.h>
+
+bool do_shifted_keyboard_keypad_update;
 
 static void load_layer_state(void) {
 	for(uint8_t layer_idx=0 ; layer_idx < LAYER_COUNT ; layer_idx++) {
@@ -86,12 +89,98 @@ static void key_event_callback(
 			case USB_HID_USAGE_PAGE_LAYOUT:
 				if(pressed)
 					layout_set(hid_usage_id);
+				break;
+			case USB_HID_USAGE_PAGE_TOGGLE_LAYER:
+				if(pressed)
+					toggle_layer(hid_usage_id);
+				break;
+			case USB_HID_USAGE_PAGE_SHIFTED_KEYBOARD_KEYPAD:
+				if(state) {
+					do_shifted_keyboard_keypad_update = true;
+					hid_usage_list_add(
+						hid_usage_list,
+						USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+						hid_usage_id
+					);
+				}
+				break;
 		}
+	}
+}
+
+void shifted_keyboard_keypad_update(struct hid_usage_list_t *hid_usage_list);
+
+void shifted_keyboard_keypad_update(struct hid_usage_list_t *hid_usage_list) {
+	if(
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_CONTROL
+		) ||
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_ALT
+		) ||
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_GUI
+		) ||
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_CONTROL
+		) ||
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_ALT
+		) ||
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_GUI
+		)
+	) {
+		return;
+	}
+	if(
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_SHIFT
+		) ||
+		hid_usage_list_has(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_SHIFT
+		)
+	) {
+		hid_usage_list_remove(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_SHIFT
+		);
+		hid_usage_list_remove(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_RIGHT_SHIFT
+		);
+	} else {
+		hid_usage_list_add(
+			hid_usage_list,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
+			USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_LEFT_SHIFT
+		);
 	}
 }
 
 void keys_populate_hid_usage_list(struct hid_usage_list_t *hid_usage_list) {
 	memset(hid_usage_list, 0, sizeof(struct hid_usage_list_t));
 	sequence_play(hid_usage_list);
+	do_shifted_keyboard_keypad_update = false;
 	keys_scan(key_event_callback, (void *)hid_usage_list);
+	if(do_shifted_keyboard_keypad_update)
+		shifted_keyboard_keypad_update(hid_usage_list);
 }

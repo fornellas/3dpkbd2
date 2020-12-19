@@ -40,7 +40,7 @@ struct display_state {
 
   // Layer toggles
   uint8_t layer_keypad;
-  // uint8_t layer_shift_lock;
+  uint8_t layer_shifted_number;
   uint8_t layer_fn;
 
   // Layout layers
@@ -145,7 +145,7 @@ static void display_draw(void) {
   // Layer Toggles
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
   display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "K", current_state.layer_keypad);
-  // display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "!", current_state.layer_shift_lock);
+  display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "!", current_state.layer_shifted_number);
   display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 50, 195, "Fn", current_state.layer_fn);
 
   // Layout Layers
@@ -181,7 +181,7 @@ static void display_get_current_state(struct display_state *state) {
 
   // Layer toggles
   state->layer_keypad = layers_state[LAYER_KEYPAD];
-  // state->layer_shift_lock = layer_shift_lock;
+  state->layer_shifted_number = layers_state[LAYER_SHIFTED_NUMBER];
   state->layer_fn = layers_state[LAYER_FN];
 
   // Layout layers

@@ -27,8 +27,6 @@ WAITING
 		https://github.com/libopencm3/libopencm3/pull/1225
 	- USB Device issue with NOVBUSSENS
 		https://github.com/libopencm3/libopencm3/issues/1119
-	- Add usbd_is_suspended
-		https://github.com/libopencm3/libopencm3/pull/1224
 	- Fix garbage returned with wrong index
 		https://github.com/libopencm3/libopencm3/pull/1155
 - ucglib

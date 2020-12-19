@@ -4,6 +4,7 @@
 #include "descriptors.h"
 #include <libopencm3/usb/usbstd.h>
 #include <libopencm3/usb/usbd.h>
+#include <stdbool.h>
 
 extern uint8_t hid_protocol;
 extern uint16_t hid_idle_rate_ms_boot;
@@ -22,6 +23,14 @@ struct hid_usage_list_t {
 void hid_set_config_callback(usbd_device *dev);
 void hid_poll(usbd_device *dev);
 uint8_t hid_usage_list_add(
+	struct hid_usage_list_t *hid_usage_list,
+	uint16_t page, uint16_t id
+);
+bool hid_usage_list_has(
+	struct hid_usage_list_t *hid_usage_list,
+	uint16_t page, uint16_t id
+);
+void hid_usage_list_remove(
 	struct hid_usage_list_t *hid_usage_list,
 	uint16_t page, uint16_t id
 );

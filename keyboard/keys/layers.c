@@ -13,6 +13,10 @@ void layout_set(uint16_t layout) {
 		layers_state[layer_idx] = (layer_idx == layout);
 }
 
+void toggle_layer(enum layers layer) {
+	layers_state[layer] = !layers_state[layer];
+}
+
 static uint8_t layout_get(void) {
 	for(uint16_t layer_idx=LAYER_LAYOUT_START ; layer_idx <= LAYER_LAYOUT_END ; layer_idx++)
 		if(layers_state[layer_idx])
@@ -31,6 +35,11 @@ static uint8_t layout_get(void) {
 
 #define KBD(value) { \
 	.page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ ## value \
+}
+
+#define SKBD(value) { \
+	.page=USB_HID_USAGE_PAGE_SHIFTED_KEYBOARD_KEYPAD, \
 	.id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ ## value \
 }
 
@@ -73,6 +82,11 @@ static uint8_t layout_get(void) {
 
 #define LAYOUT(value) { \
 	.page=USB_HID_USAGE_PAGE_LAYOUT, \
+	.id=LAYER_ ## value \
+}
+
+#define TOGGLE_LAYER(value) { \
+	.page=USB_HID_USAGE_PAGE_TOGGLE_LAYER, \
 	.id=LAYER_ ## value \
 }
 
@@ -286,58 +300,6 @@ static void func_keypad(
 	}
 };
 
-static void func_shifted_number(
-	uint8_t,
-	uint8_t,
-	uint8_t,
-	uint8_t,
-	uint8_t,
-	struct hid_usage_list_t *
-);
-
-static void func_shifted_number(
-	uint8_t row,
-	uint8_t column,
-	uint8_t state,
-	uint8_t pressed,
-	uint8_t released,
-	struct hid_usage_list_t *hid_usage_list
-) {
-	(void)row;
-	(void)column;
-	(void)state;
-	(void)pressed;
-	(void)released;
-	(void)hid_usage_list;
-	// TODO
-};
-
-static void func_toggle_shifted_number_layer(
-	uint8_t,
-	uint8_t,
-	uint8_t,
-	uint8_t,
-	uint8_t,
-	struct hid_usage_list_t *
-);
-
-static void func_toggle_shifted_number_layer(
-	uint8_t row,
-	uint8_t column,
-	uint8_t state,
-	uint8_t pressed,
-	uint8_t released,
-	struct hid_usage_list_t *hid_usage_list
-) {
-	(void)row;
-	(void)column;
-	(void)state;
-	(void)pressed;
-	(void)released;
-	(void)hid_usage_list;
-	// TODO
-};
-
 void (* const functions[FUNC_COUNT])(
 	uint8_t,
 	uint8_t,
@@ -351,8 +313,6 @@ void (* const functions[FUNC_COUNT])(
   [FUNC_PASTE] = &func_paste,
   [FUNC_FN] = &func_fn,
   [FUNC_KEYPAD] = &func_keypad,
-  [FUNC_SHIFTED_NUMBER] = &func_shifted_number,
-  [FUNC_TOGGLE_SHIFTED_NUMBER_LAYER] = &func_toggle_shifted_number_layer,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -449,7 +409,6 @@ static struct sequence_step_data seq_alt_4[] = {
 	SEQ_END,
 };
 
-
 const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_DESKTOP_QWERTY] = seq_desktop_qwerty,
   [SEQ_DESKTOP_DVORAK] = seq_desktop_dvorak,
@@ -529,7 +488,7 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		KBD(INSERT),            CSMR(EJECT),               KBD(POWER),                KK(SLEEP), ____, KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), KBD(PAUSE), KPD(NUM_LOCK_AND_CLEAR),
 		CSMR(VOLUME_INCREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
 		                        ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
-		CSMR(VOLUME_DECREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             ____,       FUNC(TOGGLE_SHIFTED_NUMBER_LAYER),
+		CSMR(VOLUME_DECREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             ____,       TOGGLE_LAYER(SHIFTED_NUMBER),
 		                        ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
 		CSMR(MUTE),                                        CSMR(SCAN_PREVIOUS_TRACK),            ____, ____,              ____,             ____,       CSMR(AC_BACK),
 		____,                                              CSMR(SCAN_NEXT_TRACK),                ____, ____,              ____,             ____,       CSMR(AC_FORWARD)
@@ -626,21 +585,21 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	),
 	[LAYER_SHIFTED_NUMBER] = LAYER_KEYMAP(
 		// Left
-		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____,
-		____, FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), ____,
-		____, ____,                 ____,                 ____,                 ____,                 ____,
-		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____,
-		____, ____,                 ____,                 ____,                 ____,                 ____,
-		____, ____,                 ____,                                       ____,                                       ____,
-		____, ____,                 ____,                                       ____,                                       ____,
+		____, ____,                    ____,              ____,                 ____,               ____,                   ____,
+		____, SKBD(1_AND_EXCLAMATION), SKBD(2_AND_AT),    SKBD(3_AND_HASHMARK), SKBD(4_AND_DOLLAR), SKBD(5_AND_PERCENTAGE), SKBD(DELETE_BACKSPACE),
+		____, ____,                    ____,              ____,                 ____,               ____,
+		____, ____,                    ____,              ____,                 ____,               ____,                   ____,
+		____, ____,                    ____,              ____,                 ____,               ____,
+		____, ____,                    ____,                                    ____,                                       ____,
+		____, ____,                    ____,                                    ____,                                       ____,
 		// Right
-		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
-		____, FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), FUNC(SHIFTED_NUMBER), ____, ____, ____,
-		      ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
-		____, ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
-		      ____,                 ____,                 ____,                 ____,                 ____,                 ____, ____, ____,
-		____,                       ____,                                       ____,                 ____,                 ____, ____, ____,
-		____,                       ____,                                       ____,                 ____,                 ____, ____, ____
+		____, ____,              ____,                  ____,                 ____,                            ____,                            ____, ____, ____,
+		____, SKBD(6_AND_CARET), SKBD(7_AND_AMPERSAND), SKBD(8_AND_ASTERISK), SKBD(9_AND_OPENING_PARENTHESIS), SKBD(0_AND_CLOSING_PARENTHESIS), ____, ____, ____,
+		      ____,              ____,                  ____,                 ____,                            ____,                            ____, ____, ____,
+		____, ____,              ____,                  ____,                 ____,                            ____,                            ____, ____, ____,
+		      ____,              ____,                  ____,                 ____,                            ____,                            ____, ____, ____,
+		____,                    ____,                                        ____,                            ____,                            ____, ____, ____,
+		____,                    ____,                                        ____,                            ____,                            ____, ____, ____
 	),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left

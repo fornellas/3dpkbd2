@@ -220,7 +220,6 @@ static enum usbd_request_return_codes hid_class_get_report(
 	uint8_t **buf,
 	uint16_t *len
 ) {
-	struct hid_usage_list_t hid_usage_list;
 	static struct hid_in_report_boot_t new_hid_in_report_boot;
 	static struct hid_in_report_extra_t new_hid_in_report_extra;
 
@@ -728,4 +727,35 @@ uint8_t hid_usage_list_add(
 		}
 	}
 	return 1;
+}
+
+bool hid_usage_list_has(
+	struct hid_usage_list_t *hid_usage_list,
+	uint16_t page, uint16_t id
+) {
+	for(uint8_t i=0 ; i < MAX_HID_USAGE_KEYS ; i++) {
+		if(
+			hid_usage_list->values[i].page == page &&
+			hid_usage_list->values[i].id == id
+		) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void hid_usage_list_remove(
+	struct hid_usage_list_t *hid_usage_list,
+	uint16_t page, uint16_t id
+) {
+	for(uint8_t i=0 ; i < MAX_HID_USAGE_KEYS ; i++) {
+		if(
+			hid_usage_list->values[i].page == page &&
+			hid_usage_list->values[i].id == id
+		) {
+			hid_usage_list->values[i].page = 0;
+			hid_usage_list->values[i].id = 0;
+			return;
+		}
+	}
 }

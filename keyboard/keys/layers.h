@@ -10,8 +10,6 @@ enum function_defs {
   FUNC_PASTE,
   FUNC_FN,
   FUNC_KEYPAD,
-  FUNC_SHIFTED_NUMBER,
-  FUNC_TOGGLE_SHIFTED_NUMBER_LAYER,
   FUNC_COUNT,
 };
 
@@ -65,3 +63,4 @@ extern const uint8_t layers_default_state[LAYER_COUNT];
 extern const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS];
 
 void layout_set(uint16_t layout);
+void toggle_layer(enum layers layer);
