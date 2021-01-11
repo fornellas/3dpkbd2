@@ -472,13 +472,13 @@ const uint8_t layers_default_state[] = {
 const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	[LAYER_FN] = LAYER_KEYMAP(
 		// Left
-		____, LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),
-		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_INCREMENT),
-		____, ____,                  ____,                  ____,                  ____,                  ____,
-		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_DECREMENT),
-		____, ____,                  ____,                  ____,                  ____,                  ____,
-		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 CSMR(MUTE),
-		____, ____,                  ____,                                         ____,                        ____,
+		____,       LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),
+		____,       ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_INCREMENT),
+		____,       ____,                  ____,                  ____,                  ____,                  ____,
+		SEQ(ALT_3), ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_DECREMENT),
+		SEQ(ALT_4), ____,                  ____,                  ____,                  ____,                  ____,
+		____,       FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 CSMR(MUTE),
+		____,       ____,                  ____,                                         ____,                        ____,
 		// Right
 		// FIXME Fn+F7 (power): TypeMatrix sends Monitor page 0x01
 		// FIXME Fn+F8: (sleep): TypeMatrix sends Monitor page 0x02
@@ -488,8 +488,8 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		KBD(INSERT),            CSMR(EJECT),               KBD(POWER),                KK(SLEEP), ____, KBD(PRINT_SCREEN), KBD(SCROLL_LOCK), KBD(PAUSE), KPD(NUM_LOCK_AND_CLEAR),
 		CSMR(VOLUME_INCREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
 		                        ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
-		CSMR(VOLUME_DECREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             ____,       TOGGLE_LAYER(SHIFTED_NUMBER),
-		                        ____,                      ____,                      ____,      ____, ____,              ____,             ____,       ____,
+		CSMR(VOLUME_DECREMENT), ____,                      ____,                      ____,      ____, ____,              ____,             SEQ(ALT_1), TOGGLE_LAYER(SHIFTED_NUMBER),
+		                        ____,                      ____,                      ____,      ____, ____,              ____,             SEQ(ALT_2), ____,
 		CSMR(MUTE),                                        CSMR(SCAN_PREVIOUS_TRACK),            ____, ____,              ____,             ____,       CSMR(AC_BACK),
 		____,                                              CSMR(SCAN_NEXT_TRACK),                ____, ____,              ____,             ____,       CSMR(AC_FORWARD)
 	),
