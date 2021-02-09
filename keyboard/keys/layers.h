@@ -36,8 +36,8 @@ enum sequence_defs {
   SEQ_PASTE_DVORAK,
   SEQ_ALT_1,
   SEQ_ALT_2,
-  SEQ_ALT_3,
-  SEQ_ALT_4,
+  SEQ_SHIFT_ALT_1,
+  SEQ_SHIFT_ALT_2,
   SEQ_COUNT,
 };
 

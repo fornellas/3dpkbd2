@@ -397,15 +397,15 @@ static struct sequence_step_data seq_alt_2[] = {
 	SEQ_END,
 };
 
-static struct sequence_step_data seq_alt_3[] = {
-	SEQ_STEP(1, KBD(LEFT_ALT)),
-	SEQ_STEP(2, KBD(LEFT_ALT), KBD(3_AND_HASHMARK)),
+static struct sequence_step_data seq_shift_alt_1[] = {
+	SEQ_STEP(2, KBD(LEFT_ALT), KBD(LEFT_SHIFT)),
+	SEQ_STEP(3, KBD(LEFT_ALT), KBD(LEFT_SHIFT), KBD(1_AND_EXCLAMATION)),
 	SEQ_END,
 };
 
-static struct sequence_step_data seq_alt_4[] = {
-	SEQ_STEP(1, KBD(LEFT_ALT)),
-	SEQ_STEP(2, KBD(LEFT_ALT), KBD(4_AND_DOLLAR)),
+static struct sequence_step_data seq_shift_alt_2[] = {
+	SEQ_STEP(2, KBD(LEFT_ALT), KBD(LEFT_SHIFT)),
+	SEQ_STEP(3, KBD(LEFT_ALT), KBD(LEFT_SHIFT), KBD(2_AND_AT)),
 	SEQ_END,
 };
 
@@ -423,8 +423,8 @@ const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_PASTE_DVORAK] = seq_paste_dvorak,
   [SEQ_ALT_1] = seq_alt_1,
   [SEQ_ALT_2] = seq_alt_2,
-  [SEQ_ALT_3] = seq_alt_3,
-  [SEQ_ALT_4] = seq_alt_4,
+  [SEQ_SHIFT_ALT_1] = seq_shift_alt_1,
+  [SEQ_SHIFT_ALT_2] = seq_shift_alt_2,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -472,13 +472,13 @@ const uint8_t layers_default_state[] = {
 const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	[LAYER_FN] = LAYER_KEYMAP(
 		// Left
-		____,       LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),
-		____,       ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_INCREMENT),
-		____,       ____,                  ____,                  ____,                  ____,                  ____,
-		SEQ(ALT_3), ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_DECREMENT),
-		SEQ(ALT_4), ____,                  ____,                  ____,                  ____,                  ____,
-		____,       FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 CSMR(MUTE),
-		____,       ____,                  ____,                                         ____,                        ____,
+		____, LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),
+		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_INCREMENT),
+		____, ____,                  ____,                  ____,                  ____,                  ____,
+		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_DECREMENT),
+		____, ____,                  ____,                  ____,                  ____,                  ____,
+		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 CSMR(MUTE),
+		____, ____,                  ____,                                         ____,                        ____,
 		// Right
 		// FIXME Fn+F7 (power): TypeMatrix sends Monitor page 0x01
 		// FIXME Fn+F8: (sleep): TypeMatrix sends Monitor page 0x02
@@ -614,8 +614,8 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		KBD(DELETE_FORWARD),   KBD(F6),          KBD(F7),              KBD(F8),             KBD(F9),                        KBD(F10),                       KBD(F11),         KBD(F12),           FUNC(KEYPAD),
 		KBD(DELETE_BACKSPACE), KBD(6_AND_CARET), KBD(7_AND_AMPERSAND), KBD(8_AND_ASTERISK), KBD(9_AND_OPENING_PARENTHESIS), KBD(0_AND_CLOSING_PARENTHESIS), ____,             ____,               CSMR(AL_CALCULATOR),
 		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             ____,               CSMR(AL_EMAIL_READER),
-		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             SEQ(ALT_3),         KBD(CAPS_LOCK),
-		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             SEQ(ALT_4),         CSMR(AC_HOME),
+		KBD(RETURN_ENTER),     ____,             ____,                 ____,                ____,                           ____,                           ____,             SEQ(SHIFT_ALT_1),   KBD(CAPS_LOCK),
+		                       ____,             ____,                 ____,                ____,                           ____,                           ____,             SEQ(SHIFT_ALT_2),   CSMR(AC_HOME),
 		KBD(SPACEBAR),                           KBD(RIGHT_SHIFT),                          KBD(HOME),                      KBD(UP_ARROW),                  KBD(END),         ____,               KBD(PAGE_UP),
 		KBD(RIGHT_ALT),                          KBD(RIGHT_CONTROL),                        KBD(LEFT_ARROW),                KBD(DOWN_ARROW),                KBD(RIGHT_ARROW), ____,               KBD(PAGE_DOWN)
 	),
