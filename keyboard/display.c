@@ -18,6 +18,7 @@
 static ucg_t *ucg;
 
 static uint32_t last_state_change_ms = 0;
+static bool last_screensaver_enabled = false;
 static bool screensaver_enabled = false;
 
 void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, uint8_t, uint8_t, uint8_t, const char *, uint8_t);
@@ -88,8 +89,11 @@ void display_draw_toggle(
 }
 
 static void draw_screensaver(void) {
-  ucg_ClearScreen(ucg);
-  ucg_SendBuffer(ucg);
+  if(screensaver_enabled && !last_screensaver_enabled) {
+    ucg_ClearScreen(ucg);
+    ucg_SendBuffer(ucg);
+  }
+  last_screensaver_enabled = screensaver_enabled;
 }
 
 static void display_draw(void) {
@@ -229,36 +233,23 @@ void display_update(void) {
   uint32_t latest_event_ms;
   bool state_changed;
 
-  // State changes
+  if((uptime_ms() - last_key_trigger_ms) >= (SCREENSAVER_SECS * 1000))
+    screensaver_enabled = true;
+  else
+    screensaver_enabled = false;
+
   display_get_current_state(&new_state);
   if(memcmp(&current_state, &new_state, sizeof(struct display_state))) {
     memcpy(&last_state, &current_state, sizeof(struct display_state));
     memcpy(&current_state, &new_state, sizeof(struct display_state));
     last_state_change_ms = uptime_ms();
     state_changed = true;
-  } else {
+    screensaver_enabled = false;
+  } else
     state_changed = false;
-  }
 
-  // Screensaver trigger
-  if((uptime_ms() - last_key_trigger_ms) >= (SCREENSAVER_SECS * 1000)){
-    screensaver_enabled = true;
-  } else {
-    if(screensaver_enabled){
-      screensaver_enabled = false;
-      state_changed = true;
-    }
-  }
-
-  // Disable screensaver on state change
-  if(screensaver_enabled) {
-    if((uptime_ms() - last_state_change_ms) < (SCREENSAVER_SECS * 1000))
-      if(screensaver_enabled){
-        screensaver_enabled = false;
-        state_changed = true;
-      }
-  }
-
-  if(state_changed || screensaver_enabled)
+  if(state_changed || (screensaver_enabled != last_screensaver_enabled))
     display_draw();
+
+  last_screensaver_enabled = screensaver_enabled;
 }
