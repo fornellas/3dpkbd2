@@ -71,7 +71,7 @@ void display_draw_toggle(
 ) {
   ucg_int_t str_x, str_y;
 
-  ucg_SetColor(ucg, 0, 255, 255, 255);
+  ucg_SetColor(ucg, 0, 224, 224, 224);
   ucg_DrawBox(ucg, x, y, width, height);
   ucg_SetColor(ucg, 0, r, g, b);
   ucg_DrawFrame(ucg, x, y, width, height);
@@ -85,7 +85,6 @@ void display_draw_toggle(
   str_y = y + (height / 2) + (ucg_GetFontAscent(ucg) / 2);
 
   ucg_DrawString(ucg, str_x, str_y, 0, str);
-
 }
 
 static void draw_screensaver(void) {
@@ -116,11 +115,8 @@ static void display_draw(void) {
   }
 
   // Background
-  ucg_SetColor(ucg, 0, 159, 161, 174); // top left
-  ucg_SetColor(ucg, 1, 120, 122, 137); // top right
-  ucg_SetColor(ucg, 2, 120, 122, 137); // bottom left
-  ucg_SetColor(ucg, 3, 83, 87, 96); // bottom right
-  ucg_DrawGradientBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
+  ucg_SetColor(ucg, 0, 255, 255, 255);
+  ucg_DrawBox(ucg, 0, 0, ucg_GetWidth(ucg), ucg_GetHeight(ucg));
 
   // Logo
   ucg_DrawPixmap(ucg, 2, 2, print_head_width, print_head_height, print_head_data);
@@ -150,12 +146,12 @@ static void display_draw(void) {
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
   display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "K", current_state.layer_keypad);
   display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "!", current_state.layer_shifted_number);
-  display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 50, 195, "Fn", current_state.layer_fn);
+  display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 128, 255, "Fn", current_state.layer_fn);
 
   // Layout Layers
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
   display_draw_toggle(28, 43, 72, TOGGLE_HEIGHT, 0, 0, 0, current_state.layer_keyboard, 1);
-  display_draw_toggle(28, 65, 72, TOGGLE_HEIGHT, 128, 128, 128, current_state.layer_computer, 0);
+  display_draw_toggle(28, 65, 72, TOGGLE_HEIGHT, 64, 64, 64, current_state.layer_computer, 0);
 
   // Counter
   // TODO
