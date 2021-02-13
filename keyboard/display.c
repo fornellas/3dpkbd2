@@ -224,15 +224,12 @@ void display_setup(void) {
   ucg_SetFontMode(ucg, UCG_FONT_MODE_TRANSPARENT);
 }
 
+#define MAX(h,i) ((h) > (i) ? (h) : (i))
+
 void display_update(void) {
   struct display_state new_state;
   uint32_t latest_event_ms;
   bool state_changed;
-
-  if((uptime_ms() - last_key_trigger_ms) >= (SCREENSAVER_SECS * 1000))
-    screensaver_enabled = true;
-  else
-    screensaver_enabled = false;
 
   display_get_current_state(&new_state);
   if(memcmp(&current_state, &new_state, sizeof(struct display_state))) {
@@ -240,11 +237,15 @@ void display_update(void) {
     memcpy(&current_state, &new_state, sizeof(struct display_state));
     last_state_change_ms = uptime_ms();
     state_changed = true;
-    screensaver_enabled = false;
   } else
     state_changed = false;
 
-  if(state_changed || (screensaver_enabled != last_screensaver_enabled))
+  if((uptime_ms() - MAX(last_state_change_ms, last_key_trigger_ms)) >= (SCREENSAVER_SECS * 1000))
+    screensaver_enabled = true;
+  else
+    screensaver_enabled = false;
+
+  if(state_changed || screensaver_enabled)
     display_draw();
 
   last_screensaver_enabled = screensaver_enabled;
