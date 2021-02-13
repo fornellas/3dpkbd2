@@ -19,6 +19,70 @@ uint8_t keys_scan_right_side_disconnected;
 uint32_t last_key_trigger_ms = 0;
 
 //
+// Helpers
+//
+
+void debounce(
+	bool read_state,
+	uint8_t row,
+	uint8_t column,
+	bool *state,
+	bool *pressed,
+	bool *released,
+	uint32_t now
+);
+
+void debounce(
+	bool read_state,
+	uint8_t row,
+	uint8_t column,
+	bool *state,
+	bool *pressed,
+	bool *released,
+	uint32_t now
+) {
+	// Before
+	if(read_state == previous_key_state[row][column]) {
+		*state = previous_key_state[row][column];
+		*pressed = false;
+		*released = false;
+	} else {
+		// Leading Edge
+		if(edge_start_ms[row][column] == 0) {
+			if(previous_key_state[row][column]) {
+				*pressed = false;
+				*released = true;
+			} else {
+				*pressed = true;
+				*released = false;
+			}
+			*state = read_state;
+			previous_key_state[row][column] = read_state;
+			edge_start_ms[row][column] = now;
+		} else {
+			// Debounce
+			if(now - edge_start_ms[row][column] < DEBOUNCE_MS) {
+				*state = previous_key_state[row][column];
+				*pressed = false;
+				*released = false;
+			// Tailing Edge
+			} else {
+				if(previous_key_state[row][column]) {
+					*pressed = false;
+					*released = true;
+				} else {
+					*pressed = true;
+					*released = false;
+				}
+				*state = read_state;
+				previous_key_state[row][column] = read_state;
+				edge_start_ms[row][column] = 0;
+			}
+		}
+	}
+}
+
+//
 // setup
 //
 
@@ -198,7 +262,6 @@ static void set_left_row_level(uint8_t row, uint8_t level) {
 	}
 }
 
-
 static uint16_t get_left_column(uint8_t column) {
 	switch (column) {
 	case 0:
@@ -219,7 +282,6 @@ static uint16_t get_left_column(uint8_t column) {
 	return 0;
 }
 
-
 static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, void *), void *data) {
 	uint32_t now;
 
@@ -227,9 +289,9 @@ static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, 
 
 	for (uint8_t row = 0; row < ROWS ; row++) {
 		uint8_t any_state_active;
-		uint8_t state;
-		uint8_t pressed;
-		uint8_t released;
+		bool state;
+		bool pressed;
+		bool released;
 
 		any_state_active = 0;
 		set_left_row_level(row, 1);
@@ -238,37 +300,7 @@ static void keys_scan_left(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t, 
 
 			read_state = get_left_column(column);
 
-			if(read_state == previous_key_state[row][column]) {
-				state = previous_key_state[row][column];
-				pressed = 0;
-				released = 0;
-				if(now - edge_start_ms[row][column] >= DEBOUNCE_MS)
-					edge_start_ms[row][column] = 0;
-			} else {
-				if(edge_start_ms[row][column] == 0) {
-					edge_start_ms[row][column] = now;
-					state = previous_key_state[row][column];
-					pressed = 0;
-					released = 0;
-				} else {
-					if(now - edge_start_ms[row][column] < DEBOUNCE_MS) {
-						state = previous_key_state[row][column];
-						pressed = 0;
-						released = 0;
-					} else {
-						state = read_state;
-						if(previous_key_state[row][column]) {
-							pressed = 0;
-							released = 1;
-						} else {
-							pressed = 1;
-							released = 0;
-						}
-						previous_key_state[row][column] = read_state;
-						edge_start_ms[row][column] = 0;
-					}
-				}
-			}
+			debounce(read_state, row, column, &state, &pressed, &released, now);
 
 			if(state || pressed || released) {
 				last_key_trigger_ms = now;
@@ -348,9 +380,9 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 	}
 
 	for (uint8_t column = LEFT_COLUMNS; column < COLUMNS ; column++) {
-		uint8_t state;
-		uint8_t pressed;
-		uint8_t released;
+		bool state;
+		bool pressed;
+		bool released;
         uint8_t rows_state;
 
 
@@ -365,37 +397,7 @@ static void keys_scan_right(void (*callback)(uint8_t, uint8_t, uint8_t, uint8_t,
 
 			read_state = !(rows_state & (1 << row));
 
-			if(read_state == previous_key_state[row][column]) {
-				state = previous_key_state[row][column];
-				pressed = 0;
-				released = 0;
-				if(now - edge_start_ms[row][column] >= DEBOUNCE_MS)
-					edge_start_ms[row][column] = 0;
-			} else {
-				if(edge_start_ms[row][column] == 0) {
-					edge_start_ms[row][column] = now;
-					state = previous_key_state[row][column];
-					pressed = 0;
-					released = 0;
-				} else {
-					if(now - edge_start_ms[row][column] < DEBOUNCE_MS) {
-						state = previous_key_state[row][column];
-						pressed = 0;
-						released = 0;
-					} else {
-						state = read_state;
-						if(previous_key_state[row][column]) {
-							pressed = 0;
-							released = 1;
-						} else {
-							pressed = 1;
-							released = 0;
-						}
-						previous_key_state[row][column] = read_state;
-						edge_start_ms[row][column] = 0;
-					}
-				}
-			}
+			debounce(read_state, row, column, &state, &pressed, &released, now);
 
 			if(state || pressed || released) {
 				last_key_trigger_ms = now;
