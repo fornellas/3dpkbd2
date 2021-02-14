@@ -17,10 +17,6 @@
 
 static ucg_t *ucg;
 
-static uint32_t last_state_change_ms = 0;
-static bool last_screensaver_enabled = false;
-static bool screensaver_enabled = false;
-
 void display_draw_toggle(ucg_int_t, ucg_int_t, ucg_int_t, ucg_int_t, uint8_t, uint8_t, uint8_t, const char *, uint8_t);
 
 struct display_state {
@@ -87,21 +83,13 @@ void display_draw_toggle(
   ucg_DrawString(ucg, str_x, str_y, 0, str);
 }
 
-static void draw_screensaver(void) {
-  if(screensaver_enabled && !last_screensaver_enabled) {
-    ucg_ClearScreen(ucg);
-    ucg_SendBuffer(ucg);
-  }
-  last_screensaver_enabled = screensaver_enabled;
+static void display_screensaver(void) {
+  ucg_ClearScreen(ucg);
+  ucg_SendBuffer(ucg);
 }
 
 static void display_draw(void) {
   char buff[30];
-
-  if(screensaver_enabled) {
-    draw_screensaver();
-    return;
-  }
 
   // USB
   if(!(current_state.usbd_state == USBD_STATE_CONFIGURED && !current_state.usbd_suspended)) {
@@ -224,29 +212,29 @@ void display_setup(void) {
   ucg_SetFontMode(ucg, UCG_FONT_MODE_TRANSPARENT);
 }
 
-#define MAX(h,i) ((h) > (i) ? (h) : (i))
-
 void display_update(void) {
   struct display_state new_state;
-  uint32_t latest_event_ms;
-  bool state_changed;
+  static uint32_t last_state_change_ms = 0;
+  static bool last_screensaver_enabled;
 
   display_get_current_state(&new_state);
   if(memcmp(&current_state, &new_state, sizeof(struct display_state))) {
     memcpy(&last_state, &current_state, sizeof(struct display_state));
     memcpy(&current_state, &new_state, sizeof(struct display_state));
     last_state_change_ms = uptime_ms();
-    state_changed = true;
-  } else
-    state_changed = false;
-
-  if((uptime_ms() - MAX(last_state_change_ms, last_key_trigger_ms)) >= (SCREENSAVER_SECS * 1000))
-    screensaver_enabled = true;
-  else
-    screensaver_enabled = false;
-
-  if(state_changed || screensaver_enabled)
     display_draw();
+    return;
+  }
 
-  last_screensaver_enabled = screensaver_enabled;
+  if(
+    (uptime_ms() - last_key_trigger_ms) < (SCREENSAVER_SECS * 1000) ||
+    (uptime_ms() - last_state_change_ms) < (SCREENSAVER_SECS * 1000)
+  ){
+    if(last_screensaver_enabled)
+      display_draw();
+    last_screensaver_enabled = false;
+  } else {
+    display_screensaver();
+    last_screensaver_enabled = true;
+  }
 }
