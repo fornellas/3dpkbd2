@@ -74,7 +74,7 @@ openocd_program: ${PROJECT}.bin $(LDSCRIPT) max_program_size
 .PHONY: openocd_program
 
 gdb: $(PROJECT).elf
-	$(Q)$(GDB) --init-command=lib/gdb.init $(PROJECT).elf
+	$(Q)$(GDB) --command=lib/gdb.init $(PROJECT).elf
 
 .PHONY: gdb
 
