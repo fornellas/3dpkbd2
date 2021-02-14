@@ -30,7 +30,7 @@ OOCD_TARGET= stm32f4x
 GDB = arm-none-eabi-gdb
 
 OPT += \
-	-O3 \
+	-O2 \
 	-Wall \
 	-Wextra \
 	-Wimplicit-function-declaration \
