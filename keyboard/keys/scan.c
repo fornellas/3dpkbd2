@@ -10,8 +10,12 @@
 #include "lib/mcp23017.h"
 #include "lib/systick.h"
 
-// From Cherry MX datasheet
-#define DEBOUNCE_MS 5
+// Cherry MX datasheet states 5ms, though experimentation has shown that 5ms
+// can yield to multiple key presses. As it is close to impossible to press a key
+// more than 10 times a second, setting this to a conservative 100ms is enough
+// to avoid ghost key presses without impacting intentional key presses
+// (no matter how fast they are).
+#define DEBOUNCE_MS 100
 
 static uint8_t previous_key_state[ROWS][COLUMNS] = {};
 static uint32_t edge_start_ms[ROWS][COLUMNS] = {};
