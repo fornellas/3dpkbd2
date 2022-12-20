@@ -38,6 +38,15 @@ void keys_reset() {
 	sequence_reset();
 }
 
+uint16_t get_byte_hid_id(uint8_t v);
+
+uint16_t get_byte_hid_id(uint8_t v) {
+	if(v)
+		return USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_1_AND_EXCLAMATION -1 + v;
+	else
+		return USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_0_AND_CLOSING_PARENTHESIS;
+}
+
 static void key_event_callback(
 	uint8_t row,
 	uint8_t column,
@@ -102,6 +111,20 @@ static void key_event_callback(
 						USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD,
 						hid_usage_id
 					);
+				}
+				break;
+			case USB_HID_USAGE_PAGE_UNICODE:
+				if(pressed) {
+					// ISO 14755 input
+					struct sequence_step_data seq[] = {
+						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBD(U)),
+						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF000000)>>24))),
+						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF0000)>>16))),
+						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF00)>>8))),
+						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF)>>0))),
+						SEQ_END,
+					};
+					sequence_register(seq);
 				}
 				break;
 		}

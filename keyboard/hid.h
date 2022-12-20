@@ -13,7 +13,7 @@ extern hid_out_report_boot_t hid_led_report;
 
 struct hid_usage_t {
 	uint16_t page;
-	uint16_t id;
+	uint32_t id;
 } __attribute__((packed));
 
 struct hid_usage_list_t {

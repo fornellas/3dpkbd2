@@ -64,3 +64,77 @@ extern const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS];
 
 void layout_set(uint16_t layout);
 void toggle_layer(enum layers layer);
+
+#define KK(value) { \
+  .page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+  .id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_ ## value \
+}
+
+#define KBD(value) { \
+  .page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+  .id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ ## value \
+}
+
+#define KBDID(value) { \
+  .page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+  .id=value \
+}
+
+#define SKBD(value) { \
+  .page=USB_HID_USAGE_PAGE_SHIFTED_KEYBOARD_KEYPAD, \
+  .id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYBOARD_ ## value \
+}
+
+#define U(value) { \
+  .page=USB_HID_USAGE_PAGE_UNICODE, \
+  .id=value \
+}
+
+#define KPD(value) { \
+  .page=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD, \
+  .id=USB_HID_USAGE_PAGE_KEYBOARD_KEYPAD_KEYPAD_ ## value \
+}
+
+#define CSMR(value) { \
+  .page=USB_HID_USAGE_PAGE_CONSUMER, \
+  .id=USB_HID_USAGE_PAGE_CONSUMER_ ## value \
+}
+
+#define NONE { \
+  .page=USB_HID_USAGE_PAGE_NONE, \
+  .id=0 \
+}
+
+#define ____ { \
+  .page=USB_HID_USAGE_PAGE_NEXT_LAYER, \
+  .id=0 \
+}
+
+#define FUNC(value) { \
+  .page=USB_HID_USAGE_PAGE_FUNCTION, \
+  .id=FUNC_ ## value \
+}
+
+#define SEQ(value) { \
+  .page=USB_HID_USAGE_PAGE_SEQUENCE, \
+  .id=SEQ_ ## value \
+}
+
+#define SEQ_STEP(c, ...) { \
+  .count = c, \
+  .hid_usage = &(struct hid_usage_t[]) { \
+    __VA_ARGS__ \
+  }, \
+}
+
+#define LAYOUT(value) { \
+  .page=USB_HID_USAGE_PAGE_LAYOUT, \
+  .id=LAYER_ ## value \
+}
+
+#define TOGGLE_LAYER(value) { \
+  .page=USB_HID_USAGE_PAGE_TOGGLE_LAYER, \
+  .id=LAYER_ ## value \
+}
+
+#define SEQ_END SEQ_STEP(0)
