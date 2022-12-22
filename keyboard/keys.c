@@ -118,10 +118,11 @@ static void key_event_callback(
 					// ISO 14755 input
 					struct sequence_step_data seq[] = {
 						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBD(U)),
-						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF000000)>>24))),
-						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF0000)>>16))),
-						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF00)>>8))),
-						SEQ_STEP(3, KBD(LEFT_CONTROL), KBD(LEFT_SHIFT), KBDID(get_byte_hid_id((hid_usage_id&0xFF)>>0))),
+						SEQ_STEP(1, KBDID(get_byte_hid_id((hid_usage_id&0xFF000000)>>24))),
+						SEQ_STEP(1, KBDID(get_byte_hid_id((hid_usage_id&0xFF0000)>>16))),
+						SEQ_STEP(1, KBDID(get_byte_hid_id((hid_usage_id&0xFF00)>>8))),
+						SEQ_STEP(1, KBDID(get_byte_hid_id((hid_usage_id&0xFF)>>0))),
+						SEQ_STEP(1, KBD(SPACEBAR)),
 						SEQ_END,
 					};
 					sequence_register(seq);
