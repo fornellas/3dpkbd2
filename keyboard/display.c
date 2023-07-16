@@ -39,6 +39,7 @@ struct display_state {
   uint8_t layer_keypad;
   uint8_t layer_shifted_number;
   uint8_t layer_fn;
+  uint8_t layer_mac;
 
   // Layout layers
   char * layer_keyboard;
@@ -135,6 +136,7 @@ static void display_draw(void) {
   display_draw_toggle(102, 2, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "K", current_state.layer_keypad);
   display_draw_toggle(102, 65, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "!", current_state.layer_shifted_number);
   display_draw_toggle(2, 106, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 128, 255, "Fn", current_state.layer_fn);
+  display_draw_toggle(2, 43, TOGGLE_WIDTH, TOGGLE_HEIGHT, 0, 0, 0, "M", current_state.layer_mac);
 
   // Layout Layers
   ucg_SetFont(ucg, ucg_font_helvB12_hf);
@@ -171,6 +173,7 @@ static void display_get_current_state(struct display_state *state) {
   state->layer_keypad = layers_state[LAYER_KEYPAD];
   state->layer_shifted_number = layers_state[LAYER_SHIFTED_NUMBER];
   state->layer_fn = layers_state[LAYER_FN];
+  state->layer_mac = layers_state[LAYER_MAC];
 
   // Layout layers
   if(layers_state[LAYER_QWERTY_QWERTY]) {

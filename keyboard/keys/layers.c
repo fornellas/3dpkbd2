@@ -123,11 +123,17 @@ static void func_cut(
 		switch(layout_get()) {
 			case LAYER_QWERTY_QWERTY:
 			case LAYER_QWERTY_DVORAK:
-				sequence_register(sequences[SEQ_CUT_QWERTY]);
+				if(layers_state[LAYER_MAC])
+					sequence_register(sequences[SEQ_CUT_QWERTY_MAC]);
+				else
+					sequence_register(sequences[SEQ_CUT_QWERTY]);
 				break;
 			case LAYER_DVORAK_DVORAK:
 			case LAYER_DVORAK_QWERTY:
-				sequence_register(sequences[SEQ_CUT_DVORAK]);
+				if(layers_state[LAYER_MAC])
+					sequence_register(sequences[SEQ_CUT_DVORAK_MAC]);
+				else
+					sequence_register(sequences[SEQ_CUT_DVORAK]);
 				break;
 		}
 	}
@@ -160,11 +166,17 @@ static void func_copy(
 		switch(layout_get()) {
 			case LAYER_QWERTY_QWERTY:
 			case LAYER_QWERTY_DVORAK:
-				sequence_register(sequences[SEQ_COPY_QWERTY]);
+				if(layers_state[LAYER_MAC])
+					sequence_register(sequences[SEQ_COPY_QWERTY_MAC]);
+				else
+					sequence_register(sequences[SEQ_COPY_QWERTY]);
 				break;
 			case LAYER_DVORAK_DVORAK:
 			case LAYER_DVORAK_QWERTY:
-				sequence_register(sequences[SEQ_COPY_DVORAK]);
+				if(layers_state[LAYER_MAC])
+					sequence_register(sequences[SEQ_COPY_DVORAK_MAC]);
+				else
+					sequence_register(sequences[SEQ_COPY_DVORAK]);
 				break;
 		}
 	}
@@ -197,11 +209,17 @@ static void func_paste(
 		switch(layout_get()) {
 			case LAYER_QWERTY_QWERTY:
 			case LAYER_QWERTY_DVORAK:
-				sequence_register(sequences[SEQ_PASTE_QWERTY]);
+				if(layers_state[LAYER_MAC])
+					sequence_register(sequences[SEQ_PASTE_QWERTY_MAC]);
+				else
+					sequence_register(sequences[SEQ_PASTE_QWERTY]);
 				break;
 			case LAYER_DVORAK_DVORAK:
 			case LAYER_DVORAK_QWERTY:
-				sequence_register(sequences[SEQ_PASTE_DVORAK]);
+				if(layers_state[LAYER_MAC])
+					sequence_register(sequences[SEQ_PASTE_DVORAK_MAC]);
+				else
+					sequence_register(sequences[SEQ_PASTE_DVORAK]);
 				break;
 		}
 	}
@@ -337,6 +355,12 @@ static struct sequence_step_data seq_shuffle[] = {
 	SEQ_END,
 };
 
+static struct sequence_step_data seq_shuffle_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(TAB)),
+	SEQ_END,
+};
+
 static struct sequence_step_data seq_00[] = {
 	SEQ_STEP(1, KBD(0_AND_CLOSING_PARENTHESIS)),
 	SEQ_STEP(1, KBD(0_AND_CLOSING_PARENTHESIS)),
@@ -355,9 +379,21 @@ static struct sequence_step_data seq_cut_qwerty[] = {
 	SEQ_END,
 };
 
+static struct sequence_step_data seq_cut_qwerty_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(X)),
+	SEQ_END,
+};
+
 static struct sequence_step_data seq_cut_dvorak[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
 	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(B)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_cut_dvorak_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(B)),
 	SEQ_END,
 };
 
@@ -367,9 +403,21 @@ static struct sequence_step_data seq_copy_qwerty[] = {
 	SEQ_END,
 };
 
+static struct sequence_step_data seq_copy_qwerty_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(C)),
+	SEQ_END,
+};
+
 static struct sequence_step_data seq_copy_dvorak[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
 	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(I)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_copy_dvorak_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(I)),
 	SEQ_END,
 };
 
@@ -379,9 +427,21 @@ static struct sequence_step_data seq_paste_qwerty[] = {
 	SEQ_END,
 };
 
+static struct sequence_step_data seq_paste_qwerty_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(V)),
+	SEQ_END,
+};
+
 static struct sequence_step_data seq_paste_dvorak[] = {
 	SEQ_STEP(1, KBD(LEFT_CONTROL)),
 	SEQ_STEP(2, KBD(LEFT_CONTROL), KBD(DOT_AND_GREATER_THAN_SIGN)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_paste_dvorak_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(DOT_AND_GREATER_THAN_SIGN)),
 	SEQ_END,
 };
 
@@ -409,22 +469,43 @@ static struct sequence_step_data seq_shift_alt_2[] = {
 	SEQ_END,
 };
 
+static struct sequence_step_data seq_home_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(LEFT_ARROW)),
+	SEQ_END,
+};
+
+static struct sequence_step_data seq_end_mac[] = {
+	SEQ_STEP(1, KBD(LEFT_GUI)),
+	SEQ_STEP(2, KBD(LEFT_GUI), KBD(RIGHT_ARROW)),
+	SEQ_END,
+};
+
 const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_DESKTOP_QWERTY] = seq_desktop_qwerty,
   [SEQ_DESKTOP_DVORAK] = seq_desktop_dvorak,
   [SEQ_SHUFFLE] = seq_shuffle,
+  [SEQ_SHUFFLE_MAC] = seq_shuffle_mac,
   [SEQ_00] = seq_00,
   [SEQ_B_TAB] = seq_b_tab,
   [SEQ_CUT_QWERTY] = seq_cut_qwerty,
+  [SEQ_CUT_QWERTY_MAC] = seq_cut_qwerty_mac,
   [SEQ_CUT_DVORAK] = seq_cut_dvorak,
+  [SEQ_CUT_DVORAK_MAC] = seq_cut_dvorak_mac,
   [SEQ_COPY_QWERTY] = seq_copy_qwerty,
+  [SEQ_COPY_QWERTY_MAC] = seq_copy_qwerty_mac,
   [SEQ_COPY_DVORAK] = seq_copy_dvorak,
+  [SEQ_COPY_DVORAK_MAC] = seq_copy_dvorak_mac,
   [SEQ_PASTE_QWERTY] = seq_paste_qwerty,
+  [SEQ_PASTE_QWERTY_MAC] = seq_paste_qwerty_mac,
   [SEQ_PASTE_DVORAK] = seq_paste_dvorak,
+  [SEQ_PASTE_DVORAK_MAC] = seq_paste_dvorak_mac,
   [SEQ_ALT_1] = seq_alt_1,
   [SEQ_ALT_2] = seq_alt_2,
   [SEQ_SHIFT_ALT_1] = seq_shift_alt_1,
   [SEQ_SHIFT_ALT_2] = seq_shift_alt_2,
+  [SEQ_HOME_MAC] = seq_home_mac,
+  [SEQ_END_MAC] = seq_end_mac,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -439,6 +520,7 @@ const uint8_t layers_default_state[] = {
 	[LAYER_DVORAK_DVORAK] = KEYS_LAYER_STATE_LOAD,
 	[LAYER_DVORAK_QWERTY] = KEYS_LAYER_STATE_LOAD,
 	[LAYER_SHIFTED_NUMBER] = KEYS_LAYER_STATE_DISABLED,
+	[LAYER_MAC] = KEYS_LAYER_STATE_DISABLED,
 	[LAYER_COMMON] = KEYS_LAYER_STATE_ENABLED,
 };
 
@@ -472,13 +554,13 @@ const uint8_t layers_default_state[] = {
 const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 	[LAYER_FN] = LAYER_KEYMAP(
 		// Left
-		____, LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), ____, KBD(INSERT),
-		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_INCREMENT),
+		____, LAYOUT(QWERTY_QWERTY), LAYOUT(QWERTY_DVORAK), LAYOUT(DVORAK_DVORAK), LAYOUT(DVORAK_QWERTY), TOGGLE_LAYER(MAC), KBD(INSERT),
+		____, ____,                  ____,                  ____,                  ____,                  ____,              CSMR(VOLUME_INCREMENT),
 		____, ____,                  ____,                  ____,                  ____,                  ____,
-		____, ____,                  ____,                  ____,                  ____,                  ____, CSMR(VOLUME_DECREMENT),
+		____, ____,                  ____,                  ____,                  ____,                  ____,              CSMR(VOLUME_DECREMENT),
 		____, ____,                  ____,                  ____,                  ____,                  ____,
-		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                 CSMR(MUTE),
-		____, ____,                  ____,                                         ____,                        ____,
+		____, FUNC(CUT),             FUNC(COPY),                                   FUNC(PASTE),                              CSMR(MUTE),
+		____, ____,                  ____,                                         ____,                                     ____,
 		// Right
 		// FIXME Fn+F7 (power): TypeMatrix sends Monitor page 0x01
 		// FIXME Fn+F8: (sleep): TypeMatrix sends Monitor page 0x02
@@ -600,6 +682,24 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		      ____,              ____,                  ____,                 ____,                            ____,                            ____, ____, ____,
 		____,                    ____,                                        ____,                            ____,                            ____, ____, ____,
 		____,                    ____,                                        ____,                            ____,                            ____, ____, ____
+	),
+	[LAYER_MAC] = LAYER_KEYMAP(
+		// Left
+		____, ____,              ____,             ____, ____,          ____, ____,
+		____, ____,              ____,             ____, ____,          ____, ____,
+		____, ____,              ____,             ____, ____,          ____,
+		____, ____,              ____,             ____, ____,          ____, ____,
+		____, ____,              ____,             ____, ____,          ____,
+		____, ____,              SEQ(SHUFFLE_MAC),         ____,                ____,
+		____, KBD(LEFT_CONTROL), ____,                   KBD(LEFT_GUI),       ____,
+		// Right
+		____, ____, ____,           ____, ____,          ____, ____,         ____, ____,
+		____, ____, ____,           ____, ____,          ____, ____,         ____, ____,
+		      ____, ____,           ____, ____,          ____, ____,         ____, ____,
+		____, ____, ____,           ____, ____,          ____, ____,         ____, ____,
+		      ____, ____,           ____, ____,          ____, ____,         ____, ____,
+		____,       ____,                 SEQ(HOME_MAC), ____, SEQ(END_MAC), ____, ____,
+		____,       KBD(RIGHT_GUI),       ____,          ____, ____,         ____, ____
 	),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
