@@ -27,7 +27,7 @@ FLASH_SIZE_KB = 512
 OOCD_INTERFACE = stlink-v2
 OOCD_TARGET= stm32f4x
 
-GDB = arm-none-eabi-gdb
+GDB = gdb-multiarch
 
 OPT += \
 	-O2 \
