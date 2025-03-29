@@ -26,7 +26,7 @@ static void setup_peripheral(void) {
 
 	i2c_peripheral_disable(I2C);
 
-	i2c_reset(I2C);
+	rcc_periph_reset_pulse(RST_I2C);
 
 	i2c_set_speed(I2C, i2c_speed_fm_400k, rcc_apb1_frequency / 1e6);
 
