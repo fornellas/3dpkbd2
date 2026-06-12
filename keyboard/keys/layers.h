@@ -45,8 +45,6 @@ enum sequence_defs {
   SEQ_ALT_2,
   SEQ_SHIFT_ALT_1,
   SEQ_SHIFT_ALT_2,
-  SEQ_HOME_MAC,
-  SEQ_END_MAC,
   SEQ_COUNT,
 };
 

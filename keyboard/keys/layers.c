@@ -469,18 +469,6 @@ static struct sequence_step_data seq_shift_alt_2[] = {
 	SEQ_END,
 };
 
-static struct sequence_step_data seq_home_mac[] = {
-	SEQ_STEP(1, KBD(LEFT_GUI)),
-	SEQ_STEP(2, KBD(LEFT_GUI), KBD(LEFT_ARROW)),
-	SEQ_END,
-};
-
-static struct sequence_step_data seq_end_mac[] = {
-	SEQ_STEP(1, KBD(LEFT_GUI)),
-	SEQ_STEP(2, KBD(LEFT_GUI), KBD(RIGHT_ARROW)),
-	SEQ_END,
-};
-
 const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_DESKTOP_QWERTY] = seq_desktop_qwerty,
   [SEQ_DESKTOP_DVORAK] = seq_desktop_dvorak,
@@ -504,8 +492,6 @@ const struct sequence_step_data *sequences[SEQ_COUNT] = {
   [SEQ_ALT_2] = seq_alt_2,
   [SEQ_SHIFT_ALT_1] = seq_shift_alt_1,
   [SEQ_SHIFT_ALT_2] = seq_shift_alt_2,
-  [SEQ_HOME_MAC] = seq_home_mac,
-  [SEQ_END_MAC] = seq_end_mac,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -693,13 +679,13 @@ const struct hid_usage_t layers_keymap[LAYER_COUNT][ROWS][COLUMNS] = {
 		____, ____,              SEQ(SHUFFLE_MAC),         ____,                ____,
 		____, KBD(LEFT_CONTROL), ____,                   KBD(LEFT_GUI),       ____,
 		// Right
-		____, ____, ____,           ____, ____,          ____, ____,         ____, ____,
-		____, ____, ____,           ____, ____,          ____, ____,         ____, ____,
-		      ____, ____,           ____, ____,          ____, ____,         ____, ____,
-		____, ____, ____,           ____, ____,          ____, ____,         ____, ____,
-		      ____, ____,           ____, ____,          ____, ____,         ____, ____,
-		____,       ____,                 SEQ(HOME_MAC), ____, SEQ(END_MAC), ____, ____,
-		____,       KBD(RIGHT_GUI),       ____,          ____, ____,         ____, ____
+		____, ____, ____,           ____, ____, ____, ____, ____, ____,
+		____, ____, ____,           ____, ____, ____, ____, ____, ____,
+		      ____, ____,           ____, ____, ____, ____, ____, ____,
+		____, ____, ____,           ____, ____, ____, ____, ____, ____,
+		      ____, ____,           ____, ____, ____, ____, ____, ____,
+		____,       ____,                 ____, ____, ____, ____, ____,
+		____,       KBD(RIGHT_GUI),       ____, ____, ____, ____, ____
 	),
 	[LAYER_COMMON] = LAYER_KEYMAP(
 		// Left
