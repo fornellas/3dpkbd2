@@ -30,7 +30,7 @@ OOCD_TARGET= stm32f4x
 GDB = gdb-multiarch
 
 OPT += \
-	-O2 \
+	-O0 \
 	-Wall \
 	-Wextra \
 	-Wimplicit-function-declaration \

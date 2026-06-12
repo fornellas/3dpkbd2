@@ -6,6 +6,7 @@
 #include <string.h>
 #include "keys.h"
 #include <libopencm3/usb/hid_usage_tables.h>
+#include "keys/layers.h"
 
 //
 // Variables
@@ -311,6 +312,14 @@ static enum usbd_request_return_codes hid_class_set_idle(
 		case HID_INTERFACE_NUMBER_BOOT:
 			if(report_id == 0) {
 				hid_idle_rate_ms_boot = duration_ms;
+
+				// Mac seems to always set idle rate, so we use it to detect whether we're connected to it
+				if(hid_idle_rate_ms_boot) {
+					layers_state[LAYER_MAC] = 1;
+				} else {
+					layers_state[LAYER_MAC] = 0;
+				}
+
 				idle_finish_ms_boot = uptime_ms() + hid_idle_rate_ms_boot;
 				return USBD_REQ_HANDLED;
 			}
@@ -461,14 +470,14 @@ static enum usbd_request_return_codes hid_class_specific_request(
 static void hid_endpoint_interrupt_in_transfer_complete_boot(usbd_device *usbd_dev, uint8_t ep) {
 	(void)usbd_dev;
 	(void)ep;
-	
+
 	hid_report_transmitting_boot = 0;
 }
 
 static void hid_endpoint_interrupt_in_transfer_complete_extra(usbd_device *usbd_dev, uint8_t ep) {
 	(void)usbd_dev;
 	(void)ep;
-	
+
 	hid_report_transmitting_extra = 0;
 }
 
